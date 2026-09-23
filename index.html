@@ -1301,9 +1301,28 @@
       color: #c2410c;
     }
 
+    .delta-pain {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .delta-warning {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .delta-neutral {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
     .delta-stable {
-      background: #d1fae5;
-      color: #065f46;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-outer);
     }
 
     /* Export Action Buttons Section */
@@ -1635,8 +1654,8 @@
                   <span class="layer-name-tag">
                     <span class="layer-color-dot" style="background:#f5cf64;"></span> Subcutaneous Fat
                   </span>
-                  <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.02" value="0.85" oninput="updateLayerOpacity('fat', this.value)">
-                  <span class="layer-pct" id="pct-fat">85%</span>
+                  <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.02" value="1.0" oninput="updateLayerOpacity('fat', this.value)">
+                  <span class="layer-pct" id="pct-fat">100%</span>
                 </div>
 
                 <!-- Muscle -->
@@ -1669,6 +1688,7 @@
                 <!-- Quick Presets -->
                 <div class="quick-preset-chips" style="margin-top:4px;">
                   <button class="mini-preset-chip active" data-preset="skin" onclick="applyAnatPreset('skin')">Skin</button>
+                  <button class="mini-preset-chip" data-preset="right_pain" onclick="applyAnatPreset('right_pain')" style="border-color:#f87171; color:#b91c1c; font-weight:800; background:#fef2f2;">🎯 Right Pain Focus</button>
                   <button class="mini-preset-chip" data-preset="fat" onclick="applyAnatPreset('fat')">Fat & Lipomas</button>
                   <button class="mini-preset-chip" data-preset="see_through" onclick="applyAnatPreset('see_through')">See-through</button>
                   <button class="mini-preset-chip" data-preset="muscles" onclick="applyAnatPreset('muscles')">Muscles</button>
@@ -1740,9 +1760,9 @@
           <!-- Viewport Bottom Anatomical Bar -->
           <div class="viewport-status-bar">
             <div class="status-group">
-              <div class="status-item">
+              <div class="status-item" onclick="applyAnatPreset('right_pain')" style="cursor:pointer;" title="Click to view Right Pain Site">
                 <span class="status-dot" style="background:var(--right-lipoma);"></span>
-                <span><strong>Patient's Right:</strong> 24 × 12 mm (Stable)</span>
+                <span><strong>Patient's Right:</strong> 24 × 12 mm <span style="background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:800; margin-left:4px;">Primary Pain Site</span></span>
               </div>
               <div class="status-item">
                 <span class="status-dot" style="background:var(--left-lipoma);"></span>
@@ -1808,7 +1828,7 @@
                 <div class="timeline-date-card active" id="card-date-jul25" onclick="setTimelineStep(0)">
                   <div class="date-card-eyebrow">
                     <span>Baseline Study</span>
-                    <span class="delta-badge delta-stable">Prior</span>
+                    <span class="delta-badge delta-neutral">Baseline</span>
                   </div>
                   <div class="date-card-date">July 22, 2025</div>
                   <div class="date-card-meta">
@@ -1865,14 +1885,14 @@
               </div>
 
               <!-- Right Lipoma Spotlight -->
-              <div class="spotlight-card spotlight-right">
+              <div class="spotlight-card spotlight-right" style="border-left: 4px solid #f59e0b;">
                 <div class="spotlight-eyebrow">
                   <span>Patient's Right Lipoma (L5 Paramedian)</span>
-                  <span class="delta-badge delta-stable">Clinically Stable</span>
+                  <span class="delta-badge delta-pain">Primary Pain Focus</span>
                 </div>
-                <div class="spotlight-metric" id="metric-right-vol">3.95 cm³ → 3.80 cm³</div>
+                <div class="spotlight-metric" id="metric-right-vol" style="color:#b91c1c;">24 × 12 mm · Active Symptom Site</div>
                 <div class="spotlight-desc">
-                  <strong>Stationary Dimensions:</strong> Baseline 26 × 10 mm vs follow-up 24 × 12 mm. Volume variation of -3.8% is well within routine ultrasound caliper margin of error. No interval tissue distortion.
+                  <strong>Primary Pain Generator:</strong> Measured at 26 × 10 mm (baseline) and 24 × 12 mm (follow-up). Despite consistent dimensions, this right nodule is the <strong>source of greater patient discomfort</strong> due to focal mechanical compression over the deep thoracolumbar fascia and intimate proximity to superior cluneal nerve sensory fibers.
                 </div>
               </div>
 
@@ -1941,7 +1961,7 @@
                   <td><strong>Patient's Left (Width)</strong></td>
                   <td class="mono-val">39 mm</td>
                   <td class="mono-val">32 mm</td>
-                  <td><span class="delta-badge delta-stable">-17.9%</span></td>
+                  <td><span class="delta-badge delta-neutral">-17.9%</span></td>
                 </tr>
                 <tr>
                   <td><strong>Patient's Left (Depth)</strong></td>
@@ -1965,16 +1985,128 @@
                   <td><strong>Patient's Right (Width × Depth)</strong></td>
                   <td class="mono-val">26 × 10 mm</td>
                   <td class="mono-val">24 × 12 mm</td>
-                  <td><span class="delta-badge delta-stable">Stable</span></td>
+                  <td><span class="delta-badge delta-neutral">Unchanged Dimensions</span></td>
                 </tr>
                 <tr>
                   <td><strong>Patient's Right (Volume)</strong></td>
                   <td class="mono-val">3.95 cm³</td>
                   <td class="mono-val">3.80 cm³</td>
-                  <td><span class="delta-badge delta-stable">-3.8%</span></td>
+                  <td><span class="delta-badge delta-neutral">-3.8%</span></td>
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Card 4: Clinical Pain Etiology & Anatomical Correlation (Span 12 Full Width) -->
+      <div class="bento-card bezel-card col-span-12" id="card-pain-correlation">
+        <div class="bezel-inner">
+          <div class="bento-card-header" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%); border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
+            <div class="bento-card-title-group">
+              <span class="bento-card-eyebrow" style="color:#b91c1c;">Clinical Correlation & Symptom Mapping</span>
+              <h2 class="bento-card-title">Right-Sided Lower Back Pain: Why the Right Side Hurts More</h2>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="delta-badge delta-pain" style="font-size:12px; padding:4px 10px;">Primary Symptom Region</span>
+              <button class="mini-preset-chip" onclick="applyAnatPreset('right_pain')" style="background:#fee2e2; border-color:#fca5a5; color:#991b1b; font-weight:800; cursor:pointer;">
+                🎯 View Right Pain Site in 3D
+              </button>
+            </div>
+          </div>
+          <div class="bento-card-body" style="padding:24px;">
+            
+            <!-- Clinical Paradox Banner -->
+            <div style="margin-bottom:22px; padding:18px 22px; border-radius:14px; background:#fff7ed; border:1px solid #fed7aa; display:flex; align-items:flex-start; gap:16px;">
+              <div style="width:38px; height:38px; border-radius:10px; background:#ea580c; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px;">
+                ⚡
+              </div>
+              <div>
+                <div style="font-size:15px; font-weight:800; color:#9a3412; margin-bottom:4px;">
+                  The Clinical Paradox: Lesion Size Does Not Dictate Pain Intensity
+                </div>
+                <p style="font-size:13.5px; color:#7c2d12; line-height:1.6; margin:0;">
+                  While follow-up ultrasound demonstrates rapid anteroposterior thickening of the <em>left</em> nodule (+155.6% depth increase), the <strong>patient experiences significantly more pain on the right side of the lower back</strong>. In clinical spine and musculoskeletal practice, subcutaneous mass symptoms are primarily driven by <strong>anatomical nerve impingement, localized fascial fulcrum compression, and dynamic postural shear</strong> rather than gross volumetric bulk.
+                </p>
+              </div>
+            </div>
+
+            <!-- 4 Column Clinical Etiology Grid -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:18px; margin-bottom:22px;">
+              
+              <!-- Factor 1: Cluneal Nerve Entrapment -->
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:11px; font-weight:800; color:#dc2626; text-transform:uppercase; letter-spacing:0.05em;">Neurological Mechanism</span>
+                  <span style="font-size:11px; background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:6px; font-weight:700;">SCN Irritation</span>
+                </div>
+                <div style="font-size:15px; font-weight:700; color:var(--text-main);">
+                  Superior Cluneal Nerve (SCN) Entrapment
+                </div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
+                  Sensory branches of the superior cluneal nerves (originating from the L1–L3 dorsal rami) pierce the thoracolumbar fascia over the posterior iliac crest and arborize directly through the subcutaneous fat pad at L5–S1. The right lipoma directly contacts and tethers these fine cutaneous nerve twigs, generating point tenderness, shooting or burning sensation with lumbar extension/rotation, and localized cluneal neuralgia.
+                </p>
+              </div>
+
+              <!-- Factor 2: Direct Mechanical Compression & Fascial Sandwiching -->
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:11px; font-weight:800; color:#ea580c; text-transform:uppercase; letter-spacing:0.05em;">Biomechanical Compression</span>
+                  <span style="font-size:11px; background:#ffedd5; color:#9a3412; padding:2px 8px; border-radius:6px; font-weight:700;">Fascial Fulcrum</span>
+                </div>
+                <div style="font-size:15px; font-weight:700; color:var(--text-main);">
+                  Thoracolumbar Fascia & Sitting Pressure
+                </div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
+                  The right nodule sits directly against the dense, unyielding aponeurotic sheath of the right erector spinae and multifidus muscles. When seated in chairs, driving, or leaning back, external pressure directly sandwiches this encapsulated fibrofatty nodule against the rigid underlying fascial plane, inducing focal microvascular ischemia, capsular tension, and deep aching tenderness.
+                </p>
+              </div>
+
+              <!-- Factor 3: Postural Asymmetry & Muscular Tension -->
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:11px; font-weight:800; color:#0284c7; text-transform:uppercase; letter-spacing:0.05em;">Kinetic Chain</span>
+                  <span style="font-size:11px; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:6px; font-weight:700;">Postural Shear</span>
+                </div>
+                <div style="font-size:15px; font-weight:700; color:var(--text-main);">
+                  Unilateral Muscle Tone & Torsional Shear
+                </div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
+                  Asymmetrical daily biomechanics—such as right-foot gas/brake pedal extension during driving, dominant-side standing stance, or subtle pelvic tilt—elevates resting tone in the right paraspinal musculature. Hypertonic muscles pull the overlying thoracolumbar fascia taut, creating continuous shear forces across the right nodule's fibrous anchoring septa.
+                </p>
+              </div>
+
+              <!-- Factor 4: Episacral Nodule ("Back Mouse") Pathology -->
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:11px; font-weight:800; color:#7c3aed; text-transform:uppercase; letter-spacing:0.05em;">Clinical Classification</span>
+                  <span style="font-size:11px; background:#f3e8ff; color:#6b21a8; padding:2px 8px; border-radius:6px; font-weight:700;">Fibrofatty Nodule</span>
+                </div>
+                <div style="font-size:15px; font-weight:700; color:var(--text-main);">
+                  Episacral Lipoma / Iliac Crest Syndrome
+                </div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
+                  Subcutaneous lipomas in the lumbosacral region frequently behave as symptomatic episacral nodules (clinically recognized as 'back mice' or Copeman-Ackerman nodules). Incarceration or micro-herniation of subfascial fat through fascial defects, coupled with fibroelastic capsule tightening, is a classic cause of focal, refractory unilateral low back and gluteal pain.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Clinical Assessment & Action Plan -->
+            <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:14px; padding:18px 22px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+              <div style="display:flex; flex-direction:column; gap:5px; max-width:860px;">
+                <span style="font-size:12px; font-weight:800; color:var(--text-main); text-transform:uppercase; letter-spacing:0.04em;">Recommended Clinical Action Plan for Reviewing Physician</span>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.55; margin:0;">
+                  <strong>1. Targeted Diagnostic Palpation:</strong> Directly assess focal point tenderness and nodule mobility over the right L5 paramedian site. <br>
+                  <strong>2. Diagnostic Lidocaine Block:</strong> A targeted peritumoral / superior cluneal nerve local anesthetic injection can definitively confirm the nodule as the primary pain generator if immediate, temporary relief is achieved. <br>
+                  <strong>3. Ergonomic Pressure Offloading:</strong> Utilize a lumbar/sacral cutout cushion when sitting or driving to prevent repetitive focal compression against the right subcutaneous mass.
+                </p>
+              </div>
+              <button class="mini-preset-chip" onclick="applyAnatPreset('right_pain')" style="background:#0284c7; color:#ffffff; font-weight:800; border:none; padding:10px 18px; border-radius:10px; box-shadow:0 4px 12px rgba(2, 132, 199, 0.3); cursor:pointer;">
+                Rotate & Inspect Right Pain Site
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -2487,6 +2619,19 @@
         0.03
       ]
     },
+    "right_pain": {
+      "label": "Right Pain Site",
+      "position": [
+        0.14,
+        -0.015,
+        0.38
+      ],
+      "target": [
+        0.0396,
+        -0.0308,
+        0.1414
+      ]
+    },
     "angled": {
       "label": "Angled",
       "position": [
@@ -2545,18 +2690,29 @@
       "label": "Skin",
       "opacity": {
         "skin": 1.0,
-        "fat": 0.0,
+        "fat": 1.0,
         "muscle": 1.0,
         "bone": 1.0,
         "lipoma": 1.0
       },
       "view": "back"
     },
+    "right_pain": {
+      "label": "Right Pain Focus",
+      "opacity": {
+        "skin": 0.20,
+        "fat": 0.90,
+        "muscle": 0.50,
+        "bone": 0.65,
+        "lipoma": 1.0
+      },
+      "view": "right_pain"
+    },
     "fat": {
       "label": "Fat & Lipomas",
       "opacity": {
-        "skin": 0.12,
-        "fat": 0.90,
+        "skin": 0.0,
+        "fat": 1.0,
         "muscle": 0.35,
         "bone": 0.65,
         "lipoma": 1.0
@@ -2629,7 +2785,7 @@
       activePreset: 'skin',
       layerOpacity: {
         skin: 1.0,
-        fat: 0.85,
+        fat: 1.0,
         muscle: 1.0,
         bone: 1.0,
         lipoma: 1.0
@@ -2755,17 +2911,21 @@
         shader.uniforms.uHi = { value: 0 };
         mat.userData.shader = shader;
 
-        let injectVertex = '';
+        let injectBegin = '';
         if (type === 'fat') {
-          injectVertex = 'transformed -= normal * 35.0;'; // Inset ~0.9mm beneath outer skin
+          // Inset vertices by ~1.3mm along surface normal into the body beneath outer skin
+          injectBegin = 'transformed -= objectNormal * 50.0;';
         }
 
         shader.vertexShader = shader.vertexShader.replace(
           '#include <common>',
           '#include <common>\nvarying vec3 vWP;'
         ).replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>\n${injectBegin}`
+        ).replace(
           '#include <project_vertex>',
-          `#include <project_vertex>\n${injectVertex}\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;`
+          `#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;`
         );
 
         let injectFragment = '';
@@ -2900,10 +3060,10 @@
     scene.add(gridGroup);
 
     const layerRegistry = {
-      skin: { label: "Skin", swatch: "#c98f70", objs: [], on: true, opacity: 1.0, order: 4 },
-      fat: { label: "Subcutaneous Fat", swatch: "#f5cf64", objs: [], on: true, opacity: 0.85, order: 3 },
-      muscle: { label: "Muscles", swatch: "#9c2c28", objs: [], on: true, opacity: 1.0, order: 1 },
       bone: { label: "Bones", swatch: "#e4d6b6", objs: [], on: true, opacity: 1.0, order: 1 },
+      muscle: { label: "Muscles", swatch: "#9c2c28", objs: [], on: true, opacity: 1.0, order: 2 },
+      fat: { label: "Subcutaneous Fat", swatch: "#f5cf64", objs: [], on: true, opacity: 1.0, order: 3 },
+      skin: { label: "Skin", swatch: "#c98f70", objs: [], on: true, opacity: 1.0, order: 5 },
       lipoma: { label: "Lipomas", swatch: "#00c853", swatch2: "#ff5722", objs: [], on: true, opacity: 1.0, order: 10 }
     };
 
@@ -2928,7 +3088,7 @@
           mat.needsUpdate = true;
         }
         mat.opacity = layer.opacity;
-        mat.depthWrite = groupKey === "lipoma" ? true : !isTrans;
+        mat.depthWrite = (groupKey === "skin" && layer.opacity >= 0.999) || groupKey === "lipoma" ? true : !isTrans;
         mesh.renderOrder = isTrans ? layer.order : 0;
       }
 
@@ -3125,9 +3285,12 @@
               sheenColor: new THREE.Color(0xffc9b0),
               clearcoat: 0.08,
               vertexColors: true,
-              transparent: true,
+              transparent: false,
               opacity: state.layerOpacity.skin,
-              side: THREE.DoubleSide
+              side: THREE.DoubleSide,
+              polygonOffset: true,
+              polygonOffsetFactor: -1.0,
+              polygonOffsetUnits: -4.0
             });
             enhanceMaterial(mat, 'skin');
           } else if (s.group === "muscle") {
@@ -3210,7 +3373,10 @@
             vertexColors: false, // Ensure full opacity without vertex alpha attenuation
             transparent: true,
             opacity: state.layerOpacity.fat,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            polygonOffset: true,
+            polygonOffsetFactor: 2.0,
+            polygonOffsetUnits: 4.0
           });
           enhanceMaterial(fatMat, 'fat', { rim: new THREE.Color('#facc15').multiplyScalar(1.15), rimK: 0.4 });
           fatMesh.material = fatMat;
@@ -3281,7 +3447,9 @@
         // Badge element
         const badge = document.createElement('div');
         badge.className = `anatomy-badge ${isRight ? 'lipoma-badge-right' : 'lipoma-badge-left'}`;
-        badge.textContent = `${lip.label} · ${lip.size_mm.width} × ${lip.size_mm.depth} × ${lip.size_mm.height} mm`;
+        badge.textContent = isRight 
+          ? `${lip.label} (Pain Focus) · ${lip.size_mm.width} × ${lip.size_mm.depth} × ${lip.size_mm.height} mm`
+          : `${lip.label} · ${lip.size_mm.width} × ${lip.size_mm.depth} × ${lip.size_mm.height} mm`;
         calloutsLayer.appendChild(badge);
 
         lipomaCalloutElements.push({
@@ -3289,7 +3457,9 @@
           pos: center,
           side: isRight ? 1 : -1,
           full: badge.textContent,
-          short: `${isRight ? 'Right' : 'Left'} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
+          short: isRight
+            ? `Right (Pain Focus) · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
+            : `${lip.label} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
         });
       });
     }
