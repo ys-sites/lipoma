@@ -2755,12 +2755,17 @@
         shader.uniforms.uHi = { value: 0 };
         mat.userData.shader = shader;
 
+        let injectVertex = '';
+        if (type === 'fat') {
+          injectVertex = 'transformed -= normal * 35.0;'; // Inset ~0.9mm beneath outer skin
+        }
+
         shader.vertexShader = shader.vertexShader.replace(
           '#include <common>',
           '#include <common>\nvarying vec3 vWP;'
         ).replace(
           '#include <project_vertex>',
-          '#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;'
+          `#include <project_vertex>\n${injectVertex}\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;`
         );
 
         let injectFragment = '';
@@ -2797,12 +2802,16 @@
           injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.03);';
         } else if (type === 'fat') {
           injectFragment = `
-            float f = fbm3(vWP * 45.0);
-            diffuseColor.rgb *= mix(0.92, 1.08, f);
-            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96, 0.82, 0.38), 0.20);
+            float lobules = fbm3(vWP * 70.0);
+            float granules = vn3(vWP * 220.0);
+            vec3 fatBase = vec3(0.96, 0.76, 0.16); // Vibrant golden adipose tissue
+            vec3 fatHighlight = vec3(1.0, 0.88, 0.42); // Lipid globules & septa
+            diffuseColor.rgb = mix(fatBase, fatHighlight, lobules * 0.45 + granules * 0.2);
+            diffuseColor.rgb *= mix(0.92, 1.08, lobules);
+            diffuseColor.a = opacity;
           `;
-          injectNormal = 'normal = bumpN(-vViewPosition, normal, f, 0.05);';
-          injectEmissive = 'totalEmissiveRadiance += diffuseColor.rgb * 0.12 * (1.0 - opacity);';
+          injectNormal = 'normal = bumpN(-vViewPosition, normal, fbm3(vWP * 60.0), 0.14);';
+          injectEmissive = 'totalEmissiveRadiance += vec3(0.22, 0.16, 0.04) * (1.0 - opacity);';
         } else if (type === 'lipoma') {
           injectFragment = `
             float l = fbm3(vWP * 16.0);
@@ -3191,26 +3200,25 @@
         // Add Subcutaneous Fat (Adipose Bed) layer situated directly beneath skin
         const skinItem = collectedMeshes.find(item => item.s.group === "skin");
         if (skinItem && skinItem.mesh) {
-          const fatGeom = skinItem.mesh.geometry.clone();
+          const fatMesh = skinItem.mesh.clone();
           const fatMat = new THREE.MeshPhysicalMaterial({
-            color: new THREE.Color('#f5cf64'), // Natural warm adipose yellow
+            color: new THREE.Color('#facc15'), // Rich warm natural adipose yellow
             roughness: 0.60,
             metalness: 0.02,
-            transmission: 0.18,
-            thickness: 0.015,
+            clearcoat: 0.20,
+            clearcoatRoughness: 0.25,
+            vertexColors: false, // Ensure full opacity without vertex alpha attenuation
             transparent: true,
             opacity: state.layerOpacity.fat,
-            side: THREE.DoubleSide,
-            depthWrite: false
+            side: THREE.DoubleSide
           });
-          enhanceMaterial(fatMat, 'fat', { rim: new THREE.Color('#f5cf64').multiplyScalar(1.15), rimK: 0.4 });
-          const fatMesh = new THREE.Mesh(fatGeom, fatMat);
-          fatMesh.position.set(0, 0, -0.0032);
-          fatMesh.scale.set(0.992, 0.992, 0.992);
+          enhanceMaterial(fatMat, 'fat', { rim: new THREE.Color('#facc15').multiplyScalar(1.15), rimK: 0.4 });
+          fatMesh.material = fatMat;
+          fatMesh.name = 'fat_subcutaneous';
           fatMesh.userData = { id: 'fat_subcutaneous', label: 'Subcutaneous Fat (Adipose Bed)', group: 'fat' };
           layerRegistry.fat.objs.push(fatMesh);
           pickableMeshes.push(fatMesh);
-          anatomyGroup.add(fatMesh);
+          skinItem.mesh.parent.add(fatMesh);
         }
 
         anatomyGroup.add(root);
