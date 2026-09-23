@@ -1630,6 +1630,15 @@
                   <span class="layer-pct" id="pct-skin">100%</span>
                 </div>
 
+                <!-- Subcutaneous Fat -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:#f5cf64;"></span> Subcutaneous Fat
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.02" value="0.85" oninput="updateLayerOpacity('fat', this.value)">
+                  <span class="layer-pct" id="pct-fat">85%</span>
+                </div>
+
                 <!-- Muscle -->
                 <div class="layer-control-row">
                   <span class="layer-name-tag">
@@ -1660,6 +1669,7 @@
                 <!-- Quick Presets -->
                 <div class="quick-preset-chips" style="margin-top:4px;">
                   <button class="mini-preset-chip active" data-preset="skin" onclick="applyAnatPreset('skin')">Skin</button>
+                  <button class="mini-preset-chip" data-preset="fat" onclick="applyAnatPreset('fat')">Fat & Lipomas</button>
                   <button class="mini-preset-chip" data-preset="see_through" onclick="applyAnatPreset('see_through')">See-through</button>
                   <button class="mini-preset-chip" data-preset="muscles" onclick="applyAnatPreset('muscles')">Muscles</button>
                   <button class="mini-preset-chip" data-preset="bones" onclick="applyAnatPreset('bones')">Bones</button>
@@ -2535,16 +2545,29 @@
       "label": "Skin",
       "opacity": {
         "skin": 1.0,
+        "fat": 0.0,
         "muscle": 1.0,
         "bone": 1.0,
         "lipoma": 1.0
       },
       "view": "back"
     },
+    "fat": {
+      "label": "Fat & Lipomas",
+      "opacity": {
+        "skin": 0.12,
+        "fat": 0.90,
+        "muscle": 0.35,
+        "bone": 0.65,
+        "lipoma": 1.0
+      },
+      "view": "angled"
+    },
     "see_through": {
       "label": "See-through",
       "opacity": {
         "skin": 0.22,
+        "fat": 0.35,
         "muscle": 1.0,
         "bone": 1.0,
         "lipoma": 1.0
@@ -2555,6 +2578,7 @@
       "label": "Muscles",
       "opacity": {
         "skin": 0.0,
+        "fat": 0.0,
         "muscle": 1.0,
         "bone": 1.0,
         "lipoma": 1.0
@@ -2565,6 +2589,7 @@
       "label": "Bones",
       "opacity": {
         "skin": 0.08,
+        "fat": 0.0,
         "muscle": 0.0,
         "bone": 1.0,
         "lipoma": 1.0
@@ -2575,6 +2600,7 @@
       "label": "Lipomas close-up",
       "opacity": {
         "skin": 0.18,
+        "fat": 0.35,
         "muscle": 1.0,
         "bone": 1.0,
         "lipoma": 1.0
@@ -2603,6 +2629,7 @@
       activePreset: 'skin',
       layerOpacity: {
         skin: 1.0,
+        fat: 0.85,
         muscle: 1.0,
         bone: 1.0,
         lipoma: 1.0
@@ -2768,16 +2795,23 @@
             diffuseColor.rgb *= mix(0.95, 1.03, m);
           `;
           injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.03);';
+        } else if (type === 'fat') {
+          injectFragment = `
+            float f = fbm3(vWP * 45.0);
+            diffuseColor.rgb *= mix(0.92, 1.08, f);
+            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96, 0.82, 0.38), 0.20);
+          `;
+          injectNormal = 'normal = bumpN(-vViewPosition, normal, f, 0.05);';
+          injectEmissive = 'totalEmissiveRadiance += diffuseColor.rgb * 0.12 * (1.0 - opacity);';
         } else if (type === 'lipoma') {
           injectFragment = `
-            float l = fbm3(vWP * 110.0);
-            gH = l;
-            diffuseColor.rgb *= mix(0.93, 1.05, l);
+            float l = fbm3(vWP * 16.0);
+            diffuseColor.rgb *= mix(0.98, 1.02, l);
           `;
-          injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.14);';
+          injectNormal = ''; // Smooth, lustrous, high-vibrancy surface without noisy grainy bumps
           injectEmissive = `
             float fr = 1.0 - abs(dot(normal, normalize(vViewPosition)));
-            totalEmissiveRadiance += uRim * pow(fr, 2.2) * uRimK;
+            totalEmissiveRadiance += uRim * pow(fr, 2.0) * uRimK;
           `;
         }
 
@@ -2857,10 +2891,11 @@
     scene.add(gridGroup);
 
     const layerRegistry = {
-      skin: { label: "Skin", swatch: "#c98f70", objs: [], on: true, opacity: 1.0, order: 3 },
+      skin: { label: "Skin", swatch: "#c98f70", objs: [], on: true, opacity: 1.0, order: 4 },
+      fat: { label: "Subcutaneous Fat", swatch: "#f5cf64", objs: [], on: true, opacity: 0.85, order: 3 },
       muscle: { label: "Muscles", swatch: "#9c2c28", objs: [], on: true, opacity: 1.0, order: 1 },
       bone: { label: "Bones", swatch: "#e4d6b6", objs: [], on: true, opacity: 1.0, order: 1 },
-      lipoma: { label: "Lipomas", swatch: "#22b07f", swatch2: "#ec7a45", objs: [], on: true, opacity: 1.0, order: 10 }
+      lipoma: { label: "Lipomas", swatch: "#00c853", swatch2: "#ff5722", objs: [], on: true, opacity: 1.0, order: 10 }
     };
 
     const xRayMeshes = [];
@@ -2878,7 +2913,7 @@
         mesh.visible = isVis;
 
         const mat = mesh.material;
-        const isTrans = layer.opacity < 0.999 || groupKey === "lipoma";
+        const isTrans = layer.opacity < 0.999 || groupKey === "lipoma" || groupKey === "fat";
         if (mat.transparent !== isTrans) {
           mat.transparent = isTrans;
           mat.needsUpdate = true;
@@ -2903,7 +2938,7 @@
     // =========================================================================
     // Model 2: Standalone Isolated Lipomas Construction
     // =========================================================================
-    function createEllipsoidGeometry(rx, ry, rz, segs = 40) {
+    function createEllipsoidGeometry(rx, ry, rz, segs = 48) {
       const g = new THREE.SphereGeometry(1, segs, Math.round(segs * 0.75));
       g.scale(rx, ry, rz);
       return g;
@@ -2926,24 +2961,40 @@
     };
 
     const isoRightMat = new THREE.MeshPhysicalMaterial({
-      color: 0x22b07f,
-      roughness: 0.30,
-      clearcoat: 0.70,
+      color: new THREE.Color('#00c853'), // Vibrant Emerald Neon Jade
+      emissive: new THREE.Color('#004d1a'),
+      emissiveIntensity: 0.35,
+      roughness: 0.16,
+      metalness: 0.05,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.06,
+      sheen: 0.85,
+      sheenColor: new THREE.Color('#69f0ae'),
+      transmission: 0.10,
+      thickness: 0.02,
       transparent: true,
       opacity: 1.0,
       side: THREE.DoubleSide
     });
-    enhanceMaterial(isoRightMat, 'lipoma', { rim: new THREE.Color(0x22b07f).multiplyScalar(1.3), rimK: 0.9 });
+    enhanceMaterial(isoRightMat, 'lipoma', { rim: new THREE.Color('#00e676'), rimK: 1.3 });
 
     const isoLeftMat = new THREE.MeshPhysicalMaterial({
-      color: 0xec7a45,
-      roughness: 0.30,
-      clearcoat: 0.70,
+      color: new THREE.Color('#ff5722'), // Vibrant Electric Tangerine / Coral Orange
+      emissive: new THREE.Color('#661800'),
+      emissiveIntensity: 0.35,
+      roughness: 0.16,
+      metalness: 0.05,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.06,
+      sheen: 0.85,
+      sheenColor: new THREE.Color('#ffab91'),
+      transmission: 0.10,
+      thickness: 0.02,
       transparent: true,
       opacity: 1.0,
       side: THREE.DoubleSide
     });
-    enhanceMaterial(isoLeftMat, 'lipoma', { rim: new THREE.Color(0xec7a45).multiplyScalar(1.3), rimK: 0.9 });
+    enhanceMaterial(isoLeftMat, 'lipoma', { rim: new THREE.Color('#ff7043'), rimK: 1.3 });
 
     const isoRightMesh = new THREE.Mesh(
       createEllipsoidGeometry(ISO_DATA.right.jul25.rx, ISO_DATA.right.jul25.ry, ISO_DATA.right.jul25.rz),
@@ -3093,23 +3144,33 @@
             });
             enhanceMaterial(mat, 'bone');
           } else if (s.group === "lipoma") {
-            const lipInfo = lipomaDict[s.id] || { color: "#22b07f" };
+            const isRightLip = s.id.endsWith("right");
+            const vibrantColor = isRightLip ? '#00c853' : '#ff5722';
+            const rimColor = isRightLip ? '#00e676' : '#ff7043';
             mat = new THREE.MeshPhysicalMaterial({
-              color: new THREE.Color(lipInfo.color),
-              roughness: 0.30,
-              clearcoat: 0.70,
+              color: new THREE.Color(vibrantColor),
+              emissive: new THREE.Color(isRightLip ? '#004d1a' : '#661800'),
+              emissiveIntensity: 0.35,
+              roughness: 0.16,
+              metalness: 0.05,
+              clearcoat: 1.0,
+              clearcoatRoughness: 0.06,
+              sheen: 0.85,
+              sheenColor: new THREE.Color(isRightLip ? '#69f0ae' : '#ffab91'),
+              transmission: 0.10,
+              thickness: 0.02,
               vertexColors: false,
               transparent: true,
               opacity: 1.0,
               side: THREE.DoubleSide
             });
             enhanceMaterial(mat, 'lipoma', {
-              rim: new THREE.Color(lipInfo.color).multiplyScalar(1.3),
-              rimK: 0.9
+              rim: new THREE.Color(rimColor),
+              rimK: 1.3
             });
 
             // Add X-Ray Fresnel GreaterDepth child glow mesh safely outside traversal
-            const xGlow = new THREE.Mesh(mesh.geometry, createXRayGlowMaterial(lipInfo.color));
+            const xGlow = new THREE.Mesh(mesh.geometry, createXRayGlowMaterial(vibrantColor));
             xGlow.renderOrder = 50;
             mesh.add(xGlow);
             xRayMeshes.push(xGlow);
@@ -3126,6 +3187,31 @@
           pickableMeshes.push(mesh);
           byId[s.id] = mesh;
         });
+
+        // Add Subcutaneous Fat (Adipose Bed) layer situated directly beneath skin
+        const skinItem = collectedMeshes.find(item => item.s.group === "skin");
+        if (skinItem && skinItem.mesh) {
+          const fatGeom = skinItem.mesh.geometry.clone();
+          const fatMat = new THREE.MeshPhysicalMaterial({
+            color: new THREE.Color('#f5cf64'), // Natural warm adipose yellow
+            roughness: 0.60,
+            metalness: 0.02,
+            transmission: 0.18,
+            thickness: 0.015,
+            transparent: true,
+            opacity: state.layerOpacity.fat,
+            side: THREE.DoubleSide,
+            depthWrite: false
+          });
+          enhanceMaterial(fatMat, 'fat', { rim: new THREE.Color('#f5cf64').multiplyScalar(1.15), rimK: 0.4 });
+          const fatMesh = new THREE.Mesh(fatGeom, fatMat);
+          fatMesh.position.set(0, 0, -0.0032);
+          fatMesh.scale.set(0.992, 0.992, 0.992);
+          fatMesh.userData = { id: 'fat_subcutaneous', label: 'Subcutaneous Fat (Adipose Bed)', group: 'fat' };
+          layerRegistry.fat.objs.push(fatMesh);
+          pickableMeshes.push(fatMesh);
+          anatomyGroup.add(fatMesh);
+        }
 
         anatomyGroup.add(root);
 
@@ -3167,14 +3253,17 @@
     setTimeout(dismissLoadingOverlay, 1200);
 
     // =========================================================================
-    // DYNAMIC IN-SCENE CALLOUTS: ONLY THE LIPOMA NAMES LISTED
+    // DYNAMIC IN-SCENE CALLOUTS: CLEAN FLOATING BADGES (NO PROJECTING LINES)
     // =========================================================================
     const lipomaCalloutElements = [];
 
     function initLipomaCallouts() {
-      if (!calloutsLayer || !leadersSvg) return;
+      if (!calloutsLayer) return;
       calloutsLayer.innerHTML = "";
-      leadersSvg.innerHTML = "";
+      if (leadersSvg) {
+        leadersSvg.innerHTML = "";
+        leadersSvg.style.display = "none";
+      }
       lipomaCalloutElements.length = 0;
 
       MODEL_INFO.lipomas.forEach((lip) => {
@@ -3187,14 +3276,8 @@
         badge.textContent = `${lip.label} · ${lip.size_mm.width} × ${lip.size_mm.depth} × ${lip.size_mm.height} mm`;
         calloutsLayer.appendChild(badge);
 
-        // SVG leader line
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("class", `leader-line ${isRight ? 'right' : 'left'}`);
-        leadersSvg.appendChild(line);
-
         lipomaCalloutElements.push({
           badge,
-          line,
           pos: center,
           side: isRight ? 1 : -1,
           full: badge.textContent,
@@ -3211,49 +3294,35 @@
       }
 
       calloutsLayer.style.display = 'block';
-      leadersSvg.style.display = 'block';
+      if (leadersSvg) leadersSvg.style.display = 'none'; // Hide projecting leader lines
 
       const w = W();
       const h = H();
-      leadersSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-
       const p3 = new THREE.Vector3();
+
       lipomaCalloutElements.forEach((item) => {
         p3.copy(item.pos).project(camera);
 
         const isBehind = p3.z > 1 || p3.z < -1;
         if (isBehind) {
           item.badge.style.display = 'none';
-          item.line.style.display = 'none';
           return;
         }
 
         item.badge.style.display = 'flex';
-        item.line.style.display = 'block';
 
         const sx = (p3.x * 0.5 + 0.5) * w;
         const sy = (-p3.y * 0.5 + 0.5) * h;
 
-        // Choose short or full label on mobile vs desktop
+        // Clean floating badge placed right beside each lipoma with NO lines popping out
         const isMobile = w < 560;
         item.badge.textContent = isMobile ? item.short : item.full;
 
-        // Calculate offset based on camera orientation
-        let side = item.side;
-        if (camera.position.z - controls.target.z < -0.05) {
-          side = -side;
-        }
-        const offsetDist = (state.showMeasurements ? 110 : 75) * (isMobile ? 0.7 : 1.0);
-        const bx = Math.max(16, Math.min(w - 180, sx + side * offsetDist));
-        const by = Math.max(20, Math.min(h - 40, sy - 30));
+        const bx = Math.max(16, Math.min(w - 180, sx + (item.side > 0 ? 18 : -140)));
+        const by = Math.max(16, Math.min(h - 36, sy - 28));
 
         item.badge.style.left = `${bx}px`;
         item.badge.style.top = `${by}px`;
-
-        item.line.setAttribute("x1", sx);
-        item.line.setAttribute("y1", sy);
-        item.line.setAttribute("x2", bx + (side > 0 ? 0 : 120));
-        item.line.setAttribute("y2", by + 12);
       });
     }
 
