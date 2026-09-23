@@ -332,6 +332,133 @@
     }
 
     /* ==========================================================================
+       MODEL SWITCHER COMMAND BAR (TWO 3D MODELS IN SAME SECTION)
+       ========================================================================== */
+    .model-switcher-header {
+      padding: 12px 18px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-inner);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .model-switcher-tabs {
+      display: flex;
+      align-items: center;
+      background: var(--bg-shell);
+      border: 1px solid var(--border-outer);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .model-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s var(--ease-fluid);
+    }
+
+    .model-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .model-tab-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .model-tab-icon {
+      font-size: 16px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-shell);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .model-tab-btn.active .model-tab-icon {
+      background: var(--accent-bg);
+    }
+
+    .model-tab-meta {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .model-tab-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .model-tab-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Dedicated Switch Button to go back and forth */
+    .btn-toggle-model {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--text-main);
+      color: #ffffff;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-fluid);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .btn-toggle-model:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+    }
+
+    .btn-toggle-model:active {
+      transform: scale(0.97);
+    }
+
+    .btn-toggle-model svg {
+      width: 15px;
+      height: 15px;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+    }
+
+    .kbd-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
        MAIN 3D VIEWPORT HARDWARE CHASSIS
        ========================================================================== */
     .viewport-chassis {
@@ -412,44 +539,34 @@
       align-items: center;
     }
 
-    /* Mode Segmented Controls */
-    .segmented-control {
-      background: #f1f5f9;
+    /* Floating In-Viewport Model Toggle Button */
+    .hud-quick-toggle {
+      pointer-events: auto;
+      background: #ffffff;
+      border: 1px solid var(--border-outer);
       border-radius: var(--radius-pill);
-      padding: 3px;
-      display: flex;
-      gap: 3px;
-    }
-
-    .seg-btn {
       padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.2s var(--ease-fluid);
-      white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 6px;
-    }
-
-    .seg-btn:hover {
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--text-main);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+      transition: all 0.2s var(--ease-fluid);
     }
 
-    .seg-btn.active {
-      background: #ffffff;
-      color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    .hud-quick-toggle:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
     }
 
-    .seg-btn svg {
+    .hud-quick-toggle svg {
       width: 14px;
       height: 14px;
+      stroke: var(--accent-cyan);
       stroke-width: 2.2;
     }
 
@@ -594,6 +711,25 @@
     .mini-preset-chip:hover {
       background: #e2e8f0;
       color: var(--text-main);
+    }
+
+    /* Isolated Lipomas Metrics Dock */
+    .isolated-dock {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 14px;
+      min-width: 260px;
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .isolated-metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      padding: 4px 0;
+      border-bottom: 1px solid #f1f5f9;
     }
 
     /* Axial Slicer Vertical/Horizontal Dock */
@@ -1004,6 +1140,13 @@
       .nav-actions {
         justify-content: space-between;
       }
+      .model-switcher-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .model-switcher-tabs {
+        flex-direction: column;
+      }
       .viewport-chassis {
         height: 480px;
       }
@@ -1059,180 +1202,222 @@
       </div>
     </header>
 
-    <!-- Main 3D Viewport Hardware Chassis (Doppelrand) -->
+    <!-- Main 3D Viewport Hardware Chassis (Doppelrand with Dual Model Switcher) -->
     <section class="bezel-card">
-      <div class="bezel-inner viewport-chassis">
+      <div class="bezel-inner">
         
-        <!-- Three.js Canvas Container -->
-        <div id="three-canvas-container"></div>
-
-        <!-- In-Scene Screen Projected 3D Calipers -->
-        <div id="caliper-tag-right" class="caliper-hud-tag" style="display:none;">
-          <span style="color:var(--right-lipoma)">● Right Lipoma:</span> <span id="caliper-text-right">24 × 12 mm</span>
-        </div>
-        <div id="caliper-tag-left" class="caliper-hud-tag" style="display:none;">
-          <span style="color:var(--left-lipoma)">● Left Lipoma:</span> <span id="caliper-text-left">32 × 23 mm</span>
-        </div>
-
-        <!-- Floating HUD Layer (Glass Islands) -->
-        <div class="hud-layer">
+        <!-- PROMINENT MODEL SWITCHER HEADER COMMAND BAR -->
+        <div class="model-switcher-header">
           
-          <!-- Top Bar: Orientation Compass + Camera Presets + Viewing Modes -->
-          <div class="hud-top-bar">
-            
-            <div style="display:flex; flex-wrap:wrap; gap:8px;">
-              <!-- Dynamic Anatomical Compass -->
-              <div class="orient-compass">
-                <span class="compass-indicator"></span>
-                <span id="compass-label">Posterior View (Back)</span>
+          <div class="model-switcher-tabs">
+            <!-- Model 1 Tab: Human Anatomy -->
+            <button class="model-tab-btn active" id="btn-model-anatomy" onclick="switchModel('anatomy')">
+              <span class="model-tab-icon">🦴</span>
+              <div class="model-tab-meta">
+                <span class="model-tab-title">Model 1: Human Anatomy & Lipomas</span>
+                <span class="model-tab-sub">L1–L5 Spine, Sacrum, Fascia & Embedded Masses</span>
               </div>
+            </button>
 
-              <!-- Camera Presets -->
-              <div class="hud-island">
-                <div class="cam-btn-group">
-                  <button class="cam-chip active" id="btn-cam-posterior" onclick="setCameraView('posterior')">
-                    Posterior
-                  </button>
-                  <button class="cam-chip" id="btn-cam-lateral" onclick="setCameraView('lateral')">
-                    Lateral
-                  </button>
-                  <button class="cam-chip" id="btn-cam-axial" onclick="setCameraView('axial')">
-                    Axial Cross
-                  </button>
-                  <button class="cam-chip" id="btn-cam-l5s1" onclick="setCameraView('l5s1')">
-                    L5–S1 Zoom
-                  </button>
-                  <button class="cam-chip" id="btn-cam-oblique" onclick="setCameraView('oblique')">
-                    3/4 Perspective
-                  </button>
+            <!-- Model 2 Tab: Isolated Lipoma -->
+            <button class="model-tab-btn" id="btn-model-isolated" onclick="switchModel('isolated')">
+              <span class="model-tab-icon">🔬</span>
+              <div class="model-tab-meta">
+                <span class="model-tab-title">Model 2: Isolated Lipomas Only</span>
+                <span class="model-tab-sub">Standalone Nodules, 1cm Grid & 3D Calipers</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Primary Switch Button to go back and forth -->
+          <button class="btn-toggle-model" onclick="toggleActiveModel()" title="Switch back and forth between 3D models (Shortcut: Spacebar)">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l4-4M17 20l-4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="toggle-btn-label">Switch to Isolated Lipoma</span>
+            <kbd class="kbd-badge">Space</kbd>
+          </button>
+
+        </div>
+
+        <!-- 3D Canvas Viewport Chassis -->
+        <div class="viewport-chassis">
+          
+          <!-- Three.js Canvas Container -->
+          <div id="three-canvas-container"></div>
+
+          <!-- In-Scene Screen Projected 3D Calipers -->
+          <div id="caliper-tag-right" class="caliper-hud-tag" style="display:none;">
+            <span style="color:var(--right-lipoma)">● Right Lipoma:</span> <span id="caliper-text-right">24 × 12 mm</span>
+          </div>
+          <div id="caliper-tag-left" class="caliper-hud-tag" style="display:none;">
+            <span style="color:var(--left-lipoma)">● Left Lipoma:</span> <span id="caliper-text-left">32 × 23 mm</span>
+          </div>
+
+          <!-- Floating HUD Layer (Glass Islands) -->
+          <div class="hud-layer">
+            
+            <!-- Top Bar: Orientation Compass + Camera Presets + Quick Model Toggle -->
+            <div class="hud-top-bar">
+              
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <!-- Dynamic Anatomical Compass -->
+                <div class="orient-compass">
+                  <span class="compass-indicator"></span>
+                  <span id="compass-label">Posterior View (Back)</span>
+                </div>
+
+                <!-- Camera Presets -->
+                <div class="hud-island">
+                  <div class="cam-btn-group">
+                    <button class="cam-chip active" id="btn-cam-posterior" onclick="setCameraView('posterior')">
+                      Posterior
+                    </button>
+                    <button class="cam-chip" id="btn-cam-lateral" onclick="setCameraView('lateral')">
+                      Lateral
+                    </button>
+                    <button class="cam-chip" id="btn-cam-axial" onclick="setCameraView('axial')">
+                      Axial Cross
+                    </button>
+                    <button class="cam-chip" id="btn-cam-l5s1" onclick="setCameraView('l5s1')">
+                      L5–S1 Zoom
+                    </button>
+                    <button class="cam-chip" id="btn-cam-oblique" onclick="setCameraView('oblique')">
+                      3/4 Perspective
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              <!-- In-Viewport HUD Quick Toggle Switcher -->
+              <button class="hud-quick-toggle" onclick="toggleActiveModel()" title="Switch back and forth between models">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M4 8h16M4 16h16M8 4l-4 4 4 4M16 12l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span id="hud-toggle-text">View Isolated Lipomas</span>
+              </button>
+
             </div>
 
-            <!-- View Modes Segmented Control -->
-            <div class="hud-island">
-              <div class="segmented-control">
-                <button class="seg-btn active" id="btn-mode-anatomy" onclick="setViewMode('anatomy')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
-                  </svg>
-                  Anatomical Context
-                </button>
-                <button class="seg-btn" id="btn-mode-isolated" onclick="setViewMode('isolated')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="9" cy="12" r="4"/><circle cx="17" cy="12" r="3"/>
-                  </svg>
-                  Isolated Lipomas
-                </button>
-                <button class="seg-btn" id="btn-mode-ghost" onclick="setViewMode('ghost')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="3" y="3" width="18" height="18" rx="4" stroke-dasharray="4 2"/>
-                  </svg>
-                  Growth Ghost
-                </button>
+            <!-- Bottom Bar: Layer Opacity Sliders Dock + Axial Cross-Section Slicer (Or Isolated Inspector) -->
+            <div class="hud-bottom-bar">
+              
+              <!-- Layer Opacity Dock (Active for Model 1: Human Anatomy) -->
+              <div class="hud-island hud-island-col" id="layer-dock">
+                <div class="hud-badge-title">
+                  <span>Anatomical Layers Opacity</span>
+                  <span id="layers-status-tag" style="color:var(--accent-cyan); font-size:10px;">Full Context</span>
+                </div>
+
+                <!-- Skin -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--skin-color);"></span> Skin
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-skin" min="0" max="1" step="0.05" value="0.22" oninput="updateLayerOpacity('skin', this.value)">
+                  <span class="layer-pct" id="pct-skin">22%</span>
+                </div>
+
+                <!-- Subcutaneous Fat -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--fat-color);"></span> Fat Layer
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.05" value="0.25" oninput="updateLayerOpacity('fat', this.value)">
+                  <span class="layer-pct" id="pct-fat">25%</span>
+                </div>
+
+                <!-- Fascia -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--fascia-color);"></span> TL Fascia
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-fascia" min="0" max="1" step="0.05" value="0.45" oninput="updateLayerOpacity('fascia', this.value)">
+                  <span class="layer-pct" id="pct-fascia">45%</span>
+                </div>
+
+                <!-- Muscle -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--muscle-color);"></span> Erector Spinae
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-muscle" min="0" max="1" step="0.05" value="0.85" oninput="updateLayerOpacity('muscle', this.value)">
+                  <span class="layer-pct" id="pct-muscle">85%</span>
+                </div>
+
+                <!-- Spine / Bone -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--bone-color);"></span> Spine & Pelvis
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-bone" min="0" max="1" step="0.05" value="1.0" oninput="updateLayerOpacity('bone', this.value)">
+                  <span class="layer-pct" id="pct-bone">100%</span>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="quick-preset-chips">
+                  <button class="mini-preset-chip" onclick="applyLayerPreset('us')">Ultrasound View</button>
+                  <button class="mini-preset-chip" onclick="applyLayerPreset('surgical')">Surgical Prep</button>
+                  <button class="mini-preset-chip" onclick="applyLayerPreset('skeleton')">Spine Only</button>
+                  <button class="mini-preset-chip" onclick="applyLayerPreset('all')">Reset</button>
+                </div>
               </div>
+
+              <!-- Isolated Model Metrics Inspector (Active for Model 2: Isolated Lipomas) -->
+              <div class="hud-island isolated-dock" id="isolated-metrics-dock">
+                <div class="hud-badge-title" style="margin:0;">
+                  <span>Isolated 3D Scale & Calipers</span>
+                  <span class="slicer-val-pill">1 cm Grid</span>
+                </div>
+                <div class="isolated-metric-row">
+                  <span><strong>Right Lipoma (Green):</strong></span>
+                  <span class="mono-val" id="iso-right-val">24 × 12 mm (3.80 cm³)</span>
+                </div>
+                <div class="isolated-metric-row">
+                  <span><strong>Left Lipoma (Orange):</strong></span>
+                  <span class="mono-val" style="color:var(--left-lipoma);" id="iso-left-val">32 × 23 mm (7.72 cm³)</span>
+                </div>
+                <div style="font-size:10px; color:var(--text-muted); line-height:1.4; margin-top:2px;">
+                  3D caliper arrows display transverse width, length, and anteroposterior depth directly on the scale grid.
+                </div>
+              </div>
+
+              <!-- Axial Cross-Section Slicer Dock (Active for Model 1) -->
+              <div class="hud-island slicer-dock" id="slicer-dock">
+                <div class="slicer-header">
+                  <span class="hud-badge-title" style="margin:0;">Axial Slicing Plane</span>
+                  <span class="slicer-val-pill" id="slice-level-label">Off (Full)</span>
+                </div>
+                <input type="range" class="layer-slider" id="slider-axial" min="-22" max="22" step="0.5" value="22" oninput="updateAxialSlice(this.value)">
+                <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-light); font-weight:600;">
+                  <span>S1 Sacrum</span>
+                  <span>L5 Paramedian</span>
+                  <span>L1 Upper</span>
+                </div>
+              </div>
+
             </div>
 
           </div>
 
-          <!-- Bottom Bar: Layer Opacity Sliders Dock + Axial Cross-Section Slicer -->
-          <div class="hud-bottom-bar">
-            
-            <!-- Layer Opacity Dock -->
-            <div class="hud-island hud-island-col" id="layer-dock">
-              <div class="hud-badge-title">
-                <span>Anatomical Layers Opacity</span>
-                <span id="layers-status-tag" style="color:var(--accent-cyan); font-size:10px;">Full Context</span>
+          <!-- Viewport Bottom Anatomical Bar -->
+          <div class="viewport-status-bar">
+            <div class="status-group">
+              <div class="status-item">
+                <span class="status-dot" style="background:var(--right-lipoma);"></span>
+                <span><strong>Patient's Right:</strong> 24 × 12 mm (Stable)</span>
               </div>
-
-              <!-- Skin -->
-              <div class="layer-control-row">
-                <span class="layer-name-tag">
-                  <span class="layer-color-dot" style="background:var(--skin-color);"></span> Skin
-                </span>
-                <input type="range" class="layer-slider" id="slider-skin" min="0" max="1" step="0.05" value="0.22" oninput="updateLayerOpacity('skin', this.value)">
-                <span class="layer-pct" id="pct-skin">22%</span>
-              </div>
-
-              <!-- Subcutaneous Fat -->
-              <div class="layer-control-row">
-                <span class="layer-name-tag">
-                  <span class="layer-color-dot" style="background:var(--fat-color);"></span> Fat Layer
-                </span>
-                <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.05" value="0.25" oninput="updateLayerOpacity('fat', this.value)">
-                <span class="layer-pct" id="pct-fat">25%</span>
-              </div>
-
-              <!-- Fascia -->
-              <div class="layer-control-row">
-                <span class="layer-name-tag">
-                  <span class="layer-color-dot" style="background:var(--fascia-color);"></span> TL Fascia
-                </span>
-                <input type="range" class="layer-slider" id="slider-fascia" min="0" max="1" step="0.05" value="0.45" oninput="updateLayerOpacity('fascia', this.value)">
-                <span class="layer-pct" id="pct-fascia">45%</span>
-              </div>
-
-              <!-- Muscle -->
-              <div class="layer-control-row">
-                <span class="layer-name-tag">
-                  <span class="layer-color-dot" style="background:var(--muscle-color);"></span> Erector Spinae
-                </span>
-                <input type="range" class="layer-slider" id="slider-muscle" min="0" max="1" step="0.05" value="0.85" oninput="updateLayerOpacity('muscle', this.value)">
-                <span class="layer-pct" id="pct-muscle">85%</span>
-              </div>
-
-              <!-- Spine / Bone -->
-              <div class="layer-control-row">
-                <span class="layer-name-tag">
-                  <span class="layer-color-dot" style="background:var(--bone-color);"></span> Spine & Pelvis
-                </span>
-                <input type="range" class="layer-slider" id="slider-bone" min="0" max="1" step="0.05" value="1.0" oninput="updateLayerOpacity('bone', this.value)">
-                <span class="layer-pct" id="pct-bone">100%</span>
-              </div>
-
-              <!-- Quick Presets -->
-              <div class="quick-preset-chips">
-                <button class="mini-preset-chip" onclick="applyLayerPreset('us')">Ultrasound View</button>
-                <button class="mini-preset-chip" onclick="applyLayerPreset('surgical')">Surgical Prep</button>
-                <button class="mini-preset-chip" onclick="applyLayerPreset('skeleton')">Spine Only</button>
-                <button class="mini-preset-chip" onclick="applyLayerPreset('all')">Reset</button>
+              <div class="status-item">
+                <span class="status-dot" style="background:var(--left-lipoma);"></span>
+                <span><strong>Patient's Left:</strong> 32 × 23 mm (+155% Thickness)</span>
               </div>
             </div>
-
-            <!-- Axial Cross-Section Slicer Dock -->
-            <div class="hud-island slicer-dock">
-              <div class="slicer-header">
-                <span class="hud-badge-title" style="margin:0;">Axial Slicing Plane</span>
-                <span class="slicer-val-pill" id="slice-level-label">Off (Full)</span>
-              </div>
-              <input type="range" class="layer-slider" id="slider-axial" min="-22" max="22" step="0.5" value="22" oninput="updateAxialSlice(this.value)">
-              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-light); font-weight:600;">
-                <span>S1 Sacrum</span>
-                <span>L5 Paramedian</span>
-                <span>L1 Upper</span>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- Viewport Bottom Anatomical Bar -->
-        <div class="viewport-status-bar">
-          <div class="status-group">
-            <div class="status-item">
-              <span class="status-dot" style="background:var(--right-lipoma);"></span>
-              <span><strong>Patient's Right:</strong> 24 × 12 mm (Stable)</span>
-            </div>
-            <div class="status-item">
-              <span class="status-dot" style="background:var(--left-lipoma);"></span>
-              <span><strong>Patient's Left:</strong> 32 × 23 mm (+155% Thickness)</span>
+            <div class="status-group">
+              <span id="active-model-status-tag"><strong>Active Model:</strong> Full Human Anatomy Context</span>
+              <button class="mini-preset-chip" onclick="resetCamera()" style="background:#e2e8f0; font-weight:700;">Reset Camera</button>
             </div>
           </div>
-          <div class="status-group">
-            <span>Left side = Screen Right in Posterior View</span>
-            <button class="mini-preset-chip" onclick="resetCamera()" style="background:#e2e8f0; font-weight:700;">Reset Camera</button>
-          </div>
+
         </div>
 
       </div>
@@ -1450,7 +1635,7 @@
           <div class="bento-card-body">
             
             <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
-              The 3D models were constructed with millimeter-precise procedural stratification from clinical ultrasound and spine MRI coordinates. Download standalone binary glTF files for surgical inspection, 3D printing, or VR viewing:
+              Both 3D models were constructed with millimeter-precise procedural stratification from clinical ultrasound and spine MRI coordinates. Download standalone binary glTF files for surgical inspection, 3D printing, or VR viewing:
             </p>
 
             <div class="export-action-row">
@@ -1495,7 +1680,7 @@
   <script>
     // State management
     const state = {
-      mode: 'anatomy', // 'anatomy' | 'isolated' | 'ghost'
+      activeModel: 'anatomy', // 'anatomy' (Model 1) | 'isolated' (Model 2)
       timelineStep: 0, // 0 = July 2025, 1 = May 2026
       morphProgress: 0.0,
       isPlaying: false,
@@ -1520,14 +1705,32 @@
     const morphPctLabel = document.getElementById('morph-pct-label');
     const btnPlayPause = document.getElementById('btn-play-pause');
     const playIcon = document.getElementById('play-icon');
+    const toggleBtnLabel = document.getElementById('toggle-btn-label');
+    const hudToggleText = document.getElementById('hud-toggle-text');
+    const activeModelStatusTag = document.getElementById('active-model-status-tag');
 
-    // Camera preset coordinates (Looking at target [0, -3, 4])
+    // Camera preset coordinates (Anatomy vs Isolated)
     const CAMERA_PRESETS = {
       posterior: { pos: new THREE.Vector3(0, -3, 56), target: new THREE.Vector3(0, -3, 4) },
       lateral:   { pos: new THREE.Vector3(54, -3, 8), target: new THREE.Vector3(0, -3, 4) },
       axial:     { pos: new THREE.Vector3(0, 54, 10), target: new THREE.Vector3(0, -3, 4) },
       l5s1:      { pos: new THREE.Vector3(0, -8, 28), target: new THREE.Vector3(0, -7, 7.5) },
-      oblique:   { pos: new THREE.Vector3(34, 18, 44), target: new THREE.Vector3(0, -3, 4) }
+      oblique:   { pos: new THREE.Vector3(34, 18, 44), target: new THREE.Vector3(0, -3, 4) },
+      isolated_front: { pos: new THREE.Vector3(0, 0, 22), target: new THREE.Vector3(0, 0, 0) }
+    };
+
+    // Anatomical Coordinates vs Isolated Centered Coordinates (cm)
+    const POSITIONS = {
+      anatomy: {
+        right: new THREE.Vector3(-4.2, -7.5, 7.8),
+        left:  new THREE.Vector3(4.8, -7.5, 7.8),
+        grid:  new THREE.Vector3(0, -7.5, 6.5)
+      },
+      isolated: {
+        right: new THREE.Vector3(-4.0, 0.0, 0.0),
+        left:  new THREE.Vector3(4.0, 0.0, 0.0),
+        grid:  new THREE.Vector3(0, 0.0, -1.8)
+      }
     };
 
     let cameraTween = null;
@@ -1754,13 +1957,12 @@
     }
 
     // Bilateral Lipoma Meshes
-    // Screen Left in Posterior View = Patient's Right (X = -4.2 cm)
-    // Screen Right in Posterior View = Patient's Left (X = +4.8 cm)
+    // Initial position: Anatomical Context (POSITIONS.anatomy)
     const rightLipomaMesh = new THREE.Mesh(
       createEllipsoidGeometry(NODULE_DATA.right.jul25.rx, NODULE_DATA.right.jul25.ry, NODULE_DATA.right.jul25.rz),
       rightLipomaMaterial
     );
-    rightLipomaMesh.position.set(-4.2, -7.5, 7.8);
+    rightLipomaMesh.position.copy(POSITIONS.anatomy.right);
     rightLipomaMesh.rotation.z = -0.12;
     lipomasGroup.add(rightLipomaMesh);
 
@@ -1768,7 +1970,7 @@
       createEllipsoidGeometry(NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz),
       leftLipomaMaterial
     );
-    leftLipomaMesh.position.set(4.8, -7.5, 7.8);
+    leftLipomaMesh.position.copy(POSITIONS.anatomy.left);
     leftLipomaMesh.rotation.z = 0.15;
     lipomasGroup.add(leftLipomaMesh);
 
@@ -1807,10 +2009,10 @@
     calipersGroup.add(rightCalipers);
     calipersGroup.add(leftCalipers);
 
-    // 1 cm Centimeter Scale Grid (for Isolated Mode)
+    // 1 cm Centimeter Scale Grid (for Isolated Model)
     const gridHelper = new THREE.GridHelper(24, 24, 0x0284c7, 0xe2e8f0);
     gridHelper.rotation.x = Math.PI / 2;
-    gridHelper.position.set(0, -7.5, 6.5);
+    gridHelper.position.copy(POSITIONS.isolated.grid);
     gridGroup.add(gridHelper);
     gridGroup.visible = false;
 
@@ -1932,27 +2134,130 @@
     anatomyGroup.add(skinMesh);
 
     // =========================================================================
-    // Real-Time Interaction & Camera Controls
+    // DUAL MODEL TOGGLE & SWITCHING ENGINE
+    // Switches smoothly between Model 1 (Human Anatomy) and Model 2 (Isolated Lipoma)
     // =========================================================================
 
-    // Smooth Camera Transition (Lerp / Tween)
-    function setCameraView(presetKey) {
-      document.querySelectorAll('.cam-chip').forEach(el => el.classList.remove('active'));
-      const activeBtn = document.getElementById(`btn-cam-${presetKey}`);
-      if (activeBtn) activeBtn.classList.add('active');
+    function switchModel(modelType) {
+      state.activeModel = modelType;
 
-      const preset = CAMERA_PRESETS[presetKey];
-      if (!preset) return;
+      // Update Header Command Bar Tabs
+      document.getElementById('btn-model-anatomy').classList.toggle('active', modelType === 'anatomy');
+      document.getElementById('btn-model-isolated').classList.toggle('active', modelType === 'isolated');
 
-      const startPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const endPos = preset.pos.clone();
-      const endTarget = preset.target.clone();
+      // Update Toggle Button Labels
+      if (toggleBtnLabel) {
+        toggleBtnLabel.textContent = modelType === 'anatomy' ? 'Switch to Isolated Lipoma' : 'Switch to Human Anatomy';
+      }
+      if (hudToggleText) {
+        hudToggleText.textContent = modelType === 'anatomy' ? 'View Isolated Lipomas' : 'View Human Anatomy';
+      }
+      if (activeModelStatusTag) {
+        activeModelStatusTag.innerHTML = modelType === 'anatomy' 
+          ? '<strong>Active Model:</strong> Model 1 — Human Anatomy & Lipomas' 
+          : '<strong>Active Model:</strong> Model 2 — Isolated Lipomas (Scale & Calipers)';
+      }
 
-      const duration = 750; // ms
+      const layerDock = document.getElementById('layer-dock');
+      const slicerDock = document.getElementById('slicer-dock');
+      const isolatedDock = document.getElementById('isolated-metrics-dock');
+      const camPresetsGroup = document.querySelector('.cam-btn-group');
+
+      if (modelType === 'anatomy') {
+        // Model 1: Human Anatomy Active
+        anatomyGroup.visible = true;
+        gridGroup.visible = false;
+        shadowPlane.visible = true;
+
+        if (layerDock) layerDock.style.display = 'flex';
+        if (slicerDock) slicerDock.style.display = 'flex';
+        if (isolatedDock) isolatedDock.style.display = 'none';
+
+        // Smoothly glide lipomas to anatomical positions
+        glideMeshPosition(rightLipomaMesh, POSITIONS.anatomy.right);
+        glideMeshPosition(leftLipomaMesh, POSITIONS.anatomy.left);
+        glideMeshPosition(leftGhostMesh, POSITIONS.anatomy.left);
+
+        // Update calipers center
+        updateCalipersCenter(POSITIONS.anatomy.right, POSITIONS.anatomy.left);
+
+        // Reset camera to posterior back view
+        tweenCamera(CAMERA_PRESETS.posterior.pos, CAMERA_PRESETS.posterior.target);
+      } else {
+        // Model 2: Isolated Lipomas Active
+        anatomyGroup.visible = false;
+        gridGroup.visible = true;
+        shadowPlane.visible = false;
+
+        if (layerDock) layerDock.style.display = 'none';
+        if (slicerDock) slicerDock.style.display = 'none';
+        if (isolatedDock) isolatedDock.style.display = 'flex';
+
+        // Smoothly glide lipomas to centered isolated view
+        glideMeshPosition(rightLipomaMesh, POSITIONS.isolated.right);
+        glideMeshPosition(leftLipomaMesh, POSITIONS.isolated.left);
+        glideMeshPosition(leftGhostMesh, POSITIONS.isolated.left);
+
+        // Update calipers center
+        updateCalipersCenter(POSITIONS.isolated.right, POSITIONS.isolated.left);
+
+        // Smooth camera transition to front-and-center close-up
+        tweenCamera(CAMERA_PRESETS.isolated_front.pos, CAMERA_PRESETS.isolated_front.target);
+      }
+    }
+
+    function toggleActiveModel() {
+      switchModel(state.activeModel === 'anatomy' ? 'isolated' : 'anatomy');
+    }
+
+    // Keyboard shortcut: Spacebar toggles back and forth instantly
+    window.addEventListener('keydown', (e) => {
+      if ((e.code === 'Space' || e.key === 'm' || e.key === 'M') && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        toggleActiveModel();
+      }
+    });
+
+    // Mesh Position Glider (Lerp transition)
+    function glideMeshPosition(mesh, targetPos, duration = 400) {
+      const startPos = mesh.position.clone();
       const startTime = performance.now();
 
-      cameraTween = function(now) {
+      function stepGlide(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        mesh.position.lerpVectors(startPos, targetPos, ease);
+        if (t < 1) requestAnimationFrame(stepGlide);
+      }
+      requestAnimationFrame(stepGlide);
+    }
+
+    function updateCalipersCenter(posRight, posLeft) {
+      calipersGroup.remove(rightCalipers);
+      calipersGroup.remove(leftCalipers);
+
+      const rData = state.timelineStep === 0 ? NODULE_DATA.right.jul25 : NODULE_DATA.right.may26;
+      const lData = state.timelineStep === 0 ? NODULE_DATA.left.jul25 : NODULE_DATA.left.may26;
+
+      rightCalipers = buildCaliperAxes(posRight, rData.rx, rData.ry, rData.rz);
+      leftCalipers = buildCaliperAxes(posLeft, lData.rx, lData.ry, lData.rz);
+      calipersGroup.add(rightCalipers);
+      calipersGroup.add(leftCalipers);
+    }
+
+    // =========================================================================
+    // Camera Transitions & HUD Presets
+    // =========================================================================
+
+    function tweenCamera(endPos, endTarget, duration = 650) {
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const startTime = performance.now();
+
+      if (cameraTween) cancelAnimationFrame(cameraTween);
+
+      function stepCam(now) {
         const elapsed = now - startTime;
         const t = Math.min(1, elapsed / duration);
         // Custom cubic-bezier spring easing
@@ -1962,43 +2267,30 @@
         controls.target.lerpVectors(startTarget, endTarget, ease);
 
         if (t < 1) {
-          requestAnimationFrame(cameraTween);
+          cameraTween = requestAnimationFrame(stepCam);
         } else {
           cameraTween = null;
         }
-      };
-      requestAnimationFrame(cameraTween);
+      }
+      cameraTween = requestAnimationFrame(stepCam);
+    }
+
+    function setCameraView(presetKey) {
+      document.querySelectorAll('.cam-chip').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-cam-${presetKey}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const preset = CAMERA_PRESETS[presetKey];
+      if (!preset) return;
+
+      tweenCamera(preset.pos, preset.target);
     }
 
     function resetCamera() {
-      setCameraView('posterior');
-    }
-
-    // View Modes
-    function setViewMode(mode) {
-      state.mode = mode;
-      document.querySelectorAll('.seg-btn').forEach(el => el.classList.remove('active'));
-      const activeBtn = document.getElementById(`btn-mode-${mode}`);
-      if (activeBtn) activeBtn.classList.add('active');
-
-      if (mode === 'anatomy') {
-        anatomyGroup.visible = true;
-        ghostGroup.visible = false;
-        gridGroup.visible = false;
-        calipersGroup.visible = true;
-        document.getElementById('layer-dock').style.display = 'flex';
-      } else if (mode === 'isolated') {
-        anatomyGroup.visible = false;
-        ghostGroup.visible = false;
-        gridGroup.visible = true;
-        calipersGroup.visible = true;
-        document.getElementById('layer-dock').style.display = 'none';
-      } else if (mode === 'ghost') {
-        anatomyGroup.visible = false;
-        ghostGroup.visible = true;
-        gridGroup.visible = true;
-        calipersGroup.visible = true;
-        document.getElementById('layer-dock').style.display = 'none';
+      if (state.activeModel === 'isolated') {
+        setCameraView('isolated_front');
+      } else {
+        setCameraView('posterior');
       }
     }
 
@@ -2024,7 +2316,6 @@
 
     function applyLayerPreset(preset) {
       if (preset === 'us') {
-        // Highlighting superficial tissue and lipomas
         updateSlider('skin', 0.10);
         updateSlider('fat', 0.20);
         updateSlider('fascia', 0.60);
@@ -2089,10 +2380,9 @@
       document.getElementById('card-date-may26').classList.toggle('active', step === 1);
       const targetVal = step === 0 ? 0.0 : 1.0;
 
-      // Animate morph
       const startVal = state.morphProgress;
       const startTime = performance.now();
-      const duration = 600;
+      const duration = 550;
 
       function stepMorph(now) {
         const elapsed = now - startTime;
@@ -2149,6 +2439,12 @@
 
       const metricLeft = document.getElementById('metric-left-vol');
       if (metricLeft) metricLeft.textContent = `${curLeftVol} cm³ (AP: ${curLeftThick} mm)`;
+
+      const isoLeft = document.getElementById('iso-left-val');
+      if (isoLeft) isoLeft.textContent = `32 × ${curLeftThick} mm (${curLeftVol} cm³)`;
+
+      const isoRight = document.getElementById('iso-right-val');
+      if (isoRight) isoRight.textContent = `24 × 12 mm (${curRightVol} cm³)`;
     }
 
     // Play/Pause Morphing Animation Loop
@@ -2185,8 +2481,8 @@
       const rScreen = rightWorld.project(camera);
       const lScreen = leftWorld.project(camera);
 
-      // Only show if in front of camera
-      const isVisible = camera.position.z > 8;
+      // Check visibility in front of camera
+      const isVisible = camera.position.z > (state.activeModel === 'isolated' ? 4 : 8);
 
       if (isVisible && calipersGroup.visible) {
         caliperTagRight.style.display = 'flex';
@@ -2211,14 +2507,18 @@
       const camY = camera.position.y;
       const camZ = camera.position.z;
 
-      if (camY > 35) {
-        compassLabel.textContent = "Axial View (Superior / Top-Down)";
-      } else if (Math.abs(camX) > 30) {
-        compassLabel.textContent = camX > 0 ? "Right Lateral Profile" : "Left Lateral Profile";
-      } else if (camZ > 10) {
-        compassLabel.textContent = "Posterior View (Examining Patient's Back)";
+      if (state.activeModel === 'isolated') {
+        compassLabel.textContent = "Isolated Lipoma Model (Centered View)";
       } else {
-        compassLabel.textContent = "Anterior View (Frontal Spine)";
+        if (camY > 35) {
+          compassLabel.textContent = "Axial View (Superior / Top-Down)";
+        } else if (Math.abs(camX) > 30) {
+          compassLabel.textContent = camX > 0 ? "Right Lateral Profile" : "Left Lateral Profile";
+        } else if (camZ > 10) {
+          compassLabel.textContent = "Posterior View (Examining Patient's Back)";
+        } else {
+          compassLabel.textContent = "Anterior View (Frontal Spine)";
+        }
       }
     }
 
@@ -2228,7 +2528,7 @@
       const dataURL = renderer.domElement.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = dataURL;
-      a.download = `lipoma-3d-analysis-${state.timelineStep === 0 ? '2025' : '2026'}.png`;
+      a.download = `lipoma-3d-${state.activeModel}-${state.timelineStep === 0 ? '2025' : '2026'}.png`;
       a.click();
     }
 
