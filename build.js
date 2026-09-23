@@ -14,10 +14,18 @@ if (!fs.existsSync(distDir)) {
 // Assets to copy into dist
 const assetsToCopy = [
   'index.html',
+  'lower-back-3d-web.glb',
+  'model-info.json',
+  'meshopt_decoder.js',
+  'lower-back-3d-detail.html',
+  'lower-back-3d.glb',
+  'lower-back-lipomas-anatomy.glb',
+  'lower-back-lipomas-anatomy.html',
   'lower-back-lipomas-3d.html',
   'lipoma-isolated.glb',
   'lower-back-anatomy-lipomas.glb',
   'lower-back-lipomas-3d.glb',
+  'ct-atlas.jpg',
   'generate_3d_models.py',
   'favicon.svg'
 ];

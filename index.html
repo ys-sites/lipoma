@@ -12,10 +12,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Three.js + OrbitControls + GLTFExporter -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <!-- Modern Three.js Module Import Map (Latest ES Module + MeshoptDecoder) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
 
   <style>
     /* ==========================================================================
@@ -791,6 +796,205 @@
       border-top: 4px solid #ffffff;
     }
 
+    /* 3D Model Loading Overlay */
+    .model-loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 50;
+      transition: opacity 0.4s var(--ease-fluid);
+      pointer-events: auto;
+    }
+
+    .model-loading-overlay.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .apple-spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-msg {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .loading-submsg {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* 3D Anatomical SVG Leaders & Glass Badges */
+    .anatomy-leaders-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .leader-line {
+      stroke: #94a3b8;
+      stroke-width: 1.2;
+      stroke-dasharray: 2 3;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .leader-line.right {
+      stroke: var(--right-lipoma);
+      stroke-width: 1.8;
+      stroke-dasharray: none;
+      opacity: 0.95;
+    }
+
+    .leader-line.left {
+      stroke: var(--left-lipoma);
+      stroke-width: 1.8;
+      stroke-dasharray: none;
+      opacity: 0.95;
+    }
+
+    .anatomy-callouts-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+      overflow: hidden;
+    }
+
+    .anatomy-badge {
+      position: absolute;
+      pointer-events: auto;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      color: var(--text-main);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: default;
+    }
+
+    .anatomy-badge:hover {
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    .anatomy-badge.lipoma-badge-right {
+      background: var(--right-bg);
+      border-color: var(--right-border);
+      color: #047857;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.15);
+    }
+
+    .anatomy-badge.lipoma-badge-left {
+      background: var(--left-bg);
+      border-color: var(--left-border);
+      color: #c2410c;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.15);
+    }
+
+    .anatomy-badge.bone-badge {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #334155;
+      font-size: 10px;
+      padding: 2px 8px;
+    }
+
+    /* Structure Tooltip (on click/tap/hover) */
+    .structure-tooltip {
+      position: absolute;
+      pointer-events: none;
+      z-index: 100;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      white-space: nowrap;
+      transform: translate(-50%, calc(-100% - 12px));
+      transition: opacity 0.15s ease-out;
+    }
+
+    .structure-tooltip::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #0f172a;
+    }
+
+    /* Enhanced Slicer Mode Chips */
+    .slicer-mode-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .slicer-mode-chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .slicer-mode-chip:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    .slicer-mode-chip.active {
+      background: var(--text-main);
+      color: #ffffff;
+      border-color: var(--text-main);
+    }
+
     /* Viewport Bottom Status Bar */
     .viewport-status-bar {
       padding: 10px 18px;
@@ -1162,9 +1366,100 @@
         overflow-x: auto;
       }
     }
+  
+    /* ==========================================================================
+       ANIMATED FLOW CURSOR & HAPTIC MICRO-INTERACTIONS (001 Main / Vanguard)
+       ========================================================================== */
+    .flow-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 7px;
+      height: 7px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+    }
+    .flow-cursor-ring {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid rgba(2, 132, 199, 0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, background-color 0.25s ease, transform 0.08s ease-out;
+    }
+    .flow-cursor-ring.active {
+      width: 52px;
+      height: 52px;
+      border-color: rgba(2, 132, 199, 0.85);
+      background-color: rgba(2, 132, 199, 0.06);
+      backdrop-filter: blur(2px);
+    }
+    .flow-cursor-ring.lipoma-r {
+      border-color: rgba(5, 150, 105, 0.85);
+      background-color: rgba(5, 150, 105, 0.08);
+    }
+    .flow-cursor-ring.lipoma-l {
+      border-color: rgba(234, 88, 12, 0.85);
+      background-color: rgba(234, 88, 12, 0.08);
+    }
+    @media (hover: none) or (max-width: 768px) {
+      .flow-cursor, .flow-cursor-ring {
+        display: none !important;
+      }
+    }
+
+    /* Model Attribution & Notes Card */
+    .model-attribution-card {
+      margin-top: 14px;
+      padding: 16px 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-outer);
+      border-radius: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .model-attribution-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .model-attribution-card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .model-attribution-card li {
+      margin: 3px 0;
+    }
+    .attribution-text {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-light);
+      border-top: 1px dashed var(--border-inner);
+      padding-top: 6px;
+    }
+
   </style>
 </head>
 <body>
+  <!-- Precision Animated Flow Cursor (Vanguard Awwwards-Tier) -->
+  <div class="flow-cursor" id="flow-cursor"></div>
+  <div class="flow-cursor-ring" id="flow-cursor-ring"></div>
+
 
   <div class="app-container">
     
@@ -1247,6 +1542,22 @@
           <!-- Three.js Canvas Container -->
           <div id="three-canvas-container"></div>
 
+          <!-- 3D Model Loading Overlay -->
+          <div id="model-loading-overlay" class="model-loading-overlay">
+            <div class="apple-spinner"></div>
+            <div class="loading-msg">Loading CT-Segmented Anatomy</div>
+            <div class="loading-submsg">TotalSegmentator reference scan · 37 anatomical structures</div>
+          </div>
+
+          <!-- Dynamic SVG Leader Lines Overlay -->
+          <svg id="anatomy-leaders" class="anatomy-leaders-svg"></svg>
+
+          <!-- 3D Screen Projected Callout Badges -->
+          <div id="anatomy-callouts" class="anatomy-callouts-layer"></div>
+
+          <!-- Interactive Hover/Click Structure Tooltip -->
+          <div id="structure-tip" class="structure-tooltip" style="display:none;"></div>
+
           <!-- In-Scene Screen Projected 3D Calipers -->
           <div id="caliper-tag-right" class="caliper-hud-tag" style="display:none;">
             <span style="color:var(--right-lipoma)">● Right Lipoma:</span> <span id="caliper-text-right">24 × 12 mm</span>
@@ -1271,20 +1582,20 @@
                 <!-- Camera Presets -->
                 <div class="hud-island">
                   <div class="cam-btn-group">
-                    <button class="cam-chip active" id="btn-cam-posterior" onclick="setCameraView('posterior')">
-                      Posterior
+                    <button class="cam-chip active" id="btn-cam-back" onclick="setCameraView('back')">
+                      Posterior (Back)
                     </button>
-                    <button class="cam-chip" id="btn-cam-lateral" onclick="setCameraView('lateral')">
-                      Lateral
+                    <button class="cam-chip" id="btn-cam-angled" onclick="setCameraView('angled')">
+                      3/4 Angled
                     </button>
-                    <button class="cam-chip" id="btn-cam-axial" onclick="setCameraView('axial')">
-                      Axial Cross
+                    <button class="cam-chip" id="btn-cam-side" onclick="setCameraView('side')">
+                      Lateral (Side)
                     </button>
-                    <button class="cam-chip" id="btn-cam-l5s1" onclick="setCameraView('l5s1')">
-                      L5–S1 Zoom
+                    <button class="cam-chip" id="btn-cam-front" onclick="setCameraView('front')">
+                      Anterior (Front)
                     </button>
-                    <button class="cam-chip" id="btn-cam-oblique" onclick="setCameraView('oblique')">
-                      3/4 Perspective
+                    <button class="cam-chip" id="btn-cam-lipomas_closeup" onclick="setCameraView('lipomas_closeup')">
+                      Lipomas Zoom
                     </button>
                   </div>
                 </div>
@@ -1307,7 +1618,7 @@
               <div class="hud-island hud-island-col" id="layer-dock">
                 <div class="hud-badge-title">
                   <span>Anatomical Layers Opacity</span>
-                  <span id="layers-status-tag" style="color:var(--accent-cyan); font-size:10px;">Full Context</span>
+                  <span id="layers-status-tag" style="color:var(--accent-cyan); font-size:10px;">TotalSegmentator CT</span>
                 </div>
 
                 <!-- Skin -->
@@ -1315,52 +1626,60 @@
                   <span class="layer-name-tag">
                     <span class="layer-color-dot" style="background:var(--skin-color);"></span> Skin
                   </span>
-                  <input type="range" class="layer-slider" id="slider-skin" min="0" max="1" step="0.05" value="0.22" oninput="updateLayerOpacity('skin', this.value)">
-                  <span class="layer-pct" id="pct-skin">22%</span>
-                </div>
-
-                <!-- Subcutaneous Fat -->
-                <div class="layer-control-row">
-                  <span class="layer-name-tag">
-                    <span class="layer-color-dot" style="background:var(--fat-color);"></span> Fat Layer
-                  </span>
-                  <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.05" value="0.25" oninput="updateLayerOpacity('fat', this.value)">
-                  <span class="layer-pct" id="pct-fat">25%</span>
-                </div>
-
-                <!-- Fascia -->
-                <div class="layer-control-row">
-                  <span class="layer-name-tag">
-                    <span class="layer-color-dot" style="background:var(--fascia-color);"></span> TL Fascia
-                  </span>
-                  <input type="range" class="layer-slider" id="slider-fascia" min="0" max="1" step="0.05" value="0.45" oninput="updateLayerOpacity('fascia', this.value)">
-                  <span class="layer-pct" id="pct-fascia">45%</span>
+                  <input type="range" class="layer-slider" id="slider-skin" min="0" max="1" step="0.02" value="1.0" oninput="updateLayerOpacity('skin', this.value)">
+                  <span class="layer-pct" id="pct-skin">100%</span>
                 </div>
 
                 <!-- Muscle -->
                 <div class="layer-control-row">
                   <span class="layer-name-tag">
-                    <span class="layer-color-dot" style="background:var(--muscle-color);"></span> Erector Spinae
+                    <span class="layer-color-dot" style="background:var(--muscle-color);"></span> Muscles
                   </span>
-                  <input type="range" class="layer-slider" id="slider-muscle" min="0" max="1" step="0.05" value="0.85" oninput="updateLayerOpacity('muscle', this.value)">
-                  <span class="layer-pct" id="pct-muscle">85%</span>
+                  <input type="range" class="layer-slider" id="slider-muscle" min="0" max="1" step="0.02" value="1.0" oninput="updateLayerOpacity('muscle', this.value)">
+                  <span class="layer-pct" id="pct-muscle">100%</span>
                 </div>
 
                 <!-- Spine / Bone -->
                 <div class="layer-control-row">
                   <span class="layer-name-tag">
-                    <span class="layer-color-dot" style="background:var(--bone-color);"></span> Spine & Pelvis
+                    <span class="layer-color-dot" style="background:var(--bone-color);"></span> Spine & Bones
                   </span>
-                  <input type="range" class="layer-slider" id="slider-bone" min="0" max="1" step="0.05" value="1.0" oninput="updateLayerOpacity('bone', this.value)">
+                  <input type="range" class="layer-slider" id="slider-bone" min="0" max="1" step="0.02" value="1.0" oninput="updateLayerOpacity('bone', this.value)">
                   <span class="layer-pct" id="pct-bone">100%</span>
                 </div>
 
+                <!-- Lipomas -->
+                <div class="layer-control-row">
+                  <span class="layer-name-tag">
+                    <span class="layer-color-dot" style="background:var(--right-lipoma);"></span> Lipomas
+                  </span>
+                  <input type="range" class="layer-slider" id="slider-lipoma" min="0" max="1" step="0.02" value="1.0" oninput="updateLayerOpacity('lipoma', this.value)">
+                  <span class="layer-pct" id="pct-lipoma">100%</span>
+                </div>
+
                 <!-- Quick Presets -->
-                <div class="quick-preset-chips">
-                  <button class="mini-preset-chip" onclick="applyLayerPreset('us')">Ultrasound View</button>
-                  <button class="mini-preset-chip" onclick="applyLayerPreset('surgical')">Surgical Prep</button>
-                  <button class="mini-preset-chip" onclick="applyLayerPreset('skeleton')">Spine Only</button>
-                  <button class="mini-preset-chip" onclick="applyLayerPreset('all')">Reset</button>
+                <div class="quick-preset-chips" style="margin-top:4px;">
+                  <button class="mini-preset-chip active" data-preset="skin" onclick="applyAnatPreset('skin')">Skin</button>
+                  <button class="mini-preset-chip" data-preset="see_through" onclick="applyAnatPreset('see_through')">See-through</button>
+                  <button class="mini-preset-chip" data-preset="muscles" onclick="applyAnatPreset('muscles')">Muscles</button>
+                  <button class="mini-preset-chip" data-preset="bones" onclick="applyAnatPreset('bones')">Bones</button>
+                  <button class="mini-preset-chip" data-preset="lipomas" onclick="applyAnatPreset('lipomas')">Lipomas Zoom</button>
+                </div>
+
+                <!-- Visualization Options -->
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; padding-top:6px; border-top:1px solid var(--border-inner); font-size:11px; color:var(--text-secondary); font-weight:600;">
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <input type="checkbox" id="chk-xray" checked onchange="toggleXRayGlow(this.checked)">
+                    <span>X-Ray Glow</span>
+                  </label>
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <input type="checkbox" id="chk-calipers" onchange="toggleMeasurements(this.checked)">
+                    <span>3D Calipers (mm)</span>
+                  </label>
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <input type="checkbox" id="chk-autorotate" onchange="toggleAutoRotate(this.checked)">
+                    <span>Auto-Rotate</span>
+                  </label>
                 </div>
               </div>
 
@@ -1383,17 +1702,24 @@
                 </div>
               </div>
 
-              <!-- Axial Cross-Section Slicer Dock (Active for Model 1) -->
+              <!-- Axial / Anatomical Cross-Section Slicer Dock (Active for Model 1) -->
               <div class="hud-island slicer-dock" id="slicer-dock">
                 <div class="slicer-header">
-                  <span class="hud-badge-title" style="margin:0;">Axial Slicing Plane</span>
+                  <span class="hud-badge-title" style="margin:0;">Body Cross-Section Cut</span>
                   <span class="slicer-val-pill" id="slice-level-label">Off (Full)</span>
                 </div>
-                <input type="range" class="layer-slider" id="slider-axial" min="-22" max="22" step="0.5" value="22" oninput="updateAxialSlice(this.value)">
+                <div class="slicer-mode-group">
+                  <button class="slicer-mode-chip active" id="btn-cut-off" onclick="setCutMode('off')">No Cut</button>
+                  <button class="slicer-mode-chip" id="btn-cut-horizontal" onclick="setCutMode('horizontal')">Axial</button>
+                  <button class="slicer-mode-chip" id="btn-cut-side" onclick="setCutMode('side')">Sagittal</button>
+                  <button class="slicer-mode-chip" id="btn-cut-depth" onclick="setCutMode('depth')">Coronal</button>
+                  <button class="slicer-mode-chip" id="btn-cut-flip" onclick="toggleCutFlip()" title="Flip cut direction">Flip ⇄</button>
+                </div>
+                <input type="range" class="layer-slider" id="slider-axial" min="0" max="1" step="0.005" value="1" oninput="updateCutSlider(this.value)">
                 <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-light); font-weight:600;">
-                  <span>S1 Sacrum</span>
-                  <span>L5 Paramedian</span>
-                  <span>L1 Upper</span>
+                  <span id="cut-min-label">Inferior (Feet)</span>
+                  <span id="cut-mid-label">L5–S1 Lipoma Level</span>
+                  <span id="cut-max-label">Superior (Head)</span>
                 </div>
               </div>
 
@@ -1423,6 +1749,25 @@
 
       </div>
     </section>
+    <!-- Clinical 3D Reference Notes & Attribution Card (CC BY 4.0) -->
+    <div class="model-attribution-card">
+      <h4>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--accent-cyan);">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Reference Anatomy & Lipoma Visualization Clinical Notes
+      </h4>
+      <ul>
+        <li><strong>Anatomical Basis:</strong> Skin, spinal column (T10–L5, sacrum, pelvis) and lumbar musculature derived from the volumetric CT dataset of an adult reference subject.</li>
+        <li><strong>Subcutaneous Localization:</strong> Both lipomas are positioned in the deep subcutaneous adipose tissue directly overlying the thoracolumbar fascial plane at L5–S1.</li>
+        <li><strong>Metric Scaling:</strong> Right lipoma (26 × 10 × 29 mm) and Left lipoma (39 × 9 × 20 mm baseline, with +155.6% anteroposterior thickening to 23 mm on follow-up).</li>
+        <li><strong>Educational Clinical Context:</strong> Designed for clinical review, multi-specialty consultation, and morphometric progression analysis. Non-diagnostic.</li>
+      </ul>
+      <div class="attribution-text">
+        Anatomy derived from the TotalSegmentator dataset (subject s1397; Wasserthal et al., Radiology: Artificial Intelligence, 2023), licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Lipoma measurements and interval dynamics extracted from serial ultrasound reports.
+      </div>
+    </div>
+
 
     <!-- ==========================================================================
          BENTO GRID SECTION: CLINICAL TIMELINE & QUANTITATIVE MATRIX
@@ -1628,33 +1973,645 @@
 
   </div>
 
-  <!-- ==========================================================================
-       THREE.JS SCRIPT: CLINICAL 3D ENGINE (STUDIO WHITE ENVIRONMENT)
+      <!-- ==========================================================================
+       THREE.JS SCRIPT: ULTRA-FAST ES MODULE 3D CLINICAL ENGINE
+       Using Three.js r169 + MeshoptDecoder + RoomEnvironment + Web Workers
        ========================================================================== -->
-  <script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    // Embedded Model Information from model-info.json
+    const MODEL_INFO = {
+  "model": {
+    "file_web": "lower-back-3d-web.glb",
+    "file_standard": "lower-back-3d.glb",
+    "format": "glTF 2.0 binary (.glb)",
+    "web_file_compression": "EXT_meshopt_compression + KHR_mesh_quantization. In three.js call gltfLoader.setMeshoptDecoder(MeshoptDecoder).",
+    "units": "meters",
+    "axes": {
+      "+Y": "up, toward the head",
+      "+X": "the patient's right",
+      "+Z": "the patient's back (a camera on +Z looks at the back)"
+    },
+    "origin": "centre of the model block, on the body midline",
+    "bbox": {
+      "min": [
+        -0.21699999272823334,
+        -0.1784999966621399,
+        -0.15279999375343323
+      ],
+      "max": [
+        0.21480000019073486,
+        0.17890000343322754,
+        0.1525000035762787
+      ]
+    },
+    "node_naming": "Every structure is a named node whose name equals its id below. Its label and group are also in the node extras (three.js: object.userData). Apply material and visibility changes to all descendant meshes of the node.",
+    "vertex_colors": "COLOR_0 holds baked ambient occlusion (grey values). Keep vertexColors enabled so the shading keeps its depth."
+  },
+  "groups": [
+    {
+      "id": "skin",
+      "label": "Skin",
+      "color": "#c98f70"
+    },
+    {
+      "id": "muscle",
+      "label": "Muscles",
+      "color": "#9c2c28"
+    },
+    {
+      "id": "bone",
+      "label": "Bones",
+      "color": "#e4d6b6"
+    },
+    {
+      "id": "lipoma",
+      "label": "Lipomas",
+      "color": "#22b07f"
+    }
+  ],
+  "structures": [
+    {
+      "id": "skin",
+      "label": "Skin",
+      "group": "skin"
+    },
+    {
+      "id": "muscle_erector_spinae_left",
+      "label": "Erector spinae and multifidus (left)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.002,
+        0.998,
+        0.056
+      ]
+    },
+    {
+      "id": "muscle_erector_spinae_right",
+      "label": "Erector spinae and multifidus (right)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.082,
+        -0.995,
+        -0.055
+      ]
+    },
+    {
+      "id": "muscle_gluteus_maximus_left",
+      "label": "Gluteus maximus (left)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.569,
+        0.82,
+        -0.059
+      ]
+    },
+    {
+      "id": "muscle_gluteus_maximus_right",
+      "label": "Gluteus maximus (right)",
+      "group": "muscle",
+      "fiber_direction": [
+        0.42,
+        0.908,
+        -0.017
+      ]
+    },
+    {
+      "id": "muscle_gluteus_medius_left",
+      "label": "Gluteus medius (left)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.542,
+        -0.559,
+        -0.628
+      ]
+    },
+    {
+      "id": "muscle_gluteus_medius_right",
+      "label": "Gluteus medius (right)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.458,
+        0.689,
+        0.562
+      ]
+    },
+    {
+      "id": "muscle_gluteus_minimus_left",
+      "label": "Gluteus minimus (left)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.256,
+        0.576,
+        -0.776
+      ]
+    },
+    {
+      "id": "muscle_gluteus_minimus_right",
+      "label": "Gluteus minimus (right)",
+      "group": "muscle",
+      "fiber_direction": [
+        0.495,
+        -0.132,
+        -0.859
+      ]
+    },
+    {
+      "id": "muscle_iliopsoas_left",
+      "label": "Iliopsoas (left)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.308,
+        -0.849,
+        -0.43
+      ]
+    },
+    {
+      "id": "muscle_iliopsoas_right",
+      "label": "Iliopsoas (right)",
+      "group": "muscle",
+      "fiber_direction": [
+        -0.26,
+        0.835,
+        0.484
+      ]
+    },
+    {
+      "id": "bone_T10",
+      "label": "T10 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_T11",
+      "label": "T11 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_T12",
+      "label": "T12 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_L1",
+      "label": "L1 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_L2",
+      "label": "L2 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_L3",
+      "label": "L3 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_L4",
+      "label": "L4 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_L5",
+      "label": "L5 vertebra",
+      "group": "bone"
+    },
+    {
+      "id": "bone_sacrum",
+      "label": "Sacrum",
+      "group": "bone"
+    },
+    {
+      "id": "bone_hip_left",
+      "label": "Hip bone / ilium (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_hip_right",
+      "label": "Hip bone / ilium (right)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_femur_left",
+      "label": "Femur, upper end (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_femur_right",
+      "label": "Femur, upper end (right)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib9_left",
+      "label": "Rib 9 (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib10_left",
+      "label": "Rib 10 (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib11_left",
+      "label": "Rib 11 (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib12_left",
+      "label": "Rib 12 (left)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib9_right",
+      "label": "Rib 9 (right)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib10_right",
+      "label": "Rib 10 (right)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib11_right",
+      "label": "Rib 11 (right)",
+      "group": "bone"
+    },
+    {
+      "id": "bone_rib12_right",
+      "label": "Rib 12 (right)",
+      "group": "bone"
+    },
+    {
+      "id": "lipoma_right",
+      "label": "Right lipoma",
+      "group": "lipoma"
+    },
+    {
+      "id": "lipoma_left",
+      "label": "Left lipoma",
+      "group": "lipoma"
+    }
+  ],
+  "lipomas": [
+    {
+      "id": "lipoma_right",
+      "label": "Right lipoma",
+      "color": "#22b07f",
+      "size_mm": {
+        "width": 26,
+        "depth": 10,
+        "height": 29
+      },
+      "volume_cm3": 3.9,
+      "center": [
+        0.0396,
+        -0.03075,
+        0.14137
+      ],
+      "axes": {
+        "width": [
+          0.9876,
+          -0.0,
+          -0.1573
+        ],
+        "depth_outward": [
+          0.1573,
+          0.0,
+          0.9876
+        ],
+        "height": [
+          0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "reports": [
+        {
+          "date": "2025-07-22",
+          "size": "26 \u00d7 10 \u00d7 29 mm",
+          "note": "three dimensions measured"
+        },
+        {
+          "date": "2026-05-14",
+          "size": "24 \u00d7 12 mm",
+          "note": "two dimensions measured"
+        }
+      ],
+      "location": "About 4 cm right of the midline at the L5\u2013S1 level, in the fat under the skin"
+    },
+    {
+      "id": "lipoma_left",
+      "label": "Left lipoma",
+      "color": "#ec7a45",
+      "size_mm": {
+        "width": 39,
+        "depth": 9,
+        "height": 20
+      },
+      "volume_cm3": 3.7,
+      "center": [
+        -0.03948,
+        -0.0308,
+        0.1434
+      ],
+      "axes": {
+        "width": [
+          0.9806,
+          0.0019,
+          0.1958
+        ],
+        "depth_outward": [
+          -0.1958,
+          0.0095,
+          0.9806
+        ],
+        "height": [
+          0.0,
+          1.0,
+          -0.0097
+        ]
+      },
+      "reports": [
+        {
+          "date": "2025-07-22",
+          "size": "39 \u00d7 9 \u00d7 20 mm",
+          "note": "three dimensions measured"
+        },
+        {
+          "date": "2026-05-14",
+          "size": "32 \u00d7 23 mm",
+          "note": "two dimensions measured"
+        }
+      ],
+      "location": "About 4 cm left of the midline at the L5\u2013S1 level, in the fat under the skin"
+    }
+  ],
+  "labels": [
+    {
+      "text": "T12",
+      "group": "bone",
+      "structure": "bone_T12",
+      "position": [
+        0.0007200000109151006,
+        0.09828999638557434,
+        0.13113999366760254
+      ]
+    },
+    {
+      "text": "L1",
+      "group": "bone",
+      "structure": "bone_L1",
+      "position": [
+        0.0003000000142492354,
+        0.06449999660253525,
+        0.13322000205516815
+      ]
+    },
+    {
+      "text": "L2",
+      "group": "bone",
+      "structure": "bone_L2",
+      "position": [
+        9.000000136438757e-05,
+        0.049710001796483994,
+        0.13312000036239624
+      ]
+    },
+    {
+      "text": "L3",
+      "group": "bone",
+      "structure": "bone_L3",
+      "position": [
+        0.00011000000085914508,
+        0.026350000873208046,
+        0.1280599981546402
+      ]
+    },
+    {
+      "text": "L4",
+      "group": "bone",
+      "structure": "bone_L4",
+      "position": [
+        2.9999999242136255e-05,
+        -0.0027099999133497477,
+        0.11897999793291092
+      ]
+    },
+    {
+      "text": "L5",
+      "group": "bone",
+      "structure": "bone_L5",
+      "position": [
+        0.0020800000056624413,
+        -0.024650000035762787,
+        0.1130099967122078
+      ]
+    },
+    {
+      "text": "Sacrum",
+      "group": "bone",
+      "structure": "bone_sacrum",
+      "position": [
+        0.0006200000061653554,
+        -0.058889999985694885,
+        0.11430999636650085
+      ]
+    },
+    {
+      "text": "Iliac crest",
+      "group": "bone",
+      "structure": "bone_hip_left",
+      "position": [
+        -0.10135000199079514,
+        0.0282600000500679,
+        0.07823000103235245
+      ]
+    },
+    {
+      "text": "Erector spinae",
+      "group": "muscle",
+      "structure": "muscle_erector_spinae_right",
+      "position": [
+        0.020980000495910645,
+        0.03440000116825104,
+        0.12891000509262085
+      ]
+    },
+    {
+      "text": "Gluteus maximus",
+      "group": "muscle",
+      "structure": "muscle_gluteus_maximus_left",
+      "position": [
+        -0.024709999561309814,
+        -0.1109199970960617,
+        0.1262200027704239
+      ]
+    },
+    {
+      "text": "Gluteus medius",
+      "group": "muscle",
+      "structure": "muscle_gluteus_medius_right",
+      "position": [
+        0.13404999673366547,
+        0.010599999688565731,
+        0.05688000097870827
+      ]
+    }
+  ],
+  "views": {
+    "back": {
+      "label": "Back",
+      "position": [
+        0.16,
+        0.07,
+        1.05
+      ],
+      "target": [
+        0.0,
+        0.0,
+        0.03
+      ]
+    },
+    "angled": {
+      "label": "Angled",
+      "position": [
+        0.55,
+        0.05,
+        0.8
+      ],
+      "target": [
+        0.0,
+        -0.01,
+        0.05
+      ]
+    },
+    "side": {
+      "label": "Side",
+      "position": [
+        0.95,
+        0.03,
+        0.12
+      ],
+      "target": [
+        0.0,
+        0.0,
+        0.03
+      ]
+    },
+    "front": {
+      "label": "Front",
+      "position": [
+        -0.1,
+        0.06,
+        -1.05
+      ],
+      "target": [
+        0.0,
+        0.0,
+        -0.02
+      ]
+    },
+    "lipomas_closeup": {
+      "label": "Lipomas",
+      "position": [
+        0.1001,
+        0.0392,
+        0.4424
+      ],
+      "target": [
+        0.0001,
+        -0.0308,
+        0.1374
+      ]
+    }
+  },
+  "presets": {
+    "skin": {
+      "label": "Skin",
+      "opacity": {
+        "skin": 1.0,
+        "muscle": 1.0,
+        "bone": 1.0,
+        "lipoma": 1.0
+      },
+      "view": "back"
+    },
+    "see_through": {
+      "label": "See-through",
+      "opacity": {
+        "skin": 0.22,
+        "muscle": 1.0,
+        "bone": 1.0,
+        "lipoma": 1.0
+      },
+      "view": "angled"
+    },
+    "muscles": {
+      "label": "Muscles",
+      "opacity": {
+        "skin": 0.0,
+        "muscle": 1.0,
+        "bone": 1.0,
+        "lipoma": 1.0
+      },
+      "view": "angled"
+    },
+    "bones": {
+      "label": "Bones",
+      "opacity": {
+        "skin": 0.08,
+        "muscle": 0.0,
+        "bone": 1.0,
+        "lipoma": 1.0
+      },
+      "view": "back"
+    },
+    "lipomas": {
+      "label": "Lipomas close-up",
+      "opacity": {
+        "skin": 0.18,
+        "muscle": 1.0,
+        "bone": 1.0,
+        "lipoma": 1.0
+      },
+      "view": "lipomas_closeup"
+    }
+  },
+  "notes": [
+    "Reference anatomy: skin, muscles and bones come from the CT scan of an anonymized adult male, not from the patient. The scan was taken lying on the back, which flattens the back.",
+    "Lipoma sizes come from the July 22, 2025 ultrasound. The axis order is assumed to be width (side to side) \u00d7 depth \u00d7 height (up and down).",
+    "Lipoma positions follow the reports (paramedian, subcutaneous, about L5\u2013S1), but the exact spots are approximate. The small skin bulge over each lipoma is illustrative.",
+    "For understanding and discussion only. This is not a diagnostic image."
+  ],
+  "attribution": "Anatomy derived from the TotalSegmentator dataset (subject s1397; Wasserthal et al., Radiology: Artificial Intelligence, 2023), licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Lipoma sizes and positions from the patient\u2019s ultrasound reports."
+};
+
     // State management
     const state = {
       activeModel: 'anatomy', // 'anatomy' (Model 1) | 'isolated' (Model 2)
       timelineStep: 0, // 0 = July 2025, 1 = May 2026
       morphProgress: 0.0,
       isPlaying: false,
-      axialSliceHeight: 22, // 22 = off
+      showXRayGlow: true,
+      showMeasurements: false,
+      autoRotate: false,
+      activePreset: 'skin',
       layerOpacity: {
-        skin: 0.22,
-        fat: 0.25,
-        fascia: 0.45,
-        muscle: 0.85,
-        bone: 1.0
+        skin: 1.0,
+        muscle: 1.0,
+        bone: 1.0,
+        lipoma: 1.0
       }
     };
 
     // DOM Elements
     const container = document.getElementById('three-canvas-container');
     const compassLabel = document.getElementById('compass-label');
-    const caliperTagRight = document.getElementById('caliper-tag-right');
-    const caliperTagLeft = document.getElementById('caliper-tag-left');
-    const caliperTextRight = document.getElementById('caliper-text-right');
-    const caliperTextLeft = document.getElementById('caliper-text-left');
     const sliderTimelineMorph = document.getElementById('slider-timeline-morph');
     const morphPctLabel = document.getElementById('morph-pct-label');
     const btnPlayPause = document.getElementById('btn-play-pause');
@@ -1662,440 +2619,641 @@
     const toggleBtnLabel = document.getElementById('toggle-btn-label');
     const hudToggleText = document.getElementById('hud-toggle-text');
     const activeModelStatusTag = document.getElementById('active-model-status-tag');
+    const leadersSvg = document.getElementById('anatomy-leaders');
+    const calloutsLayer = document.getElementById('anatomy-callouts');
+    const structureTip = document.getElementById('structure-tip');
+    const loadingOverlay = document.getElementById('model-loading-overlay');
 
-    // Camera preset coordinates (Anatomy vs Isolated)
-    const CAMERA_PRESETS = {
-      posterior: { pos: new THREE.Vector3(0, -3, 56), target: new THREE.Vector3(0, -3, 4) },
-      lateral:   { pos: new THREE.Vector3(54, -3, 8), target: new THREE.Vector3(0, -3, 4) },
-      axial:     { pos: new THREE.Vector3(0, 54, 10), target: new THREE.Vector3(0, -3, 4) },
-      l5s1:      { pos: new THREE.Vector3(0, -8, 28), target: new THREE.Vector3(0, -7, 7.5) },
-      oblique:   { pos: new THREE.Vector3(34, 18, 44), target: new THREE.Vector3(0, -3, 4) },
-      isolated_front: { pos: new THREE.Vector3(0, 0, 22), target: new THREE.Vector3(0, 0, 0) }
-    };
+    // Flow Cursor Elements
+    const flowCursor = document.getElementById('flow-cursor');
+    const flowCursorRing = document.getElementById('flow-cursor-ring');
+    let mouseX = -100, mouseY = -100;
+    let ringX = -100, ringY = -100;
 
-    // Anatomical Coordinates vs Isolated Centered Coordinates (cm)
-    const POSITIONS = {
-      anatomy: {
-        right: new THREE.Vector3(-4.2, -7.5, 7.8),
-        left:  new THREE.Vector3(4.8, -7.5, 7.8),
-        grid:  new THREE.Vector3(0, -7.5, 6.5)
-      },
-      isolated: {
-        right: new THREE.Vector3(-4.0, 0.0, 0.0),
-        left:  new THREE.Vector3(4.0, 0.0, 0.0),
-        grid:  new THREE.Vector3(0, 0.0, -1.8)
-      }
-    };
-
-    let cameraTween = null;
-
-    // Dimensions: Baseline (Jul 2025) vs Follow-up (May 2026) in cm
-    const NODULE_DATA = {
-      right: {
-        jul25: { rx: 1.3, ry: 1.45, rz: 0.50, label: "26 × 10 × 29 mm", vol: "3.95 cm³" },
-        may26: { rx: 1.2, ry: 1.25, rz: 0.60, label: "24 × 12 mm", vol: "3.80 cm³" }
-      },
-      left: {
-        jul25: { rx: 1.95, ry: 1.00, rz: 0.45, label: "39 × 9 × 20 mm", vol: "3.68 cm³" },
-        may26: { rx: 1.60, ry: 1.00, rz: 1.15, label: "32 × 23 mm (+155%)", vol: "7.72 cm³" }
-      }
-    };
+    // View dimensions
+    const W = () => container.clientWidth || 800;
+    const H = () => container.clientHeight || 600;
 
     // =========================================================================
-    // Scene Initialization
+    // Three.js Scene Setup (Studio White / Clinical Environment)
     // =========================================================================
-    const W = () => container.clientWidth;
-    const H = () => container.clientHeight;
-
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff); // Pure Studio White
+    scene.background = new THREE.Color(0xffffff); // Pristine Studio White
 
-    const camera = new THREE.PerspectiveCamera(40, W() / H(), 0.1, 250);
-    camera.position.copy(CAMERA_PRESETS.posterior.pos);
+    const camera = new THREE.PerspectiveCamera(40, W() / H(), 0.01, 10.0);
+    const initialView = MODEL_INFO.views.back;
+    camera.position.set(initialView.position[0], initialView.position[1], initialView.position[2]);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      preserveDrawingBuffer: true
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W(), H());
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.localClippingEnabled = true;
     container.appendChild(renderer.domElement);
+
+    // Environment Lighting (RoomEnvironment with PMREMGenerator)
+    const pmremGen = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmremGen.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+    scene.environmentIntensity = 0.42;
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
-    controls.target.copy(CAMERA_PRESETS.posterior.target);
-    controls.maxDistance = 140;
-    controls.minDistance = 6;
+    controls.target.set(initialView.target[0], initialView.target[1], initialView.target[2]);
+    controls.maxDistance = 2.5;
+    controls.minDistance = 0.08;
 
-    // =========================================================================
-    // Studio Soft Medical Lighting Rig (White Aesthetic)
-    // =========================================================================
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.82);
-    scene.add(ambientLight);
+    // Studio Directional Lights
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 0.45);
+    scene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
-    keyLight.position.set(20, 30, 45);
+    const keyLight = new THREE.DirectionalLight(0xfff1e6, 2.0);
+    keyLight.position.set(-1.1, 1.0, 0.9);
     keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xf0f9ff, 0.45);
-    fillLight.position.set(-25, -10, 35);
+    const fillLight = new THREE.DirectionalLight(0xdfe8ff, 0.60);
+    fillLight.position.set(1.2, 0.2, 0.5);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xfff7ed, 0.35);
-    rimLight.position.set(0, 35, -30);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.70);
+    rimLight.position.set(0.4, 1.4, -1.0);
     scene.add(rimLight);
 
-    // Soft Contact Shadow Plane underneath the anatomical model
+    // Soft Ambient Floor Shadow
     const shadowCanvas = document.createElement('canvas');
-    shadowCanvas.width = 256;
-    shadowCanvas.height = 256;
+    shadowCanvas.width = 256; shadowCanvas.height = 256;
     const sCtx = shadowCanvas.getContext('2d');
     const radGrad = sCtx.createRadialGradient(128, 128, 10, 128, 128, 128);
-    radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.14)');
-    radGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.05)');
+    radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.12)');
+    radGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.03)');
     radGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     sCtx.fillStyle = radGrad;
     sCtx.fillRect(0, 0, 256, 256);
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
     const shadowPlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(50, 40),
-      new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, opacity: 0.8, depthWrite: false })
+      new THREE.PlaneGeometry(0.60, 0.50),
+      new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, opacity: 0.85, depthWrite: false })
     );
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.set(0, -22, 6);
+    shadowPlane.position.set(0, -0.22, 0.03);
     scene.add(shadowPlane);
 
     // =========================================================================
-    // Dynamic Axial Clipping Plane
+    // GLSL Procedural Shaders & Material Systems
     // =========================================================================
-    const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 100); // 100 = inactive
+    const NOISE_GLSL = `
+      float h3(vec3 p) { p=fract(p*0.3183099+vec3(0.1,0.2,0.3)); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+      float vn3(vec3 x) { vec3 i=floor(x); vec3 f=fract(x); f=f*f*(3.0-2.0*f);
+        return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
+                   mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z); }
+      float fbm3(vec3 p) { float a=0.5,s=0.0; for(int i=0;i<4;i++){ s+=a*vn3(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=0.5; } return s; }
+      vec3 bumpN(vec3 pos, vec3 n, float h, float k) {
+        vec3 sx=dFdx(pos), sy=dFdy(pos); vec3 r1=cross(sy,n), r2=cross(n,sx); float det=dot(sx,r1);
+        vec2 d=vec2(dFdx(h),dFdy(h))*k; vec3 g=sign(det)*(d.x*r1+d.y*r2); return normalize(abs(det)*n-g); }
+    `;
+
+    function enhanceMaterial(mat, type, options = {}) {
+      mat.onBeforeCompile = (shader) => {
+        shader.uniforms.uFiber = { value: options.fiber || new THREE.Vector3(0, 1, 0) };
+        shader.uniforms.uRim = { value: options.rim || new THREE.Color(0, 0, 0) };
+        shader.uniforms.uRimK = { value: options.rimK || 0 };
+        shader.uniforms.uHi = { value: 0 };
+        mat.userData.shader = shader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec3 vWP;'
+        ).replace(
+          '#include <project_vertex>',
+          '#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;'
+        );
+
+        let injectFragment = '';
+        let injectNormal = '';
+        let injectEmissive = '';
+
+        if (type === 'muscle') {
+          injectFragment = `
+            vec3 fa = normalize(cross(uFiber, abs(uFiber.y) < 0.9 ? vec3(0,1,0) : vec3(1,0,0)));
+            vec3 fb = cross(uFiber, fa);
+            vec2 q = vec2(dot(vWP, fa), dot(vWP, fb));
+            float d = length(fwidth(q));
+            float wf = clamp(1.0 - d * 2200.0, 0.0, 1.0);
+            float wc = clamp(1.0 - d * 260.0, 0.0, 1.0);
+            float fine = vn3(vec3(q * 520.0, dot(vWP, uFiber) * 10.0));
+            float coarse = vn3(vec3(q * 110.0, dot(vWP, uFiber) * 4.0));
+            gH = fine * wf;
+            diffuseColor.rgb *= 1.0 + (fine - 0.5) * 0.14 * wf + (coarse - 0.5) * 0.06 * wc;
+          `;
+          injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.14);';
+        } else if (type === 'skin') {
+          injectFragment = `
+            float m = fbm3(vWP * 30.0);
+            diffuseColor.rgb *= mix(0.96, 1.03, m);
+            diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.05, 0.95, 0.93), smoothstep(0.45, 0.7, fbm3(vWP * 9.0)) * 0.3);
+          `;
+          injectEmissive = 'totalEmissiveRadiance += diffuseColor.rgb * 0.25 * (1.0 - opacity);';
+        } else if (type === 'bone') {
+          injectFragment = `
+            float m = fbm3(vWP * 160.0);
+            gH = m;
+            diffuseColor.rgb *= mix(0.95, 1.03, m);
+          `;
+          injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.03);';
+        } else if (type === 'lipoma') {
+          injectFragment = `
+            float l = fbm3(vWP * 110.0);
+            gH = l;
+            diffuseColor.rgb *= mix(0.93, 1.05, l);
+          `;
+          injectNormal = 'normal = bumpN(-vViewPosition, normal, gH, 0.14);';
+          injectEmissive = `
+            float fr = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+            totalEmissiveRadiance += uRim * pow(fr, 2.2) * uRimK;
+          `;
+        }
+
+        injectEmissive += `
+          totalEmissiveRadiance += vec3(0.35, 0.3, 0.12) * uHi * (0.4 + 0.6 * pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.0));
+        `;
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          `#include <common>
+           varying vec3 vWP;
+           uniform vec3 uFiber;
+           uniform vec3 uRim;
+           uniform float uRimK;
+           uniform float uHi;
+           float gH = 0.0;
+           ${NOISE_GLSL}`
+        ).replace(
+          '#include <color_fragment>',
+          `#include <color_fragment>\n${injectFragment}`
+        ).replace(
+          '#include <normal_fragment_maps>',
+          `#include <normal_fragment_maps>\n${injectNormal}`
+        ).replace(
+          '#include <emissivemap_fragment>',
+          `#include <emissivemap_fragment>\n${injectEmissive}`
+        );
+      };
+      mat.customProgramCacheKey = () => "clinical-" + type;
+      return mat;
+    }
+
+    function createXRayGlowMaterial(colorHex) {
+      return new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color(colorHex) },
+          uOpacity: { value: 0.90 }
+        },
+        vertexShader: `
+          varying vec3 vN;
+          varying vec3 vV;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vN = normalize(normalMatrix * normal);
+            vV = -mv.xyz;
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform float uOpacity;
+          varying vec3 vN;
+          varying vec3 vV;
+          void main() {
+            float f = 1.0 - abs(dot(normalize(vN), normalize(vV)));
+            gl_FragColor = vec4(uColor, uOpacity * (0.5 + 0.5 * pow(f, 1.4)));
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        depthTest: true,
+        depthFunc: THREE.GreaterDepth
+      });
+    }
 
     // =========================================================================
-    // Material Palette (Luxury Studio Medical Finish)
-    // =========================================================================
-    const boneMaterial = new THREE.MeshStandardMaterial({
-      color: 0xdde5ed,
-      roughness: 0.55,
-      metalness: 0.08,
-      clippingPlanes: [clipPlane],
-      clipShadows: true
-    });
-
-    const discMaterial = new THREE.MeshStandardMaterial({
-      color: 0x94a3b8,
-      roughness: 0.40,
-      metalness: 0.12,
-      clippingPlanes: [clipPlane]
-    });
-
-    const discNarrowMaterial = new THREE.MeshStandardMaterial({
-      color: 0x64748b,
-      roughness: 0.50,
-      metalness: 0.15,
-      clippingPlanes: [clipPlane]
-    });
-
-    const pelvisMaterial = new THREE.MeshStandardMaterial({
-      color: 0xd1d9e0,
-      roughness: 0.60,
-      metalness: 0.06,
-      clippingPlanes: [clipPlane]
-    });
-
-    const muscleMaterial = new THREE.MeshStandardMaterial({
-      color: 0x991b1b,
-      roughness: 0.70,
-      metalness: 0.04,
-      transparent: true,
-      opacity: state.layerOpacity.muscle,
-      clippingPlanes: [clipPlane]
-    });
-
-    const fasciaMaterial = new THREE.MeshStandardMaterial({
-      color: 0x0284c7,
-      roughness: 0.35,
-      metalness: 0.15,
-      transparent: true,
-      opacity: state.layerOpacity.fascia,
-      side: THREE.DoubleSide,
-      clippingPlanes: [clipPlane]
-    });
-
-    const fatMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf59e0b,
-      roughness: 0.45,
-      metalness: 0.08,
-      transparent: true,
-      opacity: state.layerOpacity.fat,
-      side: THREE.DoubleSide,
-      clippingPlanes: [clipPlane]
-    });
-
-    const skinMaterial = new THREE.MeshStandardMaterial({
-      color: 0xd4a373,
-      roughness: 0.65,
-      metalness: 0.02,
-      transparent: true,
-      opacity: state.layerOpacity.skin,
-      side: THREE.DoubleSide,
-      clippingPlanes: [clipPlane]
-    });
-
-    // Right Lipoma (L5 Paramedian - Emerald Surgical Jade)
-    const rightLipomaMaterial = new THREE.MeshStandardMaterial({
-      color: 0x059669,
-      roughness: 0.30,
-      metalness: 0.10,
-      transparent: true,
-      opacity: 0.94,
-      emissive: 0x064e3b,
-      emissiveIntensity: 0.15,
-      clippingPlanes: [clipPlane]
-    });
-
-    // Left Lipoma (L5 Paramedian - Vivid Sunset Amber Coral)
-    const leftLipomaMaterial = new THREE.MeshStandardMaterial({
-      color: 0xea580c,
-      roughness: 0.30,
-      metalness: 0.10,
-      transparent: true,
-      opacity: 0.94,
-      emissive: 0x7c2d12,
-      emissiveIntensity: 0.15,
-      clippingPlanes: [clipPlane]
-    });
-
-    // Baseline 2025 Ghost Wireframe
-    const ghostMaterial = new THREE.MeshBasicMaterial({
-      color: 0x0284c7,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.45,
-      depthWrite: false
-    });
-
-    // Caliper Reference Axis Material
-    const caliperAxisMaterial = new THREE.LineBasicMaterial({
-      color: 0x334155,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.85
-    });
-
-    // =========================================================================
-    // Anatomical Hierarchy Groups
+    // Scene Groups & Layer Registry
     // =========================================================================
     const anatomyGroup = new THREE.Group();
-    const lipomasGroup = new THREE.Group();
-    const ghostGroup = new THREE.Group();
+    const isolatedGroup = new THREE.Group();
     const calipersGroup = new THREE.Group();
     const gridGroup = new THREE.Group();
 
     scene.add(anatomyGroup);
-    scene.add(lipomasGroup);
-    scene.add(ghostGroup);
+    scene.add(isolatedGroup);
     scene.add(calipersGroup);
     scene.add(gridGroup);
 
-    // =========================================================================
-    // 3D Geometry Generators
-    // =========================================================================
-    
-    // Smooth Ellipsoid
-    function createEllipsoidGeometry(rx, ry, rz, segs = 36) {
-      const geom = new THREE.SphereGeometry(1, segs, Math.round(segs * 0.75));
-      geom.scale(rx, ry, rz);
-      return geom;
+    const layerRegistry = {
+      skin: { label: "Skin", swatch: "#c98f70", objs: [], on: true, opacity: 1.0, order: 3 },
+      muscle: { label: "Muscles", swatch: "#9c2c28", objs: [], on: true, opacity: 1.0, order: 1 },
+      bone: { label: "Bones", swatch: "#e4d6b6", objs: [], on: true, opacity: 1.0, order: 1 },
+      lipoma: { label: "Lipomas", swatch: "#22b07f", swatch2: "#ec7a45", objs: [], on: true, opacity: 1.0, order: 10 }
+    };
+
+    const xRayMeshes = [];
+    const pickableMeshes = [];
+    const byId = {};
+    let activeHighlightMesh = null;
+
+    // Apply Opacity and Visibility to a Layer Group
+    function applyLayer(groupKey) {
+      const layer = layerRegistry[groupKey];
+      if (!layer) return;
+
+      for (let mesh of layer.objs) {
+        const isVis = layer.on && layer.opacity > 0.01;
+        mesh.visible = isVis;
+
+        const mat = mesh.material;
+        const isTrans = layer.opacity < 0.999 || groupKey === "lipoma";
+        if (mat.transparent !== isTrans) {
+          mat.transparent = isTrans;
+          mat.needsUpdate = true;
+        }
+        mat.opacity = layer.opacity;
+        mat.depthWrite = groupKey === "lipoma" ? true : !isTrans;
+        mesh.renderOrder = isTrans ? layer.order : 0;
+      }
+
+      if (groupKey === "lipoma") {
+        xRayMeshes.forEach(xm => {
+          xm.visible = layer.on && state.showXRayGlow;
+        });
+      }
+      requestRender();
     }
 
-    // Bilateral Lipoma Meshes
-    // Initial position: Anatomical Context (POSITIONS.anatomy)
-    const rightLipomaMesh = new THREE.Mesh(
-      createEllipsoidGeometry(NODULE_DATA.right.jul25.rx, NODULE_DATA.right.jul25.ry, NODULE_DATA.right.jul25.rz),
-      rightLipomaMaterial
-    );
-    rightLipomaMesh.position.copy(POSITIONS.anatomy.right);
-    rightLipomaMesh.rotation.z = -0.12;
-    lipomasGroup.add(rightLipomaMesh);
+    function applyAllLayers() {
+      Object.keys(layerRegistry).forEach(applyLayer);
+    }
 
-    const leftLipomaMesh = new THREE.Mesh(
-      createEllipsoidGeometry(NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz),
-      leftLipomaMaterial
-    );
-    leftLipomaMesh.position.copy(POSITIONS.anatomy.left);
-    leftLipomaMesh.rotation.z = 0.15;
-    lipomasGroup.add(leftLipomaMesh);
-
-    // Left Baseline Ghost Mesh
-    const leftGhostMesh = new THREE.Mesh(
-      createEllipsoidGeometry(NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz),
-      ghostMaterial
-    );
-    leftGhostMesh.position.copy(leftLipomaMesh.position);
-    leftGhostMesh.rotation.copy(leftLipomaMesh.rotation);
-    ghostGroup.add(leftGhostMesh);
-    ghostGroup.visible = false;
-
-    // Caliper Axes on Lipomas
-    function buildCaliperAxes(center, rx, ry, rz) {
-      const g = new THREE.Group();
-      g.position.copy(center);
-
-      // X axis (Transverse / Width)
-      const xGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-rx, 0, 0), new THREE.Vector3(rx, 0, 0)]);
-      g.add(new THREE.Line(xGeo, caliperAxisMaterial));
-
-      // Y axis (Sagittal / Length)
-      const yGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -ry, 0), new THREE.Vector3(0, ry, 0)]);
-      g.add(new THREE.Line(yGeo, caliperAxisMaterial));
-
-      // Z axis (AP Depth)
-      const zGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, -rz), new THREE.Vector3(0, 0, rz)]);
-      g.add(new THREE.Line(zGeo, caliperAxisMaterial));
-
+    // =========================================================================
+    // Model 2: Standalone Isolated Lipomas Construction
+    // =========================================================================
+    function createEllipsoidGeometry(rx, ry, rz, segs = 40) {
+      const g = new THREE.SphereGeometry(1, segs, Math.round(segs * 0.75));
+      g.scale(rx, ry, rz);
       return g;
     }
 
-    let rightCalipers = buildCaliperAxes(rightLipomaMesh.position, NODULE_DATA.right.jul25.rx, NODULE_DATA.right.jul25.ry, NODULE_DATA.right.jul25.rz);
-    let leftCalipers = buildCaliperAxes(leftLipomaMesh.position, NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz);
-    calipersGroup.add(rightCalipers);
-    calipersGroup.add(leftCalipers);
+    // Dimensions in meters: Baseline Jul 2025 vs Follow-up May 2026
+    const ISO_DATA = {
+      right: {
+        jul25: { rx: 0.013, ry: 0.0145, rz: 0.0050, label: "26 × 10 × 29 mm", vol: "3.95 cm³" },
+        may26: { rx: 0.012, ry: 0.0125, rz: 0.0060, label: "24 × 12 mm", vol: "3.80 cm³" }
+      },
+      left: {
+        jul25: { rx: 0.0195, ry: 0.0100, rz: 0.0045, label: "39 × 9 × 20 mm", vol: "3.68 cm³" },
+        may26: { rx: 0.0160, ry: 0.0100, rz: 0.0115, label: "32 × 23 mm (+155% AP)", vol: "7.72 cm³" }
+      },
+      positions: {
+        right: new THREE.Vector3(0.040, 0, 0),
+        left:  new THREE.Vector3(-0.040, 0, 0)
+      }
+    };
 
-    // 1 cm Centimeter Scale Grid (for Isolated Model)
-    const gridHelper = new THREE.GridHelper(24, 24, 0x0284c7, 0xe2e8f0);
-    gridHelper.rotation.x = Math.PI / 2;
-    gridHelper.position.copy(POSITIONS.isolated.grid);
+    const isoRightMat = new THREE.MeshPhysicalMaterial({
+      color: 0x22b07f,
+      roughness: 0.30,
+      clearcoat: 0.70,
+      transparent: true,
+      opacity: 1.0,
+      side: THREE.DoubleSide
+    });
+    enhanceMaterial(isoRightMat, 'lipoma', { rim: new THREE.Color(0x22b07f).multiplyScalar(1.3), rimK: 0.9 });
+
+    const isoLeftMat = new THREE.MeshPhysicalMaterial({
+      color: 0xec7a45,
+      roughness: 0.30,
+      clearcoat: 0.70,
+      transparent: true,
+      opacity: 1.0,
+      side: THREE.DoubleSide
+    });
+    enhanceMaterial(isoLeftMat, 'lipoma', { rim: new THREE.Color(0xec7a45).multiplyScalar(1.3), rimK: 0.9 });
+
+    const isoRightMesh = new THREE.Mesh(
+      createEllipsoidGeometry(ISO_DATA.right.jul25.rx, ISO_DATA.right.jul25.ry, ISO_DATA.right.jul25.rz),
+      isoRightMat
+    );
+    isoRightMesh.position.copy(ISO_DATA.positions.right);
+    isoRightMesh.userData = { label: "Right Lipoma (July 2025: 26 × 10 × 29 mm)" };
+    isolatedGroup.add(isoRightMesh);
+
+    const isoLeftMesh = new THREE.Mesh(
+      createEllipsoidGeometry(ISO_DATA.left.jul25.rx, ISO_DATA.left.jul25.ry, ISO_DATA.left.jul25.rz),
+      isoLeftMat
+    );
+    isoLeftMesh.position.copy(ISO_DATA.positions.left);
+    isoLeftMesh.userData = { label: "Left Lipoma (July 2025: 39 × 9 × 20 mm)" };
+    isolatedGroup.add(isoLeftMesh);
+
+    // Left Baseline Ghost Wireframe (for visual growth overlay)
+    const ghostMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.40,
+      depthWrite: false
+    });
+    const isoGhostMesh = new THREE.Mesh(
+      createEllipsoidGeometry(ISO_DATA.left.jul25.rx, ISO_DATA.left.jul25.ry, ISO_DATA.left.jul25.rz),
+      ghostMat
+    );
+    isoGhostMesh.position.copy(ISO_DATA.positions.left);
+    isolatedGroup.add(isoGhostMesh);
+    isoGhostMesh.visible = false;
+
+    // 1 cm Reference Scale Grid on Floor (0.24m = 24cm width, 24 divisions = 1cm grid cells)
+    const gridHelper = new THREE.GridHelper(0.24, 24, 0x0284c7, 0xe2e8f0);
+    gridHelper.position.set(0, -0.035, 0);
     gridGroup.add(gridHelper);
     gridGroup.visible = false;
+    isolatedGroup.visible = false;
 
     // =========================================================================
-    // Lumbar Spine & Back Anatomy Construction
+    // 3D Calipers / Millimeter Measurement Axes
     // =========================================================================
-    
-    // Vertebra builder
-    function createVertebra(y, w, h, d, isL5 = false) {
-      const vGroup = new THREE.Group();
-      vGroup.position.set(0, y, 0);
+    function buildCaliperAxesFromModelInfo() {
+      calipersGroup.clear();
+      MODEL_INFO.lipomas.forEach(lip => {
+        const center = new THREE.Vector3(...lip.center);
+        const axes = [
+          new THREE.Vector3(...lip.axes.width),
+          new THREE.Vector3(...lip.axes.depth_outward),
+          new THREE.Vector3(...lip.axes.height)
+        ];
+        const dims = [lip.size_mm.width, lip.size_mm.depth, lip.size_mm.height];
+        const points = [];
 
-      // Body (anterior)
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.5, w * 0.55, h, 20), boneMaterial);
-      body.position.set(0, 0, 0);
-      body.scale.set(1.15, 1, 0.95);
-      vGroup.add(body);
+        axes.forEach((axis, i) => {
+          const half = axis.clone().multiplyScalar(dims[i] / 2000.0); // meters
+          const p1 = center.clone().sub(half);
+          const p2 = center.clone().add(half);
+          points.push(p1, p2);
 
-      // Spinous Process (pointing posterior toward camera along +Z)
-      const spinous = new THREE.Mesh(new THREE.ConeGeometry(0.55, 3.2, 10), boneMaterial);
-      spinous.rotation.x = Math.PI / 2 + 0.15;
-      spinous.position.set(0, -0.4, 3.0);
-      vGroup.add(spinous);
+          const tickAxis = axes[(i + 1) % 3].clone().multiplyScalar(0.0022);
+          points.push(p1.clone().sub(tickAxis), p1.clone().add(tickAxis));
+          points.push(p2.clone().sub(tickAxis), p2.clone().add(tickAxis));
+        });
 
-      // Transverse Processes (Left and Right lateral)
-      const tpLeft = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.65, 0.8), boneMaterial);
-      tpLeft.position.set(-3.2, 0.2, 1.4);
-      tpLeft.rotation.z = -0.15;
-      vGroup.add(tpLeft);
-
-      const tpRight = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.65, 0.8), boneMaterial);
-      tpRight.position.set(3.2, 0.2, 1.4);
-      tpRight.rotation.z = 0.15;
-      vGroup.add(tpRight);
-
-      // Facet Joints
-      const facetL = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.2, 8), boneMaterial);
-      facetL.position.set(-1.8, 0, 2.2);
-      vGroup.add(facetL);
-
-      const facetR = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.2, 8), boneMaterial);
-      facetR.position.set(1.8, 0, 2.2);
-      vGroup.add(facetR);
-
-      return vGroup;
+        const geom = new THREE.BufferGeometry().setFromPoints(points);
+        const lines = new THREE.LineSegments(
+          geom,
+          new THREE.LineBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true, opacity: 0.92 })
+        );
+        lines.renderOrder = 1000;
+        calipersGroup.add(lines);
+      });
+      calipersGroup.visible = state.showMeasurements;
     }
 
-    // Intervertebral Disc builder
-    function createDisc(y, w, h, isNarrowed = false) {
-      const disc = new THREE.Mesh(
-        new THREE.CylinderGeometry(w * 0.5, w * 0.52, h, 20),
-        isNarrowed ? discNarrowMaterial : discMaterial
-      );
-      disc.position.set(0, y, 0);
-      disc.scale.set(1.15, 1, 0.95);
-      return disc;
+    // =========================================================================
+    // Ultra-Fast Async Load: lower-back-3d-web.glb with MeshoptDecoder
+    // =========================================================================
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setMeshoptDecoder(MeshoptDecoder);
+
+    const loadStartTime = performance.now();
+    gltfLoader.load(
+      'lower-back-3d-web.glb',
+      (gltf) => {
+        const elapsed = Math.round(performance.now() - loadStartTime);
+        console.log(`[Clinical3D] lower-back-3d-web.glb loaded in ${elapsed}ms!`);
+
+        const root = gltf.scene;
+        const structDict = Object.fromEntries(MODEL_INFO.structures.map(s => [s.id, s]));
+        const lipomaDict = Object.fromEntries(MODEL_INFO.lipomas.map(l => [l.id, l]));
+
+        root.traverse((node) => {
+          if (structDict[node.name]) {
+            const s = structDict[node.name];
+            node.traverse((child) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.frustumCulled = false;
+
+                // Create Material per group
+                let mat;
+                if (s.group === "skin") {
+                  mat = new THREE.MeshPhysicalMaterial({
+                    color: 0xc98f70,
+                    roughness: 0.46,
+                    sheen: 0.35,
+                    sheenColor: new THREE.Color(0xffc9b0),
+                    clearcoat: 0.08,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: state.layerOpacity.skin,
+                    side: THREE.DoubleSide
+                  });
+                  enhanceMaterial(mat, 'skin');
+                } else if (s.group === "muscle") {
+                  mat = new THREE.MeshPhysicalMaterial({
+                    color: 0x9c2c28,
+                    roughness: 0.40,
+                    clearcoat: 0.35,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: state.layerOpacity.muscle,
+                    side: THREE.DoubleSide
+                  });
+                  enhanceMaterial(mat, 'muscle', { fiber: s.fiber_direction ? new THREE.Vector3(...s.fiber_direction).normalize() : undefined });
+                } else if (s.group === "bone") {
+                  mat = new THREE.MeshPhysicalMaterial({
+                    color: 0xe4d6b6,
+                    roughness: 0.58,
+                    clearcoat: 0.12,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: state.layerOpacity.bone,
+                    side: THREE.DoubleSide
+                  });
+                  enhanceMaterial(mat, 'bone');
+                } else if (s.group === "lipoma") {
+                  const lipInfo = lipomaDict[s.id] || { color: "#22b07f" };
+                  mat = new THREE.MeshPhysicalMaterial({
+                    color: new THREE.Color(lipInfo.color),
+                    roughness: 0.30,
+                    clearcoat: 0.70,
+                    vertexColors: false,
+                    transparent: true,
+                    opacity: 1.0,
+                    side: THREE.DoubleSide
+                  });
+                  enhanceMaterial(mat, 'lipoma', {
+                    rim: new THREE.Color(lipInfo.color).multiplyScalar(1.3),
+                    rimK: 0.9
+                  });
+
+                  // Add X-Ray Fresnel GreaterDepth child glow mesh
+                  const xGlow = new THREE.Mesh(child.geometry, createXRayGlowMaterial(lipInfo.color));
+                  xGlow.renderOrder = 50;
+                  child.add(xGlow);
+                  xRayMeshes.push(xGlow);
+                }
+
+                child.material = mat;
+                child.userData = {
+                  id: s.id,
+                  label: s.label,
+                  group: s.group
+                };
+
+                layerRegistry[s.group].objs.push(child);
+                pickableMeshes.push(child);
+                byId[s.id] = child;
+              }
+            });
+          }
+        });
+
+        anatomyGroup.add(root);
+
+        // Build calipers from model metadata
+        buildCaliperAxesFromModelInfo();
+
+        // Initialize Callouts: ONLY THE LIPOMA NAMES ARE DISPLAYED
+        initLipomaCallouts();
+
+        // Apply initial preset
+        applyAnatPreset('skin');
+
+        // Hide loading overlay smoothly
+        if (loadingOverlay) {
+          loadingOverlay.classList.add('fade-out');
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+          }, 350);
+        }
+        requestRender();
+      },
+      (progress) => {
+        if (progress.total > 0) {
+          const pct = Math.round((progress.loaded / progress.total) * 100);
+          const txt = document.querySelector('.loading-msg');
+          if (txt) txt.textContent = `Loading 3D Anatomy (${pct}%)`;
+        }
+      },
+      (err) => {
+        console.error("Failed to load lower-back-3d-web.glb", err);
+        const txt = document.querySelector('.loading-msg');
+        if (txt) txt.textContent = `Error loading 3D Model: ${err.message}`;
+      }
+    );
+
+    // =========================================================================
+    // DYNAMIC IN-SCENE CALLOUTS: ONLY THE LIPOMA NAMES LISTED
+    // =========================================================================
+    const lipomaCalloutElements = [];
+
+    function initLipomaCallouts() {
+      if (!calloutsLayer || !leadersSvg) return;
+      calloutsLayer.innerHTML = "";
+      leadersSvg.innerHTML = "";
+      lipomaCalloutElements.length = 0;
+
+      MODEL_INFO.lipomas.forEach((lip) => {
+        const isRight = lip.id.endsWith("right");
+        const center = new THREE.Vector3(...lip.center);
+
+        // Badge element
+        const badge = document.createElement('div');
+        badge.className = `anatomy-badge ${isRight ? 'lipoma-badge-right' : 'lipoma-badge-left'}`;
+        badge.textContent = `${lip.label} · ${lip.size_mm.width} × ${lip.size_mm.depth} × ${lip.size_mm.height} mm`;
+        calloutsLayer.appendChild(badge);
+
+        // SVG leader line
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("class", `leader-line ${isRight ? 'right' : 'left'}`);
+        leadersSvg.appendChild(line);
+
+        lipomaCalloutElements.push({
+          badge,
+          line,
+          pos: center,
+          side: isRight ? 1 : -1,
+          full: badge.textContent,
+          short: `${isRight ? 'Right' : 'Left'} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
+        });
+      });
     }
 
-    // Build L1 - L5 + Discs
-    const vertebraeConfigs = [
-      { name: 'L1', y: 14.0, w: 4.0, h: 2.8 },
-      { name: 'L2', y: 9.0,  w: 4.2, h: 2.9 },
-      { name: 'L3', y: 4.0,  w: 4.4, h: 3.0 },
-      { name: 'L4', y: -1.2, w: 4.6, h: 3.1 },
-      { name: 'L5', y: -6.5, w: 4.8, h: 3.2, isL5: true }
-    ];
+    function updateLipomaCallouts() {
+      if (!calloutsLayer || state.activeModel !== 'anatomy') {
+        if (calloutsLayer) calloutsLayer.style.display = 'none';
+        if (leadersSvg) leadersSvg.style.display = 'none';
+        return;
+      }
 
-    vertebraeConfigs.forEach(cfg => {
-      anatomyGroup.add(createVertebra(cfg.y, cfg.w, cfg.h, 2.8, cfg.isL5));
-    });
+      calloutsLayer.style.display = 'block';
+      leadersSvg.style.display = 'block';
 
-    // Discs: Normal L1-L2, L2-L3, L3-L4, L4-L5, and Narrowed L5-S1
-    anatomyGroup.add(createDisc(11.5, 4.0, 1.0));
-    anatomyGroup.add(createDisc(6.5, 4.2, 1.1));
-    anatomyGroup.add(createDisc(1.4, 4.4, 1.2));
-    anatomyGroup.add(createDisc(-3.8, 4.6, 1.2));
-    // Narrowed L5-S1 disc from MRI report
-    anatomyGroup.add(createDisc(-9.2, 4.6, 0.65, true));
+      const w = W();
+      const h = H();
+      leadersSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
-    // Sacrum (S1-S3 wedge)
-    const sacrum = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 1.8, 8.5, 16), pelvisMaterial);
-    sacrum.position.set(0, -14.0, 0.2);
-    sacrum.scale.set(1.1, 1, 0.7);
-    anatomyGroup.add(sacrum);
+      const p3 = new THREE.Vector3();
+      lipomaCalloutElements.forEach((item) => {
+        p3.copy(item.pos).project(camera);
 
-    // Iliac Crests / Pelvis Wings
-    const iliacLeft = new THREE.Mesh(new THREE.TorusGeometry(6.5, 1.2, 12, 24, Math.PI * 0.75), pelvisMaterial);
-    iliacLeft.position.set(-8.5, -9.5, 1.8);
-    iliacLeft.rotation.set(0.4, 0.3, -0.6);
-    anatomyGroup.add(iliacLeft);
+        const isBehind = p3.z > 1 || p3.z < -1;
+        if (isBehind) {
+          item.badge.style.display = 'none';
+          item.line.style.display = 'none';
+          return;
+        }
 
-    const iliacRight = new THREE.Mesh(new THREE.TorusGeometry(6.5, 1.2, 12, 24, Math.PI * 0.75), pelvisMaterial);
-    iliacRight.position.set(8.5, -9.5, 1.8);
-    iliacRight.rotation.set(0.4, -0.3, 0.6);
-    anatomyGroup.add(iliacRight);
+        item.badge.style.display = 'flex';
+        item.line.style.display = 'block';
 
-    // Erector Spinae Muscle Columns (Posterior Paramedian)
-    const muscleLeft = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 30, 20), muscleMaterial);
-    muscleLeft.position.set(-3.8, -1.0, 4.0);
-    anatomyGroup.add(muscleLeft);
+        const sx = (p3.x * 0.5 + 0.5) * w;
+        const sy = (-p3.y * 0.5 + 0.5) * h;
 
-    const muscleRight = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 30, 20), muscleMaterial);
-    muscleRight.position.set(3.8, -1.0, 4.0);
-    anatomyGroup.add(muscleRight);
+        // Choose short or full label on mobile vs desktop
+        const isMobile = w < 560;
+        item.badge.textContent = isMobile ? item.short : item.full;
 
-    // Thoracolumbar Fascia Sheet (Z = 6.2 cm)
-    const fasciaSheet = new THREE.Mesh(new THREE.PlaneGeometry(26, 32, 16, 16), fasciaMaterial);
-    fasciaSheet.position.set(0, -1.0, 6.2);
-    anatomyGroup.add(fasciaSheet);
+        // Calculate offset based on camera orientation
+        let side = item.side;
+        if (camera.position.z - controls.target.z < -0.05) {
+          side = -side;
+        }
+        const offsetDist = (state.showMeasurements ? 110 : 75) * (isMobile ? 0.7 : 1.0);
+        const bx = Math.max(16, Math.min(w - 180, sx + side * offsetDist));
+        const by = Math.max(20, Math.min(h - 40, sy - 30));
 
-    // Subcutaneous Fat Layer (Z = 7.8 cm)
-    const fatLayer = new THREE.Mesh(new THREE.PlaneGeometry(28, 34, 16, 16), fatMaterial);
-    fatLayer.position.set(0, -1.0, 7.8);
-    anatomyGroup.add(fatLayer);
+        item.badge.style.left = `${bx}px`;
+        item.badge.style.top = `${by}px`;
 
-    // Dermal Surface Skin Envelope (Z = 9.2 cm)
-    const skinMesh = new THREE.Mesh(new THREE.PlaneGeometry(30, 36, 24, 24), skinMaterial);
-    skinMesh.position.set(0, -1.0, 9.2);
-    anatomyGroup.add(skinMesh);
+        item.line.setAttribute("x1", sx);
+        item.line.setAttribute("y1", sy);
+        item.line.setAttribute("x2", bx + (side > 0 ? 0 : 120));
+        item.line.setAttribute("y2", by + 12);
+      });
+    }
 
     // =========================================================================
-    // DUAL MODEL TOGGLE & SWITCHING ENGINE
-    // Switches smoothly between Model 1 (Human Anatomy) and Model 2 (Isolated Lipoma)
+    // DUAL MODEL SWITCHER ENGINE
     // =========================================================================
-
     function switchModel(modelType) {
       state.activeModel = modelType;
 
-      // Update Header Command Bar Tabs
+      // Update Tabs
       document.getElementById('btn-model-anatomy').classList.toggle('active', modelType === 'anatomy');
       document.getElementById('btn-model-isolated').classList.toggle('active', modelType === 'isolated');
 
@@ -2108,408 +3266,438 @@
       }
       if (activeModelStatusTag) {
         activeModelStatusTag.innerHTML = modelType === 'anatomy' 
-          ? '<strong>Active Model:</strong> Model 1 — Human Anatomy & Lipomas' 
+          ? '<strong>Active Model:</strong> Model 1 — Human Anatomy & Lipomas (CT Segmented)' 
           : '<strong>Active Model:</strong> Model 2 — Isolated Lipomas (Scale & Calipers)';
       }
 
       const layerDock = document.getElementById('layer-dock');
-      const slicerDock = document.getElementById('slicer-dock');
       const isolatedDock = document.getElementById('isolated-metrics-dock');
-      const camPresetsGroup = document.querySelector('.cam-btn-group');
 
       if (modelType === 'anatomy') {
-        // Model 1: Human Anatomy Active
         anatomyGroup.visible = true;
+        isolatedGroup.visible = false;
         gridGroup.visible = false;
         shadowPlane.visible = true;
 
         if (layerDock) layerDock.style.display = 'flex';
-        if (slicerDock) slicerDock.style.display = 'flex';
         if (isolatedDock) isolatedDock.style.display = 'none';
 
-        // Smoothly glide lipomas to anatomical positions
-        glideMeshPosition(rightLipomaMesh, POSITIONS.anatomy.right);
-        glideMeshPosition(leftLipomaMesh, POSITIONS.anatomy.left);
-        glideMeshPosition(leftGhostMesh, POSITIONS.anatomy.left);
-
-        // Update calipers center
-        updateCalipersCenter(POSITIONS.anatomy.right, POSITIONS.anatomy.left);
-
-        // Reset camera to posterior back view
-        tweenCamera(CAMERA_PRESETS.posterior.pos, CAMERA_PRESETS.posterior.target);
+        const view = MODEL_INFO.views[state.activePreset] || MODEL_INFO.views.back;
+        tweenCamera(new THREE.Vector3(...view.position), new THREE.Vector3(...view.target), 650);
       } else {
-        // Model 2: Isolated Lipomas Active
         anatomyGroup.visible = false;
+        isolatedGroup.visible = true;
         gridGroup.visible = true;
         shadowPlane.visible = false;
 
         if (layerDock) layerDock.style.display = 'none';
-        if (slicerDock) slicerDock.style.display = 'none';
         if (isolatedDock) isolatedDock.style.display = 'flex';
 
-        // Smoothly glide lipomas to centered isolated view
-        glideMeshPosition(rightLipomaMesh, POSITIONS.isolated.right);
-        glideMeshPosition(leftLipomaMesh, POSITIONS.isolated.left);
-        glideMeshPosition(leftGhostMesh, POSITIONS.isolated.left);
-
-        // Update calipers center
-        updateCalipersCenter(POSITIONS.isolated.right, POSITIONS.isolated.left);
-
-        // Smooth camera transition to front-and-center close-up
-        tweenCamera(CAMERA_PRESETS.isolated_front.pos, CAMERA_PRESETS.isolated_front.target);
+        // Frame isolated lipomas with scale grid
+        tweenCamera(new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, 0), 650);
       }
+      requestRender();
     }
 
     function toggleActiveModel() {
       switchModel(state.activeModel === 'anatomy' ? 'isolated' : 'anatomy');
     }
 
-    // Keyboard shortcut: Spacebar toggles back and forth instantly
-    window.addEventListener('keydown', (e) => {
-      if ((e.code === 'Space' || e.key === 'm' || e.key === 'M') && e.target.tagName !== 'INPUT') {
-        e.preventDefault();
-        toggleActiveModel();
-      }
-    });
-
-    // Mesh Position Glider (Lerp transition)
-    function glideMeshPosition(mesh, targetPos, duration = 400) {
-      const startPos = mesh.position.clone();
-      const startTime = performance.now();
-
-      function stepGlide(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(1, elapsed / duration);
-        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        mesh.position.lerpVectors(startPos, targetPos, ease);
-        if (t < 1) requestAnimationFrame(stepGlide);
-      }
-      requestAnimationFrame(stepGlide);
-    }
-
-    function updateCalipersCenter(posRight, posLeft) {
-      calipersGroup.remove(rightCalipers);
-      calipersGroup.remove(leftCalipers);
-
-      const rData = state.timelineStep === 0 ? NODULE_DATA.right.jul25 : NODULE_DATA.right.may26;
-      const lData = state.timelineStep === 0 ? NODULE_DATA.left.jul25 : NODULE_DATA.left.may26;
-
-      rightCalipers = buildCaliperAxes(posRight, rData.rx, rData.ry, rData.rz);
-      leftCalipers = buildCaliperAxes(posLeft, lData.rx, lData.ry, lData.rz);
-      calipersGroup.add(rightCalipers);
-      calipersGroup.add(leftCalipers);
-    }
-
     // =========================================================================
-    // Camera Transitions & HUD Presets
+    // Camera View Transition Engine
     // =========================================================================
-
+    let cameraTween = null;
     function tweenCamera(endPos, endTarget, duration = 650) {
-      const startPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const startTime = performance.now();
-
-      if (cameraTween) cancelAnimationFrame(cameraTween);
-
-      function stepCam(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(1, elapsed / duration);
-        // Custom cubic-bezier spring easing
-        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-        camera.position.lerpVectors(startPos, endPos, ease);
-        controls.target.lerpVectors(startTarget, endTarget, ease);
-
-        if (t < 1) {
-          cameraTween = requestAnimationFrame(stepCam);
-        } else {
-          cameraTween = null;
-        }
-      }
-      cameraTween = requestAnimationFrame(stepCam);
+      cameraTween = {
+        p0: camera.position.clone(),
+        t0: controls.target.clone(),
+        p1: endPos,
+        t1: endTarget,
+        start: performance.now(),
+        duration
+      };
+      requestRender();
     }
 
-    function setCameraView(presetKey) {
-      document.querySelectorAll('.cam-chip').forEach(el => el.classList.remove('active'));
-      const activeBtn = document.getElementById(`btn-cam-${presetKey}`);
-      if (activeBtn) activeBtn.classList.add('active');
+    function setCameraView(viewKey) {
+      const v = MODEL_INFO.views[viewKey];
+      if (!v) return;
+      document.querySelectorAll('.cam-chip').forEach(chip => chip.classList.remove('active'));
+      const activeChip = document.getElementById(`btn-cam-${viewKey}`);
+      if (activeChip) activeChip.classList.add('active');
 
-      const preset = CAMERA_PRESETS[presetKey];
-      if (!preset) return;
-
-      tweenCamera(preset.pos, preset.target);
+      tweenCamera(new THREE.Vector3(...v.position), new THREE.Vector3(...v.target), 750);
     }
 
     function resetCamera() {
-      if (state.activeModel === 'isolated') {
-        setCameraView('isolated_front');
+      if (state.activeModel === 'anatomy') {
+        setCameraView('back');
       } else {
-        setCameraView('posterior');
+        tweenCamera(new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, 0), 650);
       }
     }
 
-    // Layer Opacity Control
-    function updateLayerOpacity(layer, val) {
-      val = parseFloat(val);
-      state.layerOpacity[layer] = val;
-      const pct = Math.round(val * 100);
-      const pctEl = document.getElementById(`pct-${layer}`);
-      if (pctEl) pctEl.textContent = `${pct}%`;
+    // =========================================================================
+    // Layer Opacity & Preset Handlers
+    // =========================================================================
+    function updateLayerOpacity(layerKey, val) {
+      state.layerOpacity[layerKey] = parseFloat(val);
+      layerRegistry[layerKey].opacity = parseFloat(val);
+      layerRegistry[layerKey].on = parseFloat(val) > 0.01;
+      applyLayer(layerKey);
 
-      if (layer === 'skin') skinMaterial.opacity = val;
-      if (layer === 'fat') fatMaterial.opacity = val;
-      if (layer === 'fascia') fasciaMaterial.opacity = val;
-      if (layer === 'muscle') muscleMaterial.opacity = val;
-      if (layer === 'bone') {
-        boneMaterial.opacity = val;
-        pelvisMaterial.opacity = val;
-        boneMaterial.transparent = val < 1.0;
-        pelvisMaterial.transparent = val < 1.0;
-      }
+      const pctSpan = document.getElementById(`pct-${layerKey}`);
+      if (pctSpan) pctSpan.textContent = `${Math.round(val * 100)}%`;
+      document.querySelectorAll('.mini-preset-chip').forEach(c => c.classList.remove('active'));
     }
 
-    function applyLayerPreset(preset) {
-      if (preset === 'us') {
-        updateSlider('skin', 0.10);
-        updateSlider('fat', 0.20);
-        updateSlider('fascia', 0.60);
-        updateSlider('muscle', 0.25);
-        updateSlider('bone', 0.30);
-      } else if (preset === 'surgical') {
-        updateSlider('skin', 0.0);
-        updateSlider('fat', 0.15);
-        updateSlider('fascia', 0.85);
-        updateSlider('muscle', 0.85);
-        updateSlider('bone', 0.90);
-      } else if (preset === 'skeleton') {
-        updateSlider('skin', 0.0);
-        updateSlider('fat', 0.0);
-        updateSlider('fascia', 0.0);
-        updateSlider('muscle', 0.05);
-        updateSlider('bone', 1.0);
-      } else if (preset === 'all') {
-        updateSlider('skin', 0.22);
-        updateSlider('fat', 0.25);
-        updateSlider('fascia', 0.45);
-        updateSlider('muscle', 0.85);
-        updateSlider('bone', 1.0);
-      }
+    function applyAnatPreset(presetKey) {
+      const preset = MODEL_INFO.presets[presetKey];
+      if (!preset) return;
+
+      state.activePreset = presetKey;
+      document.querySelectorAll('.mini-preset-chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-preset') === presetKey);
+      });
+
+      Object.entries(preset.opacity).forEach(([k, op]) => {
+        if (layerRegistry[k]) {
+          state.layerOpacity[k] = op;
+          layerRegistry[k].opacity = op;
+          layerRegistry[k].on = op > 0.01;
+          applyLayer(k);
+
+          const slider = document.getElementById(`slider-${k}`);
+          if (slider) slider.value = op;
+          const pct = document.getElementById(`pct-${k}`);
+          if (pct) pct.textContent = `${Math.round(op * 100)}%`;
+        }
+      });
+
+      setCameraView(preset.view);
     }
 
-    function updateSlider(layer, val) {
-      const slider = document.getElementById(`slider-${layer}`);
-      if (slider) {
-        slider.value = val;
-        updateLayerOpacity(layer, val);
-      }
+    // Options Toggles
+    function toggleXRayGlow(checked) {
+      state.showXRayGlow = checked;
+      xRayMeshes.forEach(xm => xm.visible = checked && layerRegistry.lipoma.on);
+      requestRender();
     }
 
-    // Axial Slicer
-    function updateAxialSlice(val) {
-      val = parseFloat(val);
-      state.axialSliceHeight = val;
-      const label = document.getElementById('slice-level-label');
-
-      if (val >= 21.5) {
-        clipPlane.constant = 100; // Inactive
-        if (label) label.textContent = "Off (Full)";
-      } else {
-        clipPlane.constant = val;
-        let anatomicalLabel = "L3 Level";
-        if (val > 11) anatomicalLabel = "L1 Superior";
-        else if (val > 6) anatomicalLabel = "L2 Mid";
-        else if (val > 1) anatomicalLabel = "L3 Paramedian";
-        else if (val > -4) anatomicalLabel = "L4 Inferior";
-        else if (val > -9) anatomicalLabel = "L5 Lipoma Dome";
-        else anatomicalLabel = "S1 Sacrum";
-
-        if (label) label.textContent = `${anatomicalLabel} (${val.toFixed(1)} cm)`;
-      }
+    function toggleMeasurements(checked) {
+      state.showMeasurements = checked;
+      calipersGroup.visible = checked;
+      requestRender();
     }
 
-    // Timeline Morphing Engine
+    function toggleAutoRotate(checked) {
+      state.autoRotate = checked;
+      controls.autoRotate = checked;
+      controls.autoRotateSpeed = 1.2;
+      requestRender();
+    }
+
+    // =========================================================================
+    // Timeline Morphing Engine (For Model 2: Isolated Lipomas)
+    // =========================================================================
+    function applyMorphValue(val) {
+      state.morphProgress = Math.max(0, Math.min(1, val));
+
+      if (sliderTimelineMorph) sliderTimelineMorph.value = state.morphProgress;
+      if (morphPctLabel) morphPctLabel.textContent = `${Math.round(state.morphProgress * 100)}% Morph`;
+
+      // Morph Right Lipoma
+      const r0 = ISO_DATA.right.jul25;
+      const r1 = ISO_DATA.right.may26;
+      const rxR = THREE.MathUtils.lerp(r0.rx, r1.rx, state.morphProgress);
+      const ryR = THREE.MathUtils.lerp(r0.ry, r1.ry, state.morphProgress);
+      const rzR = THREE.MathUtils.lerp(r0.rz, r1.rz, state.morphProgress);
+      isoRightMesh.geometry.dispose();
+      isoRightMesh.geometry = createEllipsoidGeometry(rxR, ryR, rzR);
+
+      // Morph Left Lipoma (+155.6% Anteroposterior expansion)
+      const l0 = ISO_DATA.left.jul25;
+      const l1 = ISO_DATA.left.may26;
+      const rxL = THREE.MathUtils.lerp(l0.rx, l1.rx, state.morphProgress);
+      const ryL = THREE.MathUtils.lerp(l0.ry, l1.ry, state.morphProgress);
+      const rzL = THREE.MathUtils.lerp(l0.rz, l1.rz, state.morphProgress);
+      isoLeftMesh.geometry.dispose();
+      isoLeftMesh.geometry = createEllipsoidGeometry(rxL, ryL, rzL);
+
+      // Update Inspector Metrics Readouts
+      const curLeftVol = THREE.MathUtils.lerp(3.68, 7.72, state.morphProgress).toFixed(2);
+      const curRightVol = THREE.MathUtils.lerp(3.95, 3.80, state.morphProgress).toFixed(2);
+      const isoRightVal = document.getElementById('iso-right-val');
+      const isoLeftVal = document.getElementById('iso-left-val');
+      if (isoRightVal) isoRightVal.textContent = state.morphProgress > 0.5 ? `24 × 12 mm (${curRightVol} cm³)` : `26 × 10 × 29 mm (${curRightVol} cm³)`;
+      if (isoLeftVal) isoLeftVal.textContent = state.morphProgress > 0.5 ? `32 × 23 mm (${curLeftVol} cm³)` : `39 × 9 × 20 mm (${curLeftVol} cm³)`;
+
+      const cardJul = document.getElementById('card-date-jul25');
+      const cardMay = document.getElementById('card-date-may26');
+      if (cardJul && cardMay) {
+        cardJul.classList.toggle('active', state.morphProgress < 0.5);
+        cardMay.classList.toggle('active', state.morphProgress >= 0.5);
+      }
+      requestRender();
+    }
+
     function setTimelineStep(step) {
       state.timelineStep = step;
-      document.getElementById('card-date-jul25').classList.toggle('active', step === 0);
-      document.getElementById('card-date-may26').classList.toggle('active', step === 1);
       const targetVal = step === 0 ? 0.0 : 1.0;
-
       const startVal = state.morphProgress;
-      const startTime = performance.now();
-      const duration = 550;
+      const startT = performance.now();
+      const dur = 550;
 
-      function stepMorph(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(1, elapsed / duration);
-        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        const cur = startVal + (targetVal - startVal) * ease;
-        applyMorphValue(cur);
-
-        if (t < 1) requestAnimationFrame(stepMorph);
+      function stepAnim(now) {
+        const progress = Math.min(1, (now - startT) / dur);
+        const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+        applyMorphValue(startVal + (targetVal - startVal) * ease);
+        if (progress < 1) requestAnimationFrame(stepAnim);
       }
-      requestAnimationFrame(stepMorph);
+      requestAnimationFrame(stepAnim);
     }
 
-    function applyMorphValue(val) {
-      state.morphProgress = val;
-      if (sliderTimelineMorph) sliderTimelineMorph.value = val;
-      if (morphPctLabel) morphPctLabel.textContent = `${Math.round(val * 100)}% Morph`;
-
-      // Interpolate Left Lipoma Geometry (Significant AP Thickening)
-      const lJul = NODULE_DATA.left.jul25;
-      const lMay = NODULE_DATA.left.may26;
-      const curLRx = lJul.rx + (lMay.rx - lJul.rx) * val;
-      const curLRy = lJul.ry + (lMay.ry - lJul.ry) * val;
-      const curLRz = lJul.rz + (lMay.rz - lJul.rz) * val;
-
-      leftLipomaMesh.geometry.dispose();
-      leftLipomaMesh.geometry = createEllipsoidGeometry(curLRx, curLRy, curLRz);
-
-      // Interpolate Right Lipoma Geometry (Stable)
-      const rJul = NODULE_DATA.right.jul25;
-      const rMay = NODULE_DATA.right.may26;
-      const curRRx = rJul.rx + (rMay.rx - rJul.rx) * val;
-      const curRRy = rJul.ry + (rMay.ry - rJul.ry) * val;
-      const curRRz = rJul.rz + (rMay.rz - rJul.rz) * val;
-
-      rightLipomaMesh.geometry.dispose();
-      rightLipomaMesh.geometry = createEllipsoidGeometry(curRRx, curRRy, curRRz);
-
-      // Update Caliper vectors
-      calipersGroup.remove(rightCalipers);
-      calipersGroup.remove(leftCalipers);
-      rightCalipers = buildCaliperAxes(rightLipomaMesh.position, curRRx, curRRy, curRRz);
-      leftCalipers = buildCaliperAxes(leftLipomaMesh.position, curLRx, curLRy, curLRz);
-      calipersGroup.add(rightCalipers);
-      calipersGroup.add(leftCalipers);
-
-      // Update Screen HUD labels
-      const curLeftThick = Math.round(9 + (23 - 9) * val);
-      const curLeftVol = (3.68 + (7.72 - 3.68) * val).toFixed(2);
-      if (caliperTextLeft) caliperTextLeft.textContent = `32 × ${curLeftThick} mm (${curLeftVol} cm³)`;
-
-      const curRightVol = (3.95 + (3.80 - 3.95) * val).toFixed(2);
-      if (caliperTextRight) caliperTextRight.textContent = `24 × 12 mm (${curRightVol} cm³)`;
-
-      const metricLeft = document.getElementById('metric-left-vol');
-      if (metricLeft) metricLeft.textContent = `${curLeftVol} cm³ (AP: ${curLeftThick} mm)`;
-
-      const isoLeft = document.getElementById('iso-left-val');
-      if (isoLeft) isoLeft.textContent = `32 × ${curLeftThick} mm (${curLeftVol} cm³)`;
-
-      const isoRight = document.getElementById('iso-right-val');
-      if (isoRight) isoRight.textContent = `24 × 12 mm (${curRightVol} cm³)`;
-    }
-
-    // Play/Pause Morphing Animation Loop
     function togglePlayMorph() {
       state.isPlaying = !state.isPlaying;
-      if (state.isPlaying) {
-        playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-        runPlayLoop();
-      } else {
-        playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+      if (playIcon) {
+        playIcon.innerHTML = state.isPlaying
+          ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+          : '<polygon points="5,3 19,12 5,21"/>';
       }
+      if (state.isPlaying) runPlayLoop();
     }
 
     let playDirection = 1;
     function runPlayLoop() {
       if (!state.isPlaying) return;
-      let next = state.morphProgress + playDirection * 0.008;
-      if (next >= 1.0) {
-        next = 1.0;
-        playDirection = -1;
-      } else if (next <= 0.0) {
-        next = 0.0;
-        playDirection = 1;
-      }
+      let next = state.morphProgress + playDirection * 0.007;
+      if (next >= 1.0) { next = 1.0; playDirection = -1; }
+      else if (next <= 0.0) { next = 0.0; playDirection = 1; }
       applyMorphValue(next);
       requestAnimationFrame(runPlayLoop);
     }
 
-    // Project 3D Coordinates to 2D Screen Caliper Tags
-    function updateCaliperTags() {
-      const rightWorld = rightLipomaMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0));
-      const leftWorld = leftLipomaMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0));
+    // =========================================================================
+    // Tap to Identify Tooltip & Double Click Zoom
+    // =========================================================================
+    const raycaster = new THREE.Raycaster();
+    const mouseVec = new THREE.Vector2();
+    let downPos = null;
 
-      const rScreen = rightWorld.project(camera);
-      const lScreen = leftWorld.project(camera);
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      downPos = { x: e.clientX, y: e.clientY };
+    });
 
-      // Check visibility in front of camera
-      const isVisible = camera.position.z > (state.activeModel === 'isolated' ? 4 : 8);
+    renderer.domElement.addEventListener('pointerup', (e) => {
+      if (!downPos) return;
+      const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
+      downPos = null;
+      if (dist > 6) return;
 
-      if (isVisible && calipersGroup.visible) {
-        caliperTagRight.style.display = 'flex';
-        caliperTagLeft.style.display = 'flex';
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouseVec.set(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(mouseVec, camera);
 
-        const rX = (rScreen.x * 0.5 + 0.5) * W();
-        const rY = (-rScreen.y * 0.5 + 0.5) * H();
-        caliperTagRight.style.left = `${rX}px`;
-        caliperTagRight.style.top = `${rY}px`;
+      const targets = pickableMeshes.filter(m => m.visible && layerRegistry[m.userData.group].opacity > 0.25);
+      const hits = raycaster.intersectObjects(targets, false);
 
-        const lX = (lScreen.x * 0.5 + 0.5) * W();
-        const lY = (-lScreen.y * 0.5 + 0.5) * H();
-        caliperTagLeft.style.left = `${lX}px`;
-        caliperTagLeft.style.top = `${lY}px`;
-      } else {
-        caliperTagRight.style.display = 'none';
-        caliperTagLeft.style.display = 'none';
+      if (hits.length === 0) {
+        if (structureTip) structureTip.style.display = 'none';
+        highlightMesh(null);
+        return;
       }
 
-      // Live Anatomical Compass Text
-      const camX = camera.position.x;
-      const camY = camera.position.y;
-      const camZ = camera.position.z;
+      const hit = hits[0].object;
+      highlightMesh(hit);
 
-      if (state.activeModel === 'isolated') {
-        compassLabel.textContent = "Isolated Lipoma Model (Centered View)";
-      } else {
-        if (camY > 35) {
-          compassLabel.textContent = "Axial View (Superior / Top-Down)";
-        } else if (Math.abs(camX) > 30) {
-          compassLabel.textContent = camX > 0 ? "Right Lateral Profile" : "Left Lateral Profile";
-        } else if (camZ > 10) {
-          compassLabel.textContent = "Posterior View (Examining Patient's Back)";
-        } else {
-          compassLabel.textContent = "Anterior View (Frontal Spine)";
-        }
+      if (structureTip) {
+        structureTip.innerHTML = `<strong>${hit.userData.label}</strong><span style="display:block; font-size:10px; opacity:0.8;">Double-click to zoom</span>`;
+        structureTip.style.display = 'block';
+        structureTip.style.left = `${e.clientX - rect.left}px`;
+        structureTip.style.top = `${e.clientY - rect.top - 18}px`;
+        clearTimeout(structureTip._timer);
+        structureTip._timer = setTimeout(() => {
+          structureTip.style.display = 'none';
+          highlightMesh(null);
+        }, 3500);
       }
+    });
+
+    renderer.domElement.addEventListener('dblclick', (e) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouseVec.set(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(mouseVec, camera);
+      const targets = pickableMeshes.filter(m => m.visible && layerRegistry[m.userData.group].opacity > 0.25);
+      const hits = raycaster.intersectObjects(targets, false);
+      if (hits.length > 0) {
+        zoomToMesh(hits[0].object);
+      }
+    });
+
+    function highlightMesh(mesh) {
+      if (activeHighlightMesh && activeHighlightMesh.material.userData.shader) {
+        activeHighlightMesh.material.userData.shader.uniforms.uHi.value = 0;
+      }
+      activeHighlightMesh = mesh;
+      if (mesh && mesh.material.userData.shader) {
+        mesh.material.userData.shader.uniforms.uHi.value = 1;
+      }
+      requestRender();
     }
 
-    // High-Resolution Snapshot Capture
+    function zoomToMesh(mesh) {
+      const box = new THREE.Box3().setFromObject(mesh);
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
+      const dir = camera.position.clone().sub(controls.target).normalize();
+      const dist = Math.max(sphere.radius * 3.4 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / 3, 0.09);
+      tweenCamera(sphere.center.clone().add(dir.multiplyScalar(dist)), sphere.center.clone(), 750);
+    }
+
+    // =========================================================================
+    // Orientation Compass & Snapshot
+    // =========================================================================
+    function updateCompass() {
+      if (!compassLabel) return;
+      const rightCol = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+      const axes = [
+        ["x", "Patient's Right (R)", "Patient's Left (L)"],
+        ["z", "Posterior (Back)", "Anterior (Front)"],
+        ["y", "Superior (Head)", "Inferior (Feet)"]
+      ];
+      let bestAxis = axes[0], maxDot = 0;
+      for (let ax of axes) {
+        const dot = Math.abs(rightCol[ax[0]]);
+        if (dot > maxDot) { maxDot = dot; bestAxis = ax; }
+      }
+      const isPos = rightCol[bestAxis[0]] >= 0;
+      compassLabel.textContent = isPos ? bestAxis[1] : bestAxis[2];
+    }
+
     function captureSnapshot() {
       renderer.render(scene, camera);
-      const dataURL = renderer.domElement.toDataURL('image/png');
+      const url = renderer.domElement.toDataURL('image/png');
       const a = document.createElement('a');
-      a.href = dataURL;
-      a.download = `lipoma-3d-${state.activeModel}-${state.timelineStep === 0 ? '2025' : '2026'}.png`;
+      a.download = `lower-back-lipoma-3d-${state.activeModel}.png`;
+      a.href = url;
       a.click();
     }
 
-    // Handle Window Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = W() / H();
-      camera.updateProjectionMatrix();
-      renderer.setSize(W(), H());
+    // =========================================================================
+    // Animated Flow Cursor Tracking (001 Main / Vanguard)
+    // =========================================================================
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (flowCursor) {
+        flowCursor.style.left = `${mouseX}px`;
+        flowCursor.style.top = `${mouseY}px`;
+      }
     });
 
-    // Main Render Loop
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      updateCaliperTags();
-      renderer.render(scene, camera);
-    }
-    animate();
+    // Add interactive magnetic lens styling over buttons, chips, and 3D container
+    document.querySelectorAll('button, input, .bezel-card, .cam-chip, .mini-preset-chip, .model-tab-btn').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        if (flowCursorRing) flowCursorRing.classList.add('active');
+      });
+      el.addEventListener('mouseleave', () => {
+        if (flowCursorRing) flowCursorRing.classList.remove('active');
+      });
+    });
 
-    // Initial setup
-    updateLayerOpacity('skin', 0.22);
-    updateLayerOpacity('fat', 0.25);
-    updateLayerOpacity('fascia', 0.45);
-    updateLayerOpacity('muscle', 0.85);
-    updateLayerOpacity('bone', 1.0);
-    applyMorphValue(0.0);
+    // Keyboard Spacebar Shortcut to toggle active model
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        toggleActiveModel();
+      }
+    });
+
+    // =========================================================================
+    // Responsive Resize & Demand Render Loop
+    // =========================================================================
+    let renderRequested = true;
+    function requestRender() {
+      renderRequested = true;
+    }
+    controls.addEventListener('change', requestRender);
+
+    window.addEventListener('resize', () => {
+      const w = W(), h = H();
+      if (!w || !h) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      requestRender();
+    });
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+
+      // Smooth lag ring cursor interpolation
+      if (flowCursorRing && mouseX > 0) {
+        ringX += (mouseX - ringX) * 0.18;
+        ringY += (mouseY - ringY) * 0.18;
+        flowCursorRing.style.left = `${ringX}px`;
+        flowCursorRing.style.top = `${ringY}px`;
+      }
+
+      // Camera tween interpolation
+      if (cameraTween) {
+        const progress = Math.min(1, (time - cameraTween.start) / cameraTween.duration);
+        const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        camera.position.lerpVectors(cameraTween.p0, cameraTween.p1, ease);
+        controls.target.lerpVectors(cameraTween.t0, cameraTween.t1, ease);
+        if (progress >= 1) cameraTween = null;
+        renderRequested = true;
+      }
+
+      const controlsUpdated = controls.update();
+      if (renderRequested || controlsUpdated || controls.autoRotate) {
+        renderer.render(scene, camera);
+        updateLipomaCallouts();
+        updateCompass();
+        renderRequested = false;
+      }
+    }
+    requestAnimationFrame(animate);
+
+    // Bind all handlers to window for HTML onclick and oninput
+    window.switchModel = switchModel;
+    window.toggleActiveModel = toggleActiveModel;
+    window.setCameraView = setCameraView;
+    window.applyAnatPreset = applyAnatPreset;
+    window.updateLayerOpacity = updateLayerOpacity;
+    window.toggleXRayGlow = toggleXRayGlow;
+    window.toggleMeasurements = toggleMeasurements;
+    window.toggleAutoRotate = toggleAutoRotate;
+    window.resetCamera = resetCamera;
+    window.captureSnapshot = captureSnapshot;
+    window.applyMorphValue = applyMorphValue;
+    window.setTimelineStep = setTimelineStep;
+    window.togglePlayMorph = togglePlayMorph;
+
+    window.__clinicalViewer = {
+      switchModel,
+      toggleActiveModel,
+      setCameraView,
+      applyAnatPreset,
+      updateLayerOpacity,
+      toggleXRayGlow,
+      toggleMeasurements,
+      toggleAutoRotate,
+      resetCamera,
+      captureSnapshot,
+      MODEL_INFO
+    };
   </script>
+
+
 
 </body>
 </html>

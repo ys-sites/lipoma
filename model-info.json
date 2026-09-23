@@ -1,0 +1,605 @@
+{
+ "model": {
+  "file_web": "lower-back-3d-web.glb",
+  "file_standard": "lower-back-3d.glb",
+  "format": "glTF 2.0 binary (.glb)",
+  "web_file_compression": "EXT_meshopt_compression + KHR_mesh_quantization. In three.js call gltfLoader.setMeshoptDecoder(MeshoptDecoder).",
+  "units": "meters",
+  "axes": {
+   "+Y": "up, toward the head",
+   "+X": "the patient's right",
+   "+Z": "the patient's back (a camera on +Z looks at the back)"
+  },
+  "origin": "centre of the model block, on the body midline",
+  "bbox": {
+   "min": [
+    -0.21699999272823334,
+    -0.1784999966621399,
+    -0.15279999375343323
+   ],
+   "max": [
+    0.21480000019073486,
+    0.17890000343322754,
+    0.1525000035762787
+   ]
+  },
+  "node_naming": "Every structure is a named node whose name equals its id below. Its label and group are also in the node extras (three.js: object.userData). Apply material and visibility changes to all descendant meshes of the node.",
+  "vertex_colors": "COLOR_0 holds baked ambient occlusion (grey values). Keep vertexColors enabled so the shading keeps its depth."
+ },
+ "groups": [
+  {
+   "id": "skin",
+   "label": "Skin",
+   "color": "#c98f70"
+  },
+  {
+   "id": "muscle",
+   "label": "Muscles",
+   "color": "#9c2c28"
+  },
+  {
+   "id": "bone",
+   "label": "Bones",
+   "color": "#e4d6b6"
+  },
+  {
+   "id": "lipoma",
+   "label": "Lipomas",
+   "color": "#22b07f"
+  }
+ ],
+ "structures": [
+  {
+   "id": "skin",
+   "label": "Skin",
+   "group": "skin"
+  },
+  {
+   "id": "muscle_erector_spinae_left",
+   "label": "Erector spinae and multifidus (left)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.002,
+    0.998,
+    0.056
+   ]
+  },
+  {
+   "id": "muscle_erector_spinae_right",
+   "label": "Erector spinae and multifidus (right)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.082,
+    -0.995,
+    -0.055
+   ]
+  },
+  {
+   "id": "muscle_gluteus_maximus_left",
+   "label": "Gluteus maximus (left)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.569,
+    0.82,
+    -0.059
+   ]
+  },
+  {
+   "id": "muscle_gluteus_maximus_right",
+   "label": "Gluteus maximus (right)",
+   "group": "muscle",
+   "fiber_direction": [
+    0.42,
+    0.908,
+    -0.017
+   ]
+  },
+  {
+   "id": "muscle_gluteus_medius_left",
+   "label": "Gluteus medius (left)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.542,
+    -0.559,
+    -0.628
+   ]
+  },
+  {
+   "id": "muscle_gluteus_medius_right",
+   "label": "Gluteus medius (right)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.458,
+    0.689,
+    0.562
+   ]
+  },
+  {
+   "id": "muscle_gluteus_minimus_left",
+   "label": "Gluteus minimus (left)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.256,
+    0.576,
+    -0.776
+   ]
+  },
+  {
+   "id": "muscle_gluteus_minimus_right",
+   "label": "Gluteus minimus (right)",
+   "group": "muscle",
+   "fiber_direction": [
+    0.495,
+    -0.132,
+    -0.859
+   ]
+  },
+  {
+   "id": "muscle_iliopsoas_left",
+   "label": "Iliopsoas (left)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.308,
+    -0.849,
+    -0.43
+   ]
+  },
+  {
+   "id": "muscle_iliopsoas_right",
+   "label": "Iliopsoas (right)",
+   "group": "muscle",
+   "fiber_direction": [
+    -0.26,
+    0.835,
+    0.484
+   ]
+  },
+  {
+   "id": "bone_T10",
+   "label": "T10 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_T11",
+   "label": "T11 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_T12",
+   "label": "T12 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_L1",
+   "label": "L1 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_L2",
+   "label": "L2 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_L3",
+   "label": "L3 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_L4",
+   "label": "L4 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_L5",
+   "label": "L5 vertebra",
+   "group": "bone"
+  },
+  {
+   "id": "bone_sacrum",
+   "label": "Sacrum",
+   "group": "bone"
+  },
+  {
+   "id": "bone_hip_left",
+   "label": "Hip bone / ilium (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_hip_right",
+   "label": "Hip bone / ilium (right)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_femur_left",
+   "label": "Femur, upper end (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_femur_right",
+   "label": "Femur, upper end (right)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib9_left",
+   "label": "Rib 9 (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib10_left",
+   "label": "Rib 10 (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib11_left",
+   "label": "Rib 11 (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib12_left",
+   "label": "Rib 12 (left)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib9_right",
+   "label": "Rib 9 (right)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib10_right",
+   "label": "Rib 10 (right)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib11_right",
+   "label": "Rib 11 (right)",
+   "group": "bone"
+  },
+  {
+   "id": "bone_rib12_right",
+   "label": "Rib 12 (right)",
+   "group": "bone"
+  },
+  {
+   "id": "lipoma_right",
+   "label": "Right lipoma",
+   "group": "lipoma"
+  },
+  {
+   "id": "lipoma_left",
+   "label": "Left lipoma",
+   "group": "lipoma"
+  }
+ ],
+ "lipomas": [
+  {
+   "id": "lipoma_right",
+   "label": "Right lipoma",
+   "color": "#22b07f",
+   "size_mm": {
+    "width": 26,
+    "depth": 10,
+    "height": 29
+   },
+   "volume_cm3": 3.9,
+   "center": [
+    0.0396,
+    -0.03075,
+    0.14137
+   ],
+   "axes": {
+    "width": [
+     0.9876,
+     -0.0,
+     -0.1573
+    ],
+    "depth_outward": [
+     0.1573,
+     0.0,
+     0.9876
+    ],
+    "height": [
+     0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "reports": [
+    {
+     "date": "2025-07-22",
+     "size": "26 × 10 × 29 mm",
+     "note": "three dimensions measured"
+    },
+    {
+     "date": "2026-05-14",
+     "size": "24 × 12 mm",
+     "note": "two dimensions measured"
+    }
+   ],
+   "location": "About 4 cm right of the midline at the L5–S1 level, in the fat under the skin"
+  },
+  {
+   "id": "lipoma_left",
+   "label": "Left lipoma",
+   "color": "#ec7a45",
+   "size_mm": {
+    "width": 39,
+    "depth": 9,
+    "height": 20
+   },
+   "volume_cm3": 3.7,
+   "center": [
+    -0.03948,
+    -0.0308,
+    0.1434
+   ],
+   "axes": {
+    "width": [
+     0.9806,
+     0.0019,
+     0.1958
+    ],
+    "depth_outward": [
+     -0.1958,
+     0.0095,
+     0.9806
+    ],
+    "height": [
+     0.0,
+     1.0,
+     -0.0097
+    ]
+   },
+   "reports": [
+    {
+     "date": "2025-07-22",
+     "size": "39 × 9 × 20 mm",
+     "note": "three dimensions measured"
+    },
+    {
+     "date": "2026-05-14",
+     "size": "32 × 23 mm",
+     "note": "two dimensions measured"
+    }
+   ],
+   "location": "About 4 cm left of the midline at the L5–S1 level, in the fat under the skin"
+  }
+ ],
+ "labels": [
+  {
+   "text": "T12",
+   "group": "bone",
+   "structure": "bone_T12",
+   "position": [
+    0.0007200000109151006,
+    0.09828999638557434,
+    0.13113999366760254
+   ]
+  },
+  {
+   "text": "L1",
+   "group": "bone",
+   "structure": "bone_L1",
+   "position": [
+    0.0003000000142492354,
+    0.06449999660253525,
+    0.13322000205516815
+   ]
+  },
+  {
+   "text": "L2",
+   "group": "bone",
+   "structure": "bone_L2",
+   "position": [
+    9.000000136438757e-05,
+    0.049710001796483994,
+    0.13312000036239624
+   ]
+  },
+  {
+   "text": "L3",
+   "group": "bone",
+   "structure": "bone_L3",
+   "position": [
+    0.00011000000085914508,
+    0.026350000873208046,
+    0.1280599981546402
+   ]
+  },
+  {
+   "text": "L4",
+   "group": "bone",
+   "structure": "bone_L4",
+   "position": [
+    2.9999999242136255e-05,
+    -0.0027099999133497477,
+    0.11897999793291092
+   ]
+  },
+  {
+   "text": "L5",
+   "group": "bone",
+   "structure": "bone_L5",
+   "position": [
+    0.0020800000056624413,
+    -0.024650000035762787,
+    0.1130099967122078
+   ]
+  },
+  {
+   "text": "Sacrum",
+   "group": "bone",
+   "structure": "bone_sacrum",
+   "position": [
+    0.0006200000061653554,
+    -0.058889999985694885,
+    0.11430999636650085
+   ]
+  },
+  {
+   "text": "Iliac crest",
+   "group": "bone",
+   "structure": "bone_hip_left",
+   "position": [
+    -0.10135000199079514,
+    0.0282600000500679,
+    0.07823000103235245
+   ]
+  },
+  {
+   "text": "Erector spinae",
+   "group": "muscle",
+   "structure": "muscle_erector_spinae_right",
+   "position": [
+    0.020980000495910645,
+    0.03440000116825104,
+    0.12891000509262085
+   ]
+  },
+  {
+   "text": "Gluteus maximus",
+   "group": "muscle",
+   "structure": "muscle_gluteus_maximus_left",
+   "position": [
+    -0.024709999561309814,
+    -0.1109199970960617,
+    0.1262200027704239
+   ]
+  },
+  {
+   "text": "Gluteus medius",
+   "group": "muscle",
+   "structure": "muscle_gluteus_medius_right",
+   "position": [
+    0.13404999673366547,
+    0.010599999688565731,
+    0.05688000097870827
+   ]
+  }
+ ],
+ "views": {
+  "back": {
+   "label": "Back",
+   "position": [
+    0.16,
+    0.07,
+    1.05
+   ],
+   "target": [
+    0.0,
+    0.0,
+    0.03
+   ]
+  },
+  "angled": {
+   "label": "Angled",
+   "position": [
+    0.55,
+    0.05,
+    0.8
+   ],
+   "target": [
+    0.0,
+    -0.01,
+    0.05
+   ]
+  },
+  "side": {
+   "label": "Side",
+   "position": [
+    0.95,
+    0.03,
+    0.12
+   ],
+   "target": [
+    0.0,
+    0.0,
+    0.03
+   ]
+  },
+  "front": {
+   "label": "Front",
+   "position": [
+    -0.1,
+    0.06,
+    -1.05
+   ],
+   "target": [
+    0.0,
+    0.0,
+    -0.02
+   ]
+  },
+  "lipomas_closeup": {
+   "label": "Lipomas",
+   "position": [
+    0.1001,
+    0.0392,
+    0.4424
+   ],
+   "target": [
+    0.0001,
+    -0.0308,
+    0.1374
+   ]
+  }
+ },
+ "presets": {
+  "skin": {
+   "label": "Skin",
+   "opacity": {
+    "skin": 1.0,
+    "muscle": 1.0,
+    "bone": 1.0,
+    "lipoma": 1.0
+   },
+   "view": "back"
+  },
+  "see_through": {
+   "label": "See-through",
+   "opacity": {
+    "skin": 0.22,
+    "muscle": 1.0,
+    "bone": 1.0,
+    "lipoma": 1.0
+   },
+   "view": "angled"
+  },
+  "muscles": {
+   "label": "Muscles",
+   "opacity": {
+    "skin": 0.0,
+    "muscle": 1.0,
+    "bone": 1.0,
+    "lipoma": 1.0
+   },
+   "view": "angled"
+  },
+  "bones": {
+   "label": "Bones",
+   "opacity": {
+    "skin": 0.08,
+    "muscle": 0.0,
+    "bone": 1.0,
+    "lipoma": 1.0
+   },
+   "view": "back"
+  },
+  "lipomas": {
+   "label": "Lipomas close-up",
+   "opacity": {
+    "skin": 0.18,
+    "muscle": 1.0,
+    "bone": 1.0,
+    "lipoma": 1.0
+   },
+   "view": "lipomas_closeup"
+  }
+ },
+ "notes": [
+  "Reference anatomy: skin, muscles and bones come from the CT scan of an anonymized adult male, not from the patient. The scan was taken lying on the back, which flattens the back.",
+  "Lipoma sizes come from the July 22, 2025 ultrasound. The axis order is assumed to be width (side to side) × depth × height (up and down).",
+  "Lipoma positions follow the reports (paramedian, subcutaneous, about L5–S1), but the exact spots are approximate. The small skin bulge over each lipoma is illustrative.",
+  "For understanding and discussion only. This is not a diagnostic image."
+ ],
+ "attribution": "Anatomy derived from the TotalSegmentator dataset (subject s1397; Wasserthal et al., Radiology: Artificial Intelligence, 2023), licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Lipoma sizes and positions from the patient’s ultrasound reports."
+}
