@@ -1,6 +1,0 @@
-{
-  "name": "White Canvas",
-  "description": "A minimal, clean white background application.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

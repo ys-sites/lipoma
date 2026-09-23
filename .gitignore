@@ -1,8 +1,29 @@
+# Private Clinical & Personal Medical Reports
+*.pdf
+Sharafath*
+CR*
+COLONNE*
+ARTICULATIONS*
+IRM*
+Surface_Ultrasound*
+Échographie*
+ÉCHOGRAPHIE*
+
+# Build Outputs & Dependencies
 node_modules/
-build/
 dist/
-coverage/
+.vercel
+
+# Environment & System
+.env
+.env.*
 .DS_Store
+Thumbs.db
 *.log
-.env*
-!.env.example
+
+# Temporary Visual Verification Screenshots
+viewer_*.png
+initial_page_load_*.png
+isolated_lipomas_mode_*.png
+growth_ghost_overlay_mode_*.png
+top_*.png
