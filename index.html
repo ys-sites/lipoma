@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lower Back Subcutaneous Lipoma 3D Visualization & Timeline Analysis</title>
+  <title>Lower Back Subcutaneous Lipoma — 3D Clinical Visualization & Timeline Analysis</title>
   <meta name="description" content="Interactive 3D medical visualization of lower back subcutaneous lipomas at L5-S1, anatomical tissue layers, and interval growth timeline from ultrasound and MRI reports.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   
-  <!-- Modern Google Fonts -->
+  <!-- Premium Modern Typography (Plus Jakarta Sans + JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Three.js + OrbitControls + GLTFExporter -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -18,29 +18,56 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
 
   <style>
+    /* ==========================================================================
+       DESIGN SYSTEM: Elite Soft Structuralism (Clinical Pure White & Silver)
+       Compliant with Vanguard UI/UX Architecture & Doppelrand Standards
+       ========================================================================== */
     :root {
-      --bg-dark: #070a11;
-      --bg-card: rgba(13, 20, 36, 0.78);
-      --bg-card-hover: rgba(20, 31, 56, 0.88);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(56, 189, 248, 0.25);
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --right-lipoma: #10b981;
-      --right-glow: rgba(16, 185, 129, 0.35);
-      --left-lipoma: #f97316;
-      --left-glow: rgba(249, 115, 22, 0.35);
-      --bone-color: #e2e8f0;
-      --muscle-color: #b91c1c;
-      --fascia-color: #38bdf8;
-      --fat-color: #fbbf24;
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-shell: #f1f5f9;
+      --bg-shell-subtle: #f8fafc;
+      --bg-hover: #f1f5f9;
+      
+      --border-outer: #e2e8f0;
+      --border-inner: #edf2f7;
+      --border-accent: rgba(2, 132, 199, 0.25);
+      
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      --right-lipoma: #059669;
+      --right-bg: #ecfdf5;
+      --right-border: #a7f3d0;
+      
+      --left-lipoma: #ea580c;
+      --left-bg: #fff7ed;
+      --left-border: #fed7aa;
+      
+      --accent-cyan: #0284c7;
+      --accent-bg: #f0f9ff;
+      --accent-border: #bae6fd;
+      
+      --bone-color: #cbd5e1;
+      --muscle-color: #991b1b;
+      --fascia-color: #0284c7;
+      --fat-color: #f59e0b;
       --skin-color: #d4a373;
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 18px;
+      
+      --radius-outer: 24px;
+      --radius-inner: 18px;
+      --radius-pill: 9999px;
+      
+      --shadow-ambient: 0 20px 40px -15px rgba(15, 23, 42, 0.05);
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+      --shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+      
       --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      
+      --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     * {
@@ -48,974 +75,1486 @@
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--bg-page);
       color: var(--text-main);
       font-family: var(--font-sans);
       min-height: 100vh;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
-    /* Ambient background gradient glow */
+    /* Subtle Architectural Grid Background */
     body::before {
       content: "";
       position: fixed;
-      top: -200px;
-      left: 20%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, transparent 70%);
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.04) 0%, transparent 60%),
+        linear-gradient(to right, rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
       pointer-events: none;
       z-index: 0;
     }
 
-    /* App Header */
-    header {
+    /* Container Wrap */
+    .app-container {
       position: relative;
-      z-index: 10;
-      padding: 16px 24px;
-      background: rgba(7, 10, 17, 0.85);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border-subtle);
+      z-index: 1;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 24px 60px;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ==========================================================================
+       DOUBLE-BEZEL (DOPPELRAND) HARDWARE CARDS
+       ========================================================================== */
+    .bezel-card {
+      background: var(--bg-shell);
+      border: 1px solid var(--border-outer);
+      border-radius: var(--radius-outer);
+      padding: 6px;
+      box-shadow: var(--shadow-ambient);
+      transition: border-color 0.3s var(--ease-fluid), box-shadow 0.3s var(--ease-fluid);
+    }
+
+    .bezel-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
+    }
+
+    .bezel-inner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-inner);
+      border-radius: var(--radius-inner);
+      box-shadow: var(--shadow-inner);
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       FLOATING DETACHED ISLAND NAVBAR
+       ========================================================================== */
+    .island-nav {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: var(--radius-pill);
+      padding: 10px 20px;
+      display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
     }
 
-    .header-titles {
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+    }
+
+    .brand-icon-box svg {
+      width: 22px;
+      height: 22px;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    .brand-text {
       display: flex;
       flex-direction: column;
-      gap: 4px;
     }
 
-    .header-badge {
-      display: inline-flex;
+    .brand-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      padding: 3px 8px;
-      border-radius: 9999px;
-      width: fit-content;
-      margin-bottom: 2px;
-      border: 1px solid rgba(56, 189, 248, 0.2);
     }
 
-    .header-badge::before {
-      content: "";
+    .pulse-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 8px #38bdf8;
+      background: var(--right-lipoma);
+      animation: pulse-ring 2s infinite var(--ease-fluid);
     }
 
-    h1 {
-      font-size: 20px;
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .brand-title {
+      font-size: 15px;
       font-weight: 700;
+      color: var(--text-main);
       letter-spacing: -0.02em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .privacy-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .privacy-tag svg {
+      width: 14px;
+      height: 14px;
+      stroke: #059669;
+    }
+
+    /* Button-in-Button Nested Architecture */
+    .btn-island {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--text-main);
       color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .header-sub {
+      padding: 6px 6px 6px 16px;
+      border-radius: var(--radius-pill);
       font-size: 13px;
-      color: var(--text-muted);
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+      transition: all 0.25s var(--ease-fluid);
     }
 
-    .header-actions {
+    .btn-island:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .btn-island:active {
+      transform: scale(0.98);
+    }
+
+    .btn-inner-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
+      justify-content: center;
+      transition: transform 0.25s var(--ease-fluid);
+    }
+
+    .btn-island:hover .btn-inner-icon {
+      transform: rotate(45deg);
+    }
+
+    .btn-inner-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+    }
+
+    /* Secondary Island Button */
+    .btn-island-secondary {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      background: #ffffff;
+      color: var(--text-main);
+      padding: 6px 6px 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--border-outer);
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: all 0.25s var(--ease-fluid);
     }
 
-    /* Primary Container Layout */
-    .app-layout {
+    .btn-island-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .btn-island-secondary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-island-secondary .btn-inner-icon {
+      background: #f1f5f9;
+    }
+
+    .btn-island-secondary .btn-inner-icon svg {
+      stroke: var(--text-main);
+    }
+
+    /* ==========================================================================
+       MAIN 3D VIEWPORT HARDWARE CHASSIS
+       ========================================================================== */
+    .viewport-chassis {
       position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      flex: 1;
-      height: calc(100vh - 82px);
-      min-height: 700px;
-    }
-
-    @media (max-width: 1024px) {
-      .app-layout {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-    }
-
-    /* 3D Viewport Section */
-    .viewport-container {
-      position: relative;
+      height: 680px;
       width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, #111a2e 0%, #070a11 90%);
-      overflow: hidden;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
     }
 
-    #stage-canvas {
+    #three-canvas-container {
       width: 100%;
-      flex: 1;
-      touch-action: none;
+      height: 100%;
+      position: relative;
       cursor: grab;
+      background: #ffffff;
     }
 
-    #stage-canvas:active {
+    #three-canvas-container:active {
       cursor: grabbing;
     }
 
-    /* Floating Viewport Controls */
-    .viewport-top-dock {
+    /* HUD Floating Glass Island Controls inside 3D Viewport */
+    .hud-layer {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
+      inset: 0;
+      pointer-events: none;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 5;
+    }
+
+    .hud-top-bar, .hud-bottom-bar {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 12px;
       pointer-events: none;
-      z-index: 5;
     }
 
-    .glass-pill-group {
+    .hud-bottom-bar {
+      align-items: flex-end;
+    }
+
+    .hud-island {
       pointer-events: auto;
-      background: rgba(13, 20, 36, 0.85);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 4px;
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      border-radius: var(--radius-inner);
+      padding: 6px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-island-col {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 12px 14px;
+      min-width: 240px;
+    }
+
+    .hud-badge-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Mode Segmented Controls */
+    .segmented-control {
+      background: #f1f5f9;
+      border-radius: var(--radius-pill);
+      padding: 3px;
+      display: flex;
+      gap: 3px;
+    }
+
+    .seg-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-fluid);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .seg-btn:hover {
+      color: var(--text-main);
+    }
+
+    .seg-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .seg-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.2;
+    }
+
+    /* Camera Angle Presets */
+    .cam-btn-group {
       display: flex;
       gap: 4px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .mode-btn {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .mode-btn:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .mode-btn.active {
-      background: #1e293b;
-      color: #38bdf8;
-      border-color: rgba(56, 189, 248, 0.3);
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Camera Presets Bar */
-    .cam-presets-dock {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      pointer-events: auto;
-      background: rgba(13, 20, 36, 0.85);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 9999px;
-      padding: 5px 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      z-index: 5;
-    }
-
-    .cam-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-
-    .cam-btn:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .cam-btn.active {
-      background: #38bdf8;
-      color: #04101e;
-      font-weight: 600;
-    }
-
-    /* Viewport Overlay Info & Legends */
-    .viewport-legend {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(13, 20, 36, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
+    .cam-chip {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-pill);
+      padding: 5px 12px;
       font-size: 11px;
-      color: var(--text-muted);
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-fluid);
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 5px;
-      pointer-events: none;
-      z-index: 4;
     }
 
-    .legend-item {
+    .cam-chip:hover {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .cam-chip.active {
+      background: var(--text-main);
+      color: #ffffff;
+      border-color: var(--text-main);
+    }
+
+    /* Anatomical Orientation Compass Badge */
+    .orient-compass {
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-outer);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      box-shadow: var(--shadow-card);
     }
 
-    .legend-dot {
+    .compass-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(2, 132, 199, 0.5);
+    }
+
+    /* Layer Opacity Sliders Dock */
+    .layer-control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .layer-name-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 90px;
+    }
+
+    .layer-color-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
     }
 
-    /* Orientation Compass */
-    .compass-box {
-      position: absolute;
-      top: 76px;
-      right: 20px;
-      background: rgba(13, 20, 36, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 6px 10px;
-      font-size: 11px;
+    .layer-slider {
+      flex: 1;
+      height: 5px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #e2e8f0;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .layer-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      transition: transform 0.15s var(--ease-fluid);
+    }
+
+    .layer-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .layer-pct {
       font-family: var(--font-mono);
-      color: var(--text-dim);
-      pointer-events: none;
-      text-align: right;
-      line-height: 1.4;
-      z-index: 4;
-    }
-
-    .compass-box span {
-      color: #38bdf8;
+      font-size: 10px;
       font-weight: 600;
+      color: var(--text-muted);
+      width: 28px;
+      text-align: right;
     }
 
-    /* Right Sidebar Controls Panel */
-    .sidebar {
-      position: relative;
-      background: rgba(10, 15, 26, 0.95);
-      border-left: 1px solid var(--border-subtle);
+    .quick-preset-chips {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .mini-preset-chip {
+      background: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mini-preset-chip:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    /* Axial Slicer Vertical/Horizontal Dock */
+    .slicer-dock {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-      z-index: 5;
+      gap: 8px;
+      padding: 12px 14px;
+      min-width: 200px;
     }
 
-    .sidebar-section {
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--border-subtle);
+    .slicer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .sidebar-title {
-      font-size: 12px;
+    .slicer-val-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: 14px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: #f1f5f9;
+      color: var(--accent-cyan);
+    }
+
+    /* Screen Projected 3D Caliper Tags */
+    .caliper-hud-tag {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background: #ffffff;
+      border: 1px solid var(--border-outer);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      pointer-events: none;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 6px;
+      transition: opacity 0.2s var(--ease-fluid);
+      white-space: nowrap;
     }
 
-    /* Timeline Stepper Component */
-    .timeline-container {
+    .caliper-hud-tag::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid #ffffff;
+    }
+
+    /* Viewport Bottom Status Bar */
+    .viewport-status-bar {
+      padding: 10px 18px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-outer);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       EDITORIAL BENTO GRID ARCHITECTURE
+       ========================================================================== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .col-span-8 { grid-column: span 8; }
+    .col-span-4 { grid-column: span 4; }
+    .col-span-6 { grid-column: span 6; }
+    .col-span-12 { grid-column: span 12; }
+
+    .bento-card-header {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--border-inner);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bento-card-title-group {
       display: flex;
       flex-direction: column;
+      gap: 2px;
+    }
+
+    .bento-card-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-cyan);
+    }
+
+    .bento-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .bento-card-body {
+      padding: 24px;
+    }
+
+    /* Interactive Timeline Controls */
+    .timeline-scrubber-box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .timeline-date-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    .timeline-steps {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .step-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
+    .timeline-date-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .step-card:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .step-card.active {
-      background: rgba(56, 189, 248, 0.08);
-      border-color: #38bdf8;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
-    }
-
-    .step-date {
-      font-size: 11px;
-      font-weight: 600;
-      color: #38bdf8;
-      font-family: var(--font-mono);
-      margin-bottom: 2px;
-    }
-
-    .step-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .step-dim {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 3px;
-    }
-
-    /* MRI Context Card */
-    .mri-banner {
-      background: rgba(249, 115, 22, 0.06);
-      border: 1px solid rgba(249, 115, 22, 0.2);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      margin-top: 8px;
-      font-size: 12px;
-      line-height: 1.45;
-      color: #fed7aa;
-    }
-
-    .mri-banner strong {
-      color: #f97316;
-    }
-
-    /* Measurement Stat Cards Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card.right-card {
-      border-top: 3px solid var(--right-lipoma);
-    }
-
-    .stat-card.left-card {
-      border-top: 3px solid var(--left-lipoma);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .stat-dims {
-      font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
-
-    .stat-volume {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .stat-volume span {
-      font-weight: 600;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-    }
-
-    .growth-pill {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-top: 6px;
-      background: rgba(249, 115, 22, 0.15);
-      color: #fb923c;
-      border: 1px solid rgba(249, 115, 22, 0.3);
-    }
-
-    /* Interactive Sliders & Layer Controls */
-    .control-row {
+      transition: all 0.25s var(--ease-fluid);
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 12px;
+      position: relative;
     }
 
-    .control-header {
+    .timeline-date-card:hover {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .timeline-date-card.active {
+      background: #ffffff;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 2px var(--accent-cyan), 0 8px 25px rgba(2, 132, 199, 0.12);
+    }
+
+    .date-card-eyebrow {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
-    }
-
-    .control-header label {
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .control-header span {
-      font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       color: var(--text-muted);
-      font-weight: 500;
     }
 
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 9999px;
-      background: #1e293b;
-      outline: none;
-      cursor: pointer;
+    .date-card-date {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
     }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 15px;
-      height: 15px;
+    .date-card-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Play/Pause Loop Controller */
+    .timeline-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .play-btn {
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      background: var(--text-main);
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: transform 0.1s ease;
+      transition: all 0.2s var(--ease-fluid);
+      flex-shrink: 0;
     }
 
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.18);
+    .play-btn:hover {
+      background: #1e293b;
+      transform: scale(1.05);
     }
 
-    /* Toggle Checkbox Row */
-    .toggle-row {
+    .play-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: #ffffff;
+      stroke: none;
+    }
+
+    .morph-slider {
+      flex: 1;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #e2e8f0;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .morph-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      border: 3px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+      transition: transform 0.15s;
+    }
+
+    .morph-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Key Clinical Highlights Cards */
+    .growth-spotlight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .spotlight-card {
+      padding: 16px 18px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid;
+    }
+
+    .spotlight-left {
+      background: var(--left-bg);
+      border-color: var(--left-border);
+    }
+
+    .spotlight-right {
+      background: var(--right-bg);
+      border-color: var(--right-border);
+    }
+
+    .spotlight-eyebrow {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .spotlight-left .spotlight-eyebrow { color: var(--left-lipoma); }
+    .spotlight-right .spotlight-eyebrow { color: var(--right-lipoma); }
+
+    .spotlight-metric {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.03em;
+    }
+
+    .spotlight-left .spotlight-metric { color: #c2410c; }
+    .spotlight-right .spotlight-metric { color: #047857; }
+
+    .spotlight-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Quantitative Table */
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 13px;
     }
 
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 36px;
-      height: 20px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider-toggle {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #1e293b;
-      transition: .2s;
-      border-radius: 20px;
-    }
-
-    .slider-toggle:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .2s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider-toggle {
-      background-color: #38bdf8;
-    }
-
-    input:checked + .slider-toggle:before {
-      transform: translateX(16px);
-    }
-
-    /* Accordion Clinical Notes */
-    .accordion {
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .accordion-header {
-      background: rgba(255, 255, 255, 0.03);
+    .metrics-table th {
+      text-align: left;
       padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-main);
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .accordion-header:hover {
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .accordion-content {
-      padding: 12px 14px;
-      font-size: 12px;
-      line-height: 1.55;
+      background: #f8fafc;
       color: var(--text-muted);
-      background: rgba(0, 0, 0, 0.2);
-      border-top: 1px solid var(--border-subtle);
-      display: none;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border-inner);
     }
 
-    .accordion.open .accordion-content {
-      display: block;
-    }
-
-    /* Buttons */
-    .btn-action {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
+    .metrics-table td {
+      padding: 14px;
+      border-bottom: 1px solid #f1f5f9;
       color: var(--text-main);
-      font-size: 12px;
+    }
+
+    .metrics-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .mono-val {
+      font-family: var(--font-mono);
       font-weight: 600;
-      padding: 8px 14px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
+    }
+
+    .delta-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-primary {
-      background: #38bdf8;
-      color: #031024;
-      border: none;
-      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
-    }
-
-    .btn-primary:hover {
-      background: #7dd3fc;
-    }
-
-    /* Tooltip Callout */
-    .caliper-tag {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      background: rgba(13, 20, 36, 0.9);
-      border: 1px solid var(--border-accent);
-      color: #ffffff;
-      padding: 3px 8px;
-      border-radius: 4px;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
       font-size: 11px;
+      font-weight: 700;
       font-family: var(--font-mono);
-      pointer-events: none;
-      white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      z-index: 10;
-      transition: opacity 0.15s ease;
+    }
+
+    .delta-growth {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .delta-stable {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    /* Export Action Buttons Section */
+    .export-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    /* Responsive Rules */
+    @media (max-width: 1024px) {
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
+      .col-span-8, .col-span-4, .col-span-6, .col-span-12 {
+        grid-column: span 1;
+      }
+      .viewport-chassis {
+        height: 540px;
+      }
+      .growth-spotlight-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 12px 14px 40px;
+        gap: 14px;
+      }
+      .island-nav {
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 20px;
+        gap: 12px;
+      }
+      .nav-actions {
+        justify-content: space-between;
+      }
+      .viewport-chassis {
+        height: 480px;
+      }
+      .timeline-date-picker {
+        grid-template-columns: 1fr;
+      }
+      .hud-top-bar, .hud-bottom-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .hud-island {
+        width: 100%;
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- App Header -->
-  <header>
-    <div class="header-titles">
-      <div class="header-badge">Clinical Case · De-Identified</div>
-      <h1>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Lower Back Subcutaneous Lipomas 3D
-      </h1>
-      <p class="header-sub">Bilateral paramedian L5–S1 lesions · Tissue layer anatomy & interval growth timeline</p>
-    </div>
-
-    <div class="header-actions">
-      <a href="lipoma-isolated.glb" download class="btn-action" title="Download standalone GLB model of isolated lipomas">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Lipoma GLB
-      </a>
-      <a href="lower-back-anatomy-lipomas.glb" download class="btn-action" title="Download standalone GLB model with full anatomical back">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Anatomy GLB
-      </a>
-      <button id="btn-png" class="btn-action" title="Export high-resolution screenshot">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Snapshot
-      </button>
-      <button id="btn-rotate" class="btn-action">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-        <span id="rotate-text">Auto-Rotate</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Workspace -->
-  <main class="app-layout">
-
-    <!-- 3D Canvas Stage -->
-    <div class="viewport-container" id="stage-wrapper">
-      <div id="stage-canvas"></div>
-
-      <!-- Mode Selector (Top Floating Bar) -->
-      <div class="viewport-top-dock">
-        <div class="glass-pill-group">
-          <button class="mode-btn active" id="mode-anatomy" title="Show full lower back anatomical tissues, bones, muscles, and embedded lipomas">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 3 4 7 4 7s4-4 4-7a4 4 0 0 0-4-4z"/><circle cx="12" cy="17" r="4"/><path d="M12 21v1"/></svg>
-            Anatomical Context
-          </button>
-          <button class="mode-btn" id="mode-isolated" title="Inspect isolated lipomas with 3D calipers and millimeter scale grid">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="12" r="5"/><circle cx="17" cy="12" r="5"/></svg>
-            Isolated Lipomas
-          </button>
-          <button class="mode-btn" id="mode-overlay" title="Superimpose 2025 vs 2026 to inspect morphological interval growth">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-            Growth Ghost Overlay
-          </button>
+  <div class="app-container">
+    
+    <!-- Floating Detached Island Navbar -->
+    <header class="island-nav">
+      <div class="nav-brand">
+        <div class="brand-icon-box">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2v20M8 5h8M7 9h10M6 13h12M7 17h10M8 21h8" stroke-linecap="round"/>
+          </svg>
         </div>
-
-        <div class="glass-pill-group" style="font-size: 11px; color: var(--text-muted); padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
-          <span>Grid unit = 1 cm</span>
+        <div class="brand-text">
+          <div class="brand-eyebrow">
+            <span class="pulse-dot"></span> Clinical 3D Diagnostic Engine
+          </div>
+          <h1 class="brand-title">Lower Back Subcutaneous Lipoma & Spinal Anatomy</h1>
         </div>
       </div>
 
-      <!-- Camera Presets (Bottom Center Dock) -->
-      <div class="cam-presets-dock">
-        <button class="cam-btn active" data-view="posterior">Posterior (Back)</button>
-        <button class="cam-btn" data-view="lateral">Lateral (Side)</button>
-        <button class="cam-btn" data-view="axial">Axial Cross-Section</button>
-        <button class="cam-btn" data-view="closeup">L5-S1 Close-Up</button>
-        <button class="cam-btn" data-view="oblique">3/4 Oblique</button>
-      </div>
-
-      <!-- Legend Indicator -->
-      <div class="viewport-legend">
-        <div class="legend-item"><span class="legend-dot" style="background:var(--right-lipoma);"></span> Patient's Right Lipoma (L5 Paramedian)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--left-lipoma);"></span> Patient's Left Lipoma (L5 Paramedian)</div>
-        <div class="legend-item" id="legend-bones"><span class="legend-dot" style="background:var(--bone-color);"></span> L1–L5 Spine, Discs & Sacrum</div>
-      </div>
-
-      <!-- Orientation Compass -->
-      <div class="compass-box">
-        Orientation: <span id="view-orientation">Posterior View</span><br>
-        Left: <span id="lbl-left">Patient's Left</span> · Right: <span id="lbl-right">Patient's Right</span>
-      </div>
-
-      <!-- 3D Measurement Overlay Callouts -->
-      <div id="callout-r" class="caliper-tag" style="display:none;">Right: 26 × 10 × 29 mm</div>
-      <div id="callout-l" class="caliper-tag" style="display:none;">Left: 39 × 9 × 20 mm</div>
-    </div>
-
-    <!-- Right Control & Analytics Sidebar -->
-    <aside class="sidebar">
-
-      <!-- Timeline & Size Progression Section -->
-      <section class="sidebar-section">
-        <div class="sidebar-title">
-          <span>Imaging Timeline & Growth</span>
-          <span style="color:#38bdf8; font-size:11px; font-weight:600;">3 Milestones</span>
+      <div class="nav-actions">
+        <div class="privacy-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Zero PII Compliant
         </div>
-
-        <div class="timeline-container">
-          <div class="timeline-steps">
-            <div class="step-card active" id="step-jul25">
-              <div class="step-date">JUL 22, 2025</div>
-              <div class="step-label">Ultrasound #1</div>
-              <div class="step-dim">3-Axis 3D Measurement</div>
-            </div>
-
-            <div class="step-card" id="step-may26">
-              <div class="step-date">MAY 14, 2026</div>
-              <div class="step-label">Ultrasound #2</div>
-              <div class="step-dim">10-Month Follow-Up</div>
-            </div>
-          </div>
-
-          <!-- MRI Context Note -->
-          <div class="mri-banner">
-            <strong>MRI Correlation (Early 2026)</strong>: Confirmed extensive STIR-hyperintense superficial fat infiltration (~9 × 2.3 cm partially in FOV) in upper buttock/lower lumbar edge. Disc narrowing at L5–S1; facet arthrosis L4–L5/L5–S1. Recommends ultrasound as primary superficial modality.
-          </div>
-        </div>
-
-        <!-- Metric Stat Cards -->
-        <div class="stats-grid">
-          <div class="stat-card right-card">
-            <div class="stat-label">
-              <span style="width:7px; height:7px; border-radius:50%; background:var(--right-lipoma);"></span>
-              Right Lipoma
-            </div>
-            <div class="stat-dims" id="stat-r-dim">26 × 10 × 29 mm</div>
-            <div class="stat-volume">Volume: <span id="stat-r-vol">3.95</span> cm³</div>
-            <div class="growth-pill" id="stat-r-growth" style="background:rgba(16,185,129,0.15); color:#34d399; border-color:rgba(16,185,129,0.3);">
-              Baseline state
-            </div>
-          </div>
-
-          <div class="stat-card left-card">
-            <div class="stat-label">
-              <span style="width:7px; height:7px; border-radius:50%; background:var(--left-lipoma);"></span>
-              Left Lipoma
-            </div>
-            <div class="stat-dims" id="stat-l-dim">39 × 9 × 20 mm</div>
-            <div class="stat-volume">Volume: <span id="stat-l-vol">3.68</span> cm³</div>
-            <div class="growth-pill" id="stat-l-growth">
-              Baseline state
-            </div>
-          </div>
-        </div>
-
-        <!-- 3rd Axis Sensitivity Slider for 2026 -->
-        <div class="control-row" id="height-factor-row" style="margin-top:14px; display:none;">
-          <div class="control-header">
-            <label for="height-factor">Assumed 2026 Height (3rd Axis)</label>
-            <span id="height-factor-val">×1.00 (2.0 cm)</span>
-          </div>
-          <input type="range" id="height-factor" min="0.5" max="2.0" step="0.05" value="1.0">
-          <span style="font-size:11px; color:var(--text-dim); margin-top:2px;">
-            The May 2026 scan recorded 2 dimensions (3.2 × 2.3 cm). Adjust height multiplier to model depth variation.
+        <a href="#downloads" class="btn-island">
+          <span>Export 3D Assets</span>
+          <span class="btn-inner-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </span>
-        </div>
-      </section>
+        </a>
+      </div>
+    </header>
 
-      <!-- Anatomical Tissue Layer Opacity & Visibility -->
-      <section class="sidebar-section" id="section-layers">
-        <div class="sidebar-title">
-          <span>Anatomical Layers & Visibility</span>
-          <button id="btn-reset-layers" style="background:none; border:none; color:#38bdf8; font-size:11px; cursor:pointer;">Reset</button>
+    <!-- Main 3D Viewport Hardware Chassis (Doppelrand) -->
+    <section class="bezel-card">
+      <div class="bezel-inner viewport-chassis">
+        
+        <!-- Three.js Canvas Container -->
+        <div id="three-canvas-container"></div>
+
+        <!-- In-Scene Screen Projected 3D Calipers -->
+        <div id="caliper-tag-right" class="caliper-hud-tag" style="display:none;">
+          <span style="color:var(--right-lipoma)">● Right Lipoma:</span> <span id="caliper-text-right">24 × 12 mm</span>
+        </div>
+        <div id="caliper-tag-left" class="caliper-hud-tag" style="display:none;">
+          <span style="color:var(--left-lipoma)">● Left Lipoma:</span> <span id="caliper-text-left">32 × 23 mm</span>
         </div>
 
-        <div class="control-row">
-          <div class="control-header">
-            <label for="slider-skin">
-              <span style="width:9px; height:9px; border-radius:2px; background:var(--skin-color);"></span>
-              Skin / Dermis Opacity
-            </label>
-            <span id="val-skin">30%</span>
+        <!-- Floating HUD Layer (Glass Islands) -->
+        <div class="hud-layer">
+          
+          <!-- Top Bar: Orientation Compass + Camera Presets + Viewing Modes -->
+          <div class="hud-top-bar">
+            
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <!-- Dynamic Anatomical Compass -->
+              <div class="orient-compass">
+                <span class="compass-indicator"></span>
+                <span id="compass-label">Posterior View (Back)</span>
+              </div>
+
+              <!-- Camera Presets -->
+              <div class="hud-island">
+                <div class="cam-btn-group">
+                  <button class="cam-chip active" id="btn-cam-posterior" onclick="setCameraView('posterior')">
+                    Posterior
+                  </button>
+                  <button class="cam-chip" id="btn-cam-lateral" onclick="setCameraView('lateral')">
+                    Lateral
+                  </button>
+                  <button class="cam-chip" id="btn-cam-axial" onclick="setCameraView('axial')">
+                    Axial Cross
+                  </button>
+                  <button class="cam-chip" id="btn-cam-l5s1" onclick="setCameraView('l5s1')">
+                    L5–S1 Zoom
+                  </button>
+                  <button class="cam-chip" id="btn-cam-oblique" onclick="setCameraView('oblique')">
+                    3/4 Perspective
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Modes Segmented Control -->
+            <div class="hud-island">
+              <div class="segmented-control">
+                <button class="seg-btn active" id="btn-mode-anatomy" onclick="setViewMode('anatomy')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+                  </svg>
+                  Anatomical Context
+                </button>
+                <button class="seg-btn" id="btn-mode-isolated" onclick="setViewMode('isolated')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="9" cy="12" r="4"/><circle cx="17" cy="12" r="3"/>
+                  </svg>
+                  Isolated Lipomas
+                </button>
+                <button class="seg-btn" id="btn-mode-ghost" onclick="setViewMode('ghost')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="3" width="18" height="18" rx="4" stroke-dasharray="4 2"/>
+                  </svg>
+                  Growth Ghost
+                </button>
+              </div>
+            </div>
+
           </div>
-          <input type="range" id="slider-skin" min="0" max="1" step="0.05" value="0.30">
-        </div>
 
-        <div class="control-row">
-          <div class="control-header">
-            <label for="slider-fat">
-              <span style="width:9px; height:9px; border-radius:2px; background:var(--fat-color);"></span>
-              Subcutaneous Fat (Hypodermis)
-            </label>
-            <span id="val-fat">40%</span>
+          <!-- Bottom Bar: Layer Opacity Sliders Dock + Axial Cross-Section Slicer -->
+          <div class="hud-bottom-bar">
+            
+            <!-- Layer Opacity Dock -->
+            <div class="hud-island hud-island-col" id="layer-dock">
+              <div class="hud-badge-title">
+                <span>Anatomical Layers Opacity</span>
+                <span id="layers-status-tag" style="color:var(--accent-cyan); font-size:10px;">Full Context</span>
+              </div>
+
+              <!-- Skin -->
+              <div class="layer-control-row">
+                <span class="layer-name-tag">
+                  <span class="layer-color-dot" style="background:var(--skin-color);"></span> Skin
+                </span>
+                <input type="range" class="layer-slider" id="slider-skin" min="0" max="1" step="0.05" value="0.22" oninput="updateLayerOpacity('skin', this.value)">
+                <span class="layer-pct" id="pct-skin">22%</span>
+              </div>
+
+              <!-- Subcutaneous Fat -->
+              <div class="layer-control-row">
+                <span class="layer-name-tag">
+                  <span class="layer-color-dot" style="background:var(--fat-color);"></span> Fat Layer
+                </span>
+                <input type="range" class="layer-slider" id="slider-fat" min="0" max="1" step="0.05" value="0.25" oninput="updateLayerOpacity('fat', this.value)">
+                <span class="layer-pct" id="pct-fat">25%</span>
+              </div>
+
+              <!-- Fascia -->
+              <div class="layer-control-row">
+                <span class="layer-name-tag">
+                  <span class="layer-color-dot" style="background:var(--fascia-color);"></span> TL Fascia
+                </span>
+                <input type="range" class="layer-slider" id="slider-fascia" min="0" max="1" step="0.05" value="0.45" oninput="updateLayerOpacity('fascia', this.value)">
+                <span class="layer-pct" id="pct-fascia">45%</span>
+              </div>
+
+              <!-- Muscle -->
+              <div class="layer-control-row">
+                <span class="layer-name-tag">
+                  <span class="layer-color-dot" style="background:var(--muscle-color);"></span> Erector Spinae
+                </span>
+                <input type="range" class="layer-slider" id="slider-muscle" min="0" max="1" step="0.05" value="0.85" oninput="updateLayerOpacity('muscle', this.value)">
+                <span class="layer-pct" id="pct-muscle">85%</span>
+              </div>
+
+              <!-- Spine / Bone -->
+              <div class="layer-control-row">
+                <span class="layer-name-tag">
+                  <span class="layer-color-dot" style="background:var(--bone-color);"></span> Spine & Pelvis
+                </span>
+                <input type="range" class="layer-slider" id="slider-bone" min="0" max="1" step="0.05" value="1.0" oninput="updateLayerOpacity('bone', this.value)">
+                <span class="layer-pct" id="pct-bone">100%</span>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="quick-preset-chips">
+                <button class="mini-preset-chip" onclick="applyLayerPreset('us')">Ultrasound View</button>
+                <button class="mini-preset-chip" onclick="applyLayerPreset('surgical')">Surgical Prep</button>
+                <button class="mini-preset-chip" onclick="applyLayerPreset('skeleton')">Spine Only</button>
+                <button class="mini-preset-chip" onclick="applyLayerPreset('all')">Reset</button>
+              </div>
+            </div>
+
+            <!-- Axial Cross-Section Slicer Dock -->
+            <div class="hud-island slicer-dock">
+              <div class="slicer-header">
+                <span class="hud-badge-title" style="margin:0;">Axial Slicing Plane</span>
+                <span class="slicer-val-pill" id="slice-level-label">Off (Full)</span>
+              </div>
+              <input type="range" class="layer-slider" id="slider-axial" min="-22" max="22" step="0.5" value="22" oninput="updateAxialSlice(this.value)">
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-light); font-weight:600;">
+                <span>S1 Sacrum</span>
+                <span>L5 Paramedian</span>
+                <span>L1 Upper</span>
+              </div>
+            </div>
+
           </div>
-          <input type="range" id="slider-fat" min="0" max="1" step="0.05" value="0.40">
+
         </div>
 
-        <div class="control-row">
-          <div class="control-header">
-            <label for="slider-fascia">
-              <span style="width:9px; height:9px; border-radius:2px; background:var(--fascia-color);"></span>
-              Thoracolumbar Fascia
-            </label>
-            <span id="val-fascia">60%</span>
+        <!-- Viewport Bottom Anatomical Bar -->
+        <div class="viewport-status-bar">
+          <div class="status-group">
+            <div class="status-item">
+              <span class="status-dot" style="background:var(--right-lipoma);"></span>
+              <span><strong>Patient's Right:</strong> 24 × 12 mm (Stable)</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot" style="background:var(--left-lipoma);"></span>
+              <span><strong>Patient's Left:</strong> 32 × 23 mm (+155% Thickness)</span>
+            </div>
           </div>
-          <input type="range" id="slider-fascia" min="0" max="1" step="0.05" value="0.60">
-        </div>
-
-        <div class="control-row">
-          <div class="control-header">
-            <label for="slider-muscle">
-              <span style="width:9px; height:9px; border-radius:2px; background:var(--muscle-color);"></span>
-              Erector Spinae Musculature
-            </label>
-            <span id="val-muscle">85%</span>
-          </div>
-          <input type="range" id="slider-muscle" min="0" max="1" step="0.05" value="0.85">
-        </div>
-
-        <div class="control-row">
-          <div class="control-header">
-            <label for="slider-bone">
-              <span style="width:9px; height:9px; border-radius:2px; background:var(--bone-color);"></span>
-              Spine & Pelvis Skeleton (L1-S1)
-            </label>
-            <span id="val-bone">100%</span>
-          </div>
-          <input type="range" id="slider-bone" min="0" max="1" step="0.05" value="1.0">
-        </div>
-
-        <!-- Cross-Section Slicing Tool -->
-        <div class="control-row" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border-subtle);">
-          <div class="control-header">
-            <label for="slider-slice" style="color:#38bdf8; font-weight:600;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-              Axial Cross-Section Slicing Plane
-            </label>
-            <span id="val-slice">Off</span>
-          </div>
-          <input type="range" id="slider-slice" min="-22" max="18" step="0.5" value="18">
-          <span style="font-size:11px; color:var(--text-dim); margin-top:3px;">
-            Slice through tissue layers from superior (L1) to inferior (L5-S1 & sacrum).
-          </span>
-        </div>
-
-        <!-- Toggles -->
-        <div class="toggle-row">
-          <span>Show 3D Calipers & Scale Grid</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="chk-calipers" checked>
-            <span class="slider-toggle"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <span>Highlight Lipoma Margins</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="chk-wireframe">
-            <span class="slider-toggle"></span>
-          </label>
-        </div>
-      </section>
-
-      <!-- Anonymized Clinical Information Drawer -->
-      <section class="sidebar-section">
-        <div class="sidebar-title">
-          <span>Clinical Radiology Insights</span>
-          <span style="color:#10b981; font-size:11px;">Validated</span>
-        </div>
-
-        <div class="accordion open">
-          <div class="accordion-header">
-            <span>Anatomical Landmarks & Plane</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-          </div>
-          <div class="accordion-content">
-            Both nodules reside within the <strong>subcutaneous fat layer</strong> of the lower lumbar paramedian gutters, directly superficial to the posterior sheet of the <strong>thoracolumbar fascia</strong>. They sit approximately at the level of the L5 spinous process and L5–S1 disc, approximately 4.6 cm (right) and 5.2 cm (left) lateral to the posterior midline.
-          </div>
-        </div>
-
-        <div class="accordion">
-          <div class="accordion-header">
-            <span>Left Lipoma Interval Growth Analysis</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-          </div>
-          <div class="accordion-content">
-            Comparing the <strong>Jul 22, 2025</strong> and <strong>May 14, 2026</strong> ultrasound studies reveals significant morphological interval thickening of the left lesion:
-            <ul style="margin:6px 0 0 16px; line-height:1.6;">
-              <li><strong>Thickness (depth)</strong> increased from 9 mm to 23 mm (<strong>+155% increase</strong>).</li>
-              <li><strong>Axial cross-sectional area</strong> increased from 2.76 cm² to 5.78 cm² (<strong>+109% increase</strong>).</li>
-              <li>Estimated volume expanded from ~3.68 cm³ to ~7.71 cm³ (<strong>~+110% growth</strong>).</li>
-              <li>Solid, isoechoic to adjacent subcutaneous adipose tissue, benign sonographic architecture without cystic degeneration.</li>
-            </ul>
+          <div class="status-group">
+            <span>Left side = Screen Right in Posterior View</span>
+            <button class="mini-preset-chip" onclick="resetCamera()" style="background:#e2e8f0; font-weight:700;">Reset Camera</button>
           </div>
         </div>
 
-        <div class="accordion">
-          <div class="accordion-header">
-            <span>Spine Bone & Disc Findings</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         BENTO GRID SECTION: CLINICAL TIMELINE & QUANTITATIVE MATRIX
+         ========================================================================== -->
+    <div class="bento-grid">
+      
+      <!-- Bento Card 1: Interactive Longitudinal Growth Timeline (Span 8) -->
+      <div class="bento-card bezel-card col-span-8">
+        <div class="bezel-inner">
+          <div class="bento-card-header">
+            <div class="bento-card-title-group">
+              <span class="bento-card-eyebrow">Longitudinal Ultrasound Analysis</span>
+              <h2 class="bento-card-title">Interval Growth & Morphometric Progression</h2>
+            </div>
+            <div class="privacy-tag">
+              <span>Modality: Surface High-Frequency US</span>
+            </div>
           </div>
-          <div class="accordion-content">
-            Radiographs and MRI confirm preserved spinal column alignment, <strong>mild L5–S1 disc space narrowing</strong> (represented in the 3D model with reduced disc height), and mild facet arthrosis at bilateral L4–L5 and right L5–S1. Sacroiliac joints are anatomically intact.
+
+          <div class="bento-card-body">
+            
+            <div class="timeline-scrubber-box">
+              
+              <!-- Two Date Selector Cards -->
+              <div class="timeline-date-picker">
+                
+                <!-- Baseline Date Card -->
+                <div class="timeline-date-card active" id="card-date-jul25" onclick="setTimelineStep(0)">
+                  <div class="date-card-eyebrow">
+                    <span>Baseline Study</span>
+                    <span class="delta-badge delta-stable">Prior</span>
+                  </div>
+                  <div class="date-card-date">July 22, 2025</div>
+                  <div class="date-card-meta">
+                    Bilateral oblong subcutaneous adipose nodules. Left: 39 × 9 mm · Right: 26 × 10 mm.
+                  </div>
+                </div>
+
+                <!-- Follow-up Date Card -->
+                <div class="timeline-date-card" id="card-date-may26" onclick="setTimelineStep(1)">
+                  <div class="date-card-eyebrow">
+                    <span>Follow-up Study</span>
+                    <span class="delta-badge delta-growth">+155% Thickening</span>
+                  </div>
+                  <div class="date-card-date">May 14, 2026</div>
+                  <div class="date-card-meta">
+                    Marked anterior-posterior expansion of left nodule (to 23 mm). Right nodule unchanged.
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Continuous Morphing Scrubber with Play/Pause Loop -->
+              <div class="timeline-slider-row">
+                <button class="play-btn" id="btn-play-pause" onclick="togglePlayMorph()" title="Play continuous morph cycle">
+                  <svg id="play-icon" viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21"/>
+                  </svg>
+                </button>
+                <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+                  <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-secondary);">
+                    <span>2025-07-22 (Baseline)</span>
+                    <span id="morph-pct-label" style="color:var(--accent-cyan); font-family:var(--font-mono);">0% Morph</span>
+                    <span>2026-05-14 (Follow-up)</span>
+                  </div>
+                  <input type="range" class="morph-slider" id="slider-timeline-morph" min="0" max="1" step="0.01" value="0" oninput="applyMorphValue(parseFloat(this.value))">
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Spotlight Deltas -->
+            <div class="growth-spotlight-grid">
+              
+              <!-- Left Lipoma Spotlight -->
+              <div class="spotlight-card spotlight-left">
+                <div class="spotlight-eyebrow">
+                  <span>Patient's Left Lipoma (L5 Paramedian)</span>
+                  <span class="delta-badge delta-growth">Interval Growth</span>
+                </div>
+                <div class="spotlight-metric" id="metric-left-vol">3.68 cm³ → 7.72 cm³</div>
+                <div class="spotlight-desc">
+                  <strong>+155.6% Anteroposterior Thickening:</strong> Depth increased from 9 mm to 23 mm. 2D transverse area expanded by +109.4% (2.76 cm² to 5.78 cm²). Volumetric expansion of approximately <strong>+110%</strong>.
+                </div>
+              </div>
+
+              <!-- Right Lipoma Spotlight -->
+              <div class="spotlight-card spotlight-right">
+                <div class="spotlight-eyebrow">
+                  <span>Patient's Right Lipoma (L5 Paramedian)</span>
+                  <span class="delta-badge delta-stable">Clinically Stable</span>
+                </div>
+                <div class="spotlight-metric" id="metric-right-vol">3.95 cm³ → 3.80 cm³</div>
+                <div class="spotlight-desc">
+                  <strong>Stationary Dimensions:</strong> Baseline 26 × 10 mm vs follow-up 24 × 12 mm. Volume variation of -3.8% is well within routine ultrasound caliper margin of error. No interval tissue distortion.
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </div>
-      </section>
+      </div>
 
-    </aside>
+      <!-- Bento Card 2: Multimodal MRI Correlation (Span 4) -->
+      <div class="bento-card bezel-card col-span-4">
+        <div class="bezel-inner" style="height:100%;">
+          <div class="bento-card-header">
+            <div class="bento-card-title-group">
+              <span class="bento-card-eyebrow">Diagnostic Correlation</span>
+              <h2 class="bento-card-title">Lumbar Spine MRI Findings</h2>
+            </div>
+          </div>
+          <div class="bento-card-body" style="display:flex; flex-direction:column; gap:16px;">
+            
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">STIR Infiltration</div>
+              <div style="font-size:15px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Left Buttock / Flank Margin</div>
+              <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+                STIR hyperintensity measuring approx. ~9 × 2.3 cm in the superficial subcutaneous fat at the edge of the field of view. Reaffirms ultrasound as optimal modality for dedicated superficial margin resolution.
+              </p>
+            </div>
 
-  </main>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Spinal Architecture</div>
+              <div style="font-size:15px; font-weight:700; color:var(--text-main); margin-bottom:6px;">L5–S1 Disc & Facet Joints</div>
+              <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+                Mild disc space height loss at L5–S1 with associated facet arthrosis at L4–L5 and L5–S1 levels. Accurately represented in the 3D skeletal spine model.
+              </p>
+            </div>
 
-  <!-- Application Logic -->
+            <div style="padding:10px 14px; border-radius:12px; background:var(--accent-bg); border:1px solid var(--accent-border); font-size:11px; color:#0369a1; font-weight:600; line-height:1.4;">
+              💡 <strong>Clinical Pearl:</strong> Lipomas remain strictly confined to the subcutaneous layer, superficial to the deep thoracolumbar aponeurosis.
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Card 3: Quantitative Measurement Matrix (Span 6) -->
+      <div class="bento-card bezel-card col-span-6">
+        <div class="bezel-inner">
+          <div class="bento-card-header">
+            <div class="bento-card-title-group">
+              <span class="bento-card-eyebrow">Quantitative Analytics</span>
+              <h2 class="bento-card-title">Calipers & Morphometric Comparison</h2>
+            </div>
+          </div>
+          <div class="bento-card-body" style="padding:0;">
+            <table class="metrics-table">
+              <thead>
+                <tr>
+                  <th>Nodule</th>
+                  <th>July 22, 2025</th>
+                  <th>May 14, 2026</th>
+                  <th>Interval Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Patient's Left (Width)</strong></td>
+                  <td class="mono-val">39 mm</td>
+                  <td class="mono-val">32 mm</td>
+                  <td><span class="delta-badge delta-stable">-17.9%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Patient's Left (Depth)</strong></td>
+                  <td class="mono-val">9 mm</td>
+                  <td class="mono-val" style="color:var(--left-lipoma); font-weight:800;">23 mm</td>
+                  <td><span class="delta-badge delta-growth">+155.6%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Patient's Left (Axial Area)</strong></td>
+                  <td class="mono-val">2.76 cm²</td>
+                  <td class="mono-val">5.78 cm²</td>
+                  <td><span class="delta-badge delta-growth">+109.4%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Patient's Left (Volume)</strong></td>
+                  <td class="mono-val">3.68 cm³</td>
+                  <td class="mono-val">7.72 cm³</td>
+                  <td><span class="delta-badge delta-growth">+109.8%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Patient's Right (Width × Depth)</strong></td>
+                  <td class="mono-val">26 × 10 mm</td>
+                  <td class="mono-val">24 × 12 mm</td>
+                  <td><span class="delta-badge delta-stable">Stable</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Patient's Right (Volume)</strong></td>
+                  <td class="mono-val">3.95 cm³</td>
+                  <td class="mono-val">3.80 cm³</td>
+                  <td><span class="delta-badge delta-stable">-3.8%</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Card 4: Anatomical Stratification & Exports (Span 6) -->
+      <div class="bento-card bezel-card col-span-6" id="downloads">
+        <div class="bezel-inner">
+          <div class="bento-card-header">
+            <div class="bento-card-title-group">
+              <span class="bento-card-eyebrow">Stratification & Assets</span>
+              <h2 class="bento-card-title">Tissue Depth & 3D Model Downloads</h2>
+            </div>
+          </div>
+          <div class="bento-card-body">
+            
+            <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+              The 3D models were constructed with millimeter-precise procedural stratification from clinical ultrasound and spine MRI coordinates. Download standalone binary glTF files for surgical inspection, 3D printing, or VR viewing:
+            </p>
+
+            <div class="export-action-row">
+              <a href="lipoma-isolated.glb" download class="btn-island" title="Download isolated lipoma 3D model with millimeter calipers">
+                <span>Download Isolated Lipomas (.glb)</span>
+                <span class="btn-inner-icon">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </a>
+
+              <a href="lower-back-anatomy-lipomas.glb" download class="btn-island-secondary" title="Download complete back anatomy model">
+                <span>Download Full Back Anatomy (.glb)</span>
+                <span class="btn-inner-icon">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </a>
+
+              <button class="btn-island-secondary" onclick="captureSnapshot()" title="Capture 4K high resolution screenshot">
+                <span>Capture Snapshot (PNG)</span>
+                <span class="btn-inner-icon">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </span>
+              </button>
+            </div>
+
+            <div style="margin-top:20px; padding:12px 16px; border-radius:12px; background:#f8fafc; border:1px solid #e2e8f0; font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+              <span>Procedural Generator: <code>generate_3d_models.py</code></span>
+              <span>glTF 2.0 Binary Compliant</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       THREE.JS SCRIPT: CLINICAL 3D ENGINE (STUDIO WHITE ENVIRONMENT)
+       ========================================================================== -->
   <script>
+    // State management
+    const state = {
+      mode: 'anatomy', // 'anatomy' | 'isolated' | 'ghost'
+      timelineStep: 0, // 0 = July 2025, 1 = May 2026
+      morphProgress: 0.0,
+      isPlaying: false,
+      axialSliceHeight: 22, // 22 = off
+      layerOpacity: {
+        skin: 0.22,
+        fat: 0.25,
+        fascia: 0.45,
+        muscle: 0.85,
+        bone: 1.0
+      }
+    };
+
+    // DOM Elements
+    const container = document.getElementById('three-canvas-container');
+    const compassLabel = document.getElementById('compass-label');
+    const caliperTagRight = document.getElementById('caliper-tag-right');
+    const caliperTagLeft = document.getElementById('caliper-tag-left');
+    const caliperTextRight = document.getElementById('caliper-text-right');
+    const caliperTextLeft = document.getElementById('caliper-text-left');
+    const sliderTimelineMorph = document.getElementById('slider-timeline-morph');
+    const morphPctLabel = document.getElementById('morph-pct-label');
+    const btnPlayPause = document.getElementById('btn-play-pause');
+    const playIcon = document.getElementById('play-icon');
+
+    // Camera preset coordinates (Looking at target [0, -3, 4])
+    const CAMERA_PRESETS = {
+      posterior: { pos: new THREE.Vector3(0, -3, 56), target: new THREE.Vector3(0, -3, 4) },
+      lateral:   { pos: new THREE.Vector3(54, -3, 8), target: new THREE.Vector3(0, -3, 4) },
+      axial:     { pos: new THREE.Vector3(0, 54, 10), target: new THREE.Vector3(0, -3, 4) },
+      l5s1:      { pos: new THREE.Vector3(0, -8, 28), target: new THREE.Vector3(0, -7, 7.5) },
+      oblique:   { pos: new THREE.Vector3(34, 18, 44), target: new THREE.Vector3(0, -3, 4) }
+    };
+
+    let cameraTween = null;
+
+    // Dimensions: Baseline (Jul 2025) vs Follow-up (May 2026) in cm
+    const NODULE_DATA = {
+      right: {
+        jul25: { rx: 1.3, ry: 1.45, rz: 0.50, label: "26 × 10 × 29 mm", vol: "3.95 cm³" },
+        may26: { rx: 1.2, ry: 1.25, rz: 0.60, label: "24 × 12 mm", vol: "3.80 cm³" }
+      },
+      left: {
+        jul25: { rx: 1.95, ry: 1.00, rz: 0.45, label: "39 × 9 × 20 mm", vol: "3.68 cm³" },
+        may26: { rx: 1.60, ry: 1.00, rz: 1.15, label: "32 × 23 mm (+155%)", vol: "7.72 cm³" }
+      }
+    };
+
     // =========================================================================
-    // Core Three.js Scene Setup & Responsive Renderer
+    // Scene Initialization
     // =========================================================================
-    const container = document.getElementById('stage-canvas');
     const W = () => container.clientWidth;
     const H = () => container.clientHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x070a11);
+    scene.background = new THREE.Color(0xffffff); // Pure Studio White
 
-    // Camera positioned at posterior (back) of patient (Z = +58, looking at Z = 4)
     const camera = new THREE.PerspectiveCamera(40, W() / H(), 0.1, 250);
-    camera.position.set(0, -3, 58);
+    camera.position.copy(CAMERA_PRESETS.posterior.pos);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -1028,822 +1567,695 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
-    controls.target.set(0, -3, 4);
+    controls.target.copy(CAMERA_PRESETS.posterior.target);
     controls.maxDistance = 140;
     controls.minDistance = 6;
 
-    // Lighting (Medical Studio Rig with key from posterior)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
+    // =========================================================================
+    // Studio Soft Medical Lighting Rig (White Aesthetic)
+    // =========================================================================
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.82);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
-    keyLight.position.set(15, 25, 45);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    keyLight.position.set(20, 30, 45);
+    keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.5);
-    fillLight.position.set(-25, -15, 35);
+    const fillLight = new THREE.DirectionalLight(0xf0f9ff, 0.45);
+    fillLight.position.set(-25, -10, 35);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xf97316, 0.4);
-    rimLight.position.set(0, 30, -25);
+    const rimLight = new THREE.DirectionalLight(0xfff7ed, 0.35);
+    rimLight.position.set(0, 35, -30);
     scene.add(rimLight);
 
-    // Cross-Section Clipping Plane (Horizontal Axial Slice along Y)
+    // Soft Contact Shadow Plane underneath the anatomical model
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = 256;
+    shadowCanvas.height = 256;
+    const sCtx = shadowCanvas.getContext('2d');
+    const radGrad = sCtx.createRadialGradient(128, 128, 10, 128, 128, 128);
+    radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.14)');
+    radGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.05)');
+    radGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    sCtx.fillStyle = radGrad;
+    sCtx.fillRect(0, 0, 256, 256);
+    const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
+    const shadowPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(50, 40),
+      new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, opacity: 0.8, depthWrite: false })
+    );
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.set(0, -22, 6);
+    scene.add(shadowPlane);
+
+    // =========================================================================
+    // Dynamic Axial Clipping Plane
+    // =========================================================================
     const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 100); // 100 = inactive
 
     // =========================================================================
-    // Materials Definition
+    // Material Palette (Luxury Studio Medical Finish)
     // =========================================================================
     const boneMaterial = new THREE.MeshStandardMaterial({
-      color: 0xe2e8f0,
-      roughness: 0.62,
-      metalness: 0.05,
+      color: 0xdde5ed,
+      roughness: 0.55,
+      metalness: 0.08,
       clippingPlanes: [clipPlane],
       clipShadows: true
     });
 
     const discMaterial = new THREE.MeshStandardMaterial({
       color: 0x94a3b8,
-      roughness: 0.45,
-      metalness: 0.1,
+      roughness: 0.40,
+      metalness: 0.12,
       clippingPlanes: [clipPlane]
     });
 
     const discNarrowMaterial = new THREE.MeshStandardMaterial({
-      color: 0x78716c,
-      roughness: 0.55,
-      metalness: 0.1,
+      color: 0x64748b,
+      roughness: 0.50,
+      metalness: 0.15,
       clippingPlanes: [clipPlane]
     });
 
     const pelvisMaterial = new THREE.MeshStandardMaterial({
-      color: 0xd6d3d1,
-      roughness: 0.65,
-      metalness: 0.05,
+      color: 0xd1d9e0,
+      roughness: 0.60,
+      metalness: 0.06,
       clippingPlanes: [clipPlane]
     });
 
     const muscleMaterial = new THREE.MeshStandardMaterial({
       color: 0x991b1b,
-      roughness: 0.75,
-      metalness: 0.02,
+      roughness: 0.70,
+      metalness: 0.04,
       transparent: true,
-      opacity: 0.85,
+      opacity: state.layerOpacity.muscle,
       clippingPlanes: [clipPlane]
     });
 
     const fasciaMaterial = new THREE.MeshStandardMaterial({
-      color: 0x38bdf8,
-      roughness: 0.4,
-      metalness: 0.1,
+      color: 0x0284c7,
+      roughness: 0.35,
+      metalness: 0.15,
       transparent: true,
-      opacity: 0.45,
+      opacity: state.layerOpacity.fascia,
       side: THREE.DoubleSide,
       clippingPlanes: [clipPlane]
     });
 
     const fatMaterial = new THREE.MeshStandardMaterial({
       color: 0xf59e0b,
-      roughness: 0.65,
-      metalness: 0.0,
+      roughness: 0.45,
+      metalness: 0.08,
       transparent: true,
-      opacity: 0.35,
+      opacity: state.layerOpacity.fat,
       side: THREE.DoubleSide,
       clippingPlanes: [clipPlane]
     });
 
     const skinMaterial = new THREE.MeshStandardMaterial({
-      color: 0xc89670,
-      roughness: 0.75,
-      metalness: 0.0,
+      color: 0xd4a373,
+      roughness: 0.65,
+      metalness: 0.02,
       transparent: true,
-      opacity: 0.35,
+      opacity: state.layerOpacity.skin,
       side: THREE.DoubleSide,
       clippingPlanes: [clipPlane]
     });
 
+    // Right Lipoma (L5 Paramedian - Emerald Surgical Jade)
     const rightLipomaMaterial = new THREE.MeshStandardMaterial({
-      color: 0x10b981,
-      emissive: 0x10b981,
-      emissiveIntensity: 0.22,
-      roughness: 0.35,
-      metalness: 0.08,
+      color: 0x059669,
+      roughness: 0.30,
+      metalness: 0.10,
+      transparent: true,
+      opacity: 0.94,
+      emissive: 0x064e3b,
+      emissiveIntensity: 0.15,
       clippingPlanes: [clipPlane]
     });
 
+    // Left Lipoma (L5 Paramedian - Vivid Sunset Amber Coral)
     const leftLipomaMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf97316,
-      emissive: 0xf97316,
-      emissiveIntensity: 0.22,
-      roughness: 0.35,
-      metalness: 0.08,
+      color: 0xea580c,
+      roughness: 0.30,
+      metalness: 0.10,
+      transparent: true,
+      opacity: 0.94,
+      emissive: 0x7c2d12,
+      emissiveIntensity: 0.15,
       clippingPlanes: [clipPlane]
     });
 
-    const ghostMaterial = new THREE.MeshStandardMaterial({
-      color: 0x38bdf8,
+    // Baseline 2025 Ghost Wireframe
+    const ghostMaterial = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
       wireframe: true,
       transparent: true,
-      opacity: 0.5,
-      clippingPlanes: [clipPlane]
+      opacity: 0.45,
+      depthWrite: false
     });
 
-    const caliperLineMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
+    // Caliper Reference Axis Material
+    const caliperAxisMaterial = new THREE.LineBasicMaterial({
+      color: 0x334155,
+      linewidth: 2,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.85
     });
 
     // =========================================================================
-    // Anatomical Geometries Builder (Bones, Muscles, Tissues & Lipomas)
+    // Anatomical Hierarchy Groups
     // =========================================================================
     const anatomyGroup = new THREE.Group();
-    const isolatedGroup = new THREE.Group();
-    scene.add(anatomyGroup);
-    scene.add(isolatedGroup);
-    isolatedGroup.visible = false;
-
-    // Layer Groups inside anatomyGroup for individual toggle
-    const boneGroup = new THREE.Group();
-    const muscleGroup = new THREE.Group();
-    const fasciaGroup = new THREE.Group();
-    const fatGroup = new THREE.Group();
-    const skinGroup = new THREE.Group();
-    const lipomaGroup = new THREE.Group();
+    const lipomasGroup = new THREE.Group();
+    const ghostGroup = new THREE.Group();
     const calipersGroup = new THREE.Group();
+    const gridGroup = new THREE.Group();
 
-    anatomyGroup.add(boneGroup);
-    anatomyGroup.add(muscleGroup);
-    anatomyGroup.add(fasciaGroup);
-    anatomyGroup.add(fatGroup);
-    anatomyGroup.add(skinGroup);
-    anatomyGroup.add(lipomaGroup);
-    anatomyGroup.add(calipersGroup);
+    scene.add(anatomyGroup);
+    scene.add(lipomasGroup);
+    scene.add(ghostGroup);
+    scene.add(calipersGroup);
+    scene.add(gridGroup);
 
-    // 1. Build Spine (L1-L5) & Discs
-    const vertebraeY = [11.0, 5.8, 0.6, -4.6, -9.8];
-    const discsY = [8.4, 3.2, -2.0, -7.2, -12.4];
-
-    for (let i = 0; i < 5; i++) {
-      const y = vertebraeY[i];
-      // Anterior vertebral body at Z = 0.0 with subtle lordosis
-      const z = 0.6 * Math.sin((y + 4.6) / 12.0 * Math.PI);
-
-      // Vertebral Body (Kidney-shaped cylinder)
-      const bodyGeom = new THREE.CylinderGeometry(2.3 + i * 0.15, 2.3 + i * 0.15, 2.8, 24);
-      bodyGeom.scale(1, 1, 0.75);
-      const bodyMesh = new THREE.Mesh(bodyGeom, boneMaterial);
-      bodyMesh.position.set(0, y, z);
-      boneGroup.add(bodyMesh);
-
-      // Spinous Process (Posterior dorsal wing pointing backward toward skin)
-      const spGeom = new THREE.BoxGeometry(0.9, 1.8, 3.4 + i * 0.2);
-      const spMesh = new THREE.Mesh(spGeom, boneMaterial);
-      spMesh.position.set(0, y - 0.2, z + 2.8);
-      boneGroup.add(spMesh);
-
-      // Transverse Processes (Bilateral lateral wings)
-      const tpGeom = new THREE.BoxGeometry(8.6 + i * 0.3, 0.8, 1.1);
-      const tpMesh = new THREE.Mesh(tpGeom, boneMaterial);
-      tpMesh.position.set(0, y + 0.1, z + 1.2);
-      boneGroup.add(tpMesh);
-
-      // Facet Joints (Superior & Inferior Articular Processes)
-      [-1, 1].forEach(side => {
-        const facetGeom = new THREE.BoxGeometry(0.7, 1.1, 0.8);
-        const supFacet = new THREE.Mesh(facetGeom, boneMaterial);
-        supFacet.position.set(side * 1.8, y + 1.2, z + 1.8);
-        const infFacet = new THREE.Mesh(facetGeom, boneMaterial);
-        infFacet.position.set(side * 1.8, y - 1.2, z + 1.9);
-        boneGroup.add(supFacet);
-        boneGroup.add(infFacet);
-      });
-
-      // Intervertebral Discs
-      if (i < 4) {
-        const dy = discsY[i];
-        const dz = 0.6 * Math.sin((dy + 4.6) / 12.0 * Math.PI);
-        const discGeom = new THREE.CylinderGeometry(2.2 + i * 0.15, 2.2 + i * 0.15, 0.85, 24);
-        discGeom.scale(1, 1, 0.75);
-        const discMesh = new THREE.Mesh(discGeom, discMaterial);
-        discMesh.position.set(0, dy, dz);
-        boneGroup.add(discMesh);
-      }
-    }
-
-    // L5-S1 Disc with Mild Disc Space Narrowing
-    const l5s1Geom = new THREE.CylinderGeometry(2.8, 2.8, 0.55, 24);
-    l5s1Geom.scale(1, 1, 0.75);
-    const l5s1Mesh = new THREE.Mesh(l5s1Geom, discNarrowMaterial);
-    l5s1Mesh.position.set(0, discsY[4], 0.0);
-    boneGroup.add(l5s1Mesh);
-
-    // 2. Build Sacrum (S1-S5)
-    const sacrumGeom = new THREE.ConeGeometry(4.8, 11.0, 4);
-    sacrumGeom.rotateY(Math.PI / 4);
-    sacrumGeom.scale(1, 1, 0.5);
-    const sacrumMesh = new THREE.Mesh(sacrumGeom, boneMaterial);
-    sacrumMesh.position.set(0, -18.5, 1.2);
-    boneGroup.add(sacrumMesh);
-
-    // Median Sacral Crest (Posterior ridge)
-    const crestGeom = new THREE.BoxGeometry(0.8, 9.5, 1.4);
-    const crestMesh = new THREE.Mesh(crestGeom, boneMaterial);
-    crestMesh.position.set(0, -18.2, 2.8);
-    boneGroup.add(crestMesh);
-
-    // 3. Build Pelvis / Iliac Crests & PSIS ("Dimples of Venus" landmark)
-    [-1, 1].forEach(side => {
-      // Iliac Wing
-      const iliacGeom = new THREE.BoxGeometry(2.4, 12.0, 5.0);
-      iliacGeom.rotateZ(side * 0.15);
-      const iliacMesh = new THREE.Mesh(iliacGeom, pelvisMaterial);
-      iliacMesh.position.set(side * 10.8, -12.5, 2.0);
-      boneGroup.add(iliacMesh);
-
-      // Iliac Crest Rim
-      const crestRimGeom = new THREE.CylinderGeometry(1.1, 1.1, 10.5, 16);
-      crestRimGeom.rotateZ(Math.PI / 2);
-      const crestRim = new THREE.Mesh(crestRimGeom, pelvisMaterial);
-      crestRim.position.set(side * 9.5, -7.5, 3.2);
-      boneGroup.add(crestRim);
-
-      // PSIS (Posterior Superior Iliac Spine at S2 level)
-      const psisGeom = new THREE.SphereGeometry(1.2, 16, 12);
-      psisGeom.scale(1, 1, 1.5);
-      const psisMesh = new THREE.Mesh(psisGeom, pelvisMaterial);
-      psisMesh.position.set(side * 5.4, -12.8, 4.8);
-      boneGroup.add(psisMesh);
-    });
-
-    // 4. Build Erector Spinae Musculature
-    [-1, 1].forEach(side => {
-      const muscGeom = new THREE.CylinderGeometry(2.1, 3.0, 28.0, 24);
-      muscGeom.scale(1.2, 1, 0.85);
-      const muscMesh = new THREE.Mesh(muscGeom, muscleMaterial);
-      muscMesh.position.set(side * 4.2, -1.5, 3.8);
-      muscleGroup.add(muscMesh);
-
-      // Deep Multifidus
-      const mfGeom = new THREE.BoxGeometry(1.8, 22.0, 1.8);
-      const mfMesh = new THREE.Mesh(mfGeom, muscleMaterial);
-      mfMesh.position.set(side * 1.9, -3.0, 3.4);
-      muscleGroup.add(mfMesh);
-    });
-
-    // 5. Build Layer Surfaces (Fascia, Fat, Skin) with Lumbar Curvature
-    function createTissuePlane(zBase, depthFunc) {
-      const nx = 40, ny = 48, width = 34.0, height = 36.0;
-      const geom = new THREE.BufferGeometry();
-      const pos = [], norm = [], uv = [], idx = [];
-
-      const hx = width / 2, hy = height / 2;
-      for (let i = 0; i <= ny; i++) {
-        const v = i / ny;
-        const y = -hy + v * height;
-        for (let j = 0; j <= nx; j++) {
-          const u = j / nx;
-          const x = -hx + u * width;
-          const z = depthFunc(x, y, hx, hy, zBase);
-          pos.push(x, y, z);
-          norm.push(0, 0, 1);
-          uv.push(u, v);
-        }
-      }
-
-      for (let i = 0; i < ny; i++) {
-        for (let j = 0; j < nx; j++) {
-          const i0 = i * (nx + 1) + j;
-          const i1 = i0 + nx + 1;
-          idx.push(i0, i1, i0 + 1);
-          idx.push(i0 + 1, i1, i1 + 1);
-        }
-      }
-
-      geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-      geom.setAttribute('normal', new THREE.Float32BufferAttribute(norm, 3));
-      geom.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-      geom.setIndex(idx);
-      geom.computeVertexNormals();
+    // =========================================================================
+    // 3D Geometry Generators
+    // =========================================================================
+    
+    // Smooth Ellipsoid
+    function createEllipsoidGeometry(rx, ry, rz, segs = 36) {
+      const geom = new THREE.SphereGeometry(1, segs, Math.round(segs * 0.75));
+      geom.scale(rx, ry, rz);
       return geom;
     }
 
-    // Fascia Layer Surface (Z ~ 6.5)
-    const fasciaGeom = createTissuePlane(6.2, (x, y, hx, hy, zBase) => {
-      const muscleBulge = Math.exp(-Math.pow(Math.abs(x) - 4.2, 2) / 12.0) * 1.6;
-      const midline = -Math.exp(-Math.pow(x, 2) / 3.0) * 1.0;
-      const lordosis = Math.cos((y / hy) * 1.2) * 1.2;
-      return zBase + muscleBulge + midline - lordosis;
-    });
-    const fasciaMesh = new THREE.Mesh(fasciaGeom, fasciaMaterial);
-    fasciaGroup.add(fasciaMesh);
+    // Bilateral Lipoma Meshes
+    // Screen Left in Posterior View = Patient's Right (X = -4.2 cm)
+    // Screen Right in Posterior View = Patient's Left (X = +4.8 cm)
+    const rightLipomaMesh = new THREE.Mesh(
+      createEllipsoidGeometry(NODULE_DATA.right.jul25.rx, NODULE_DATA.right.jul25.ry, NODULE_DATA.right.jul25.rz),
+      rightLipomaMaterial
+    );
+    rightLipomaMesh.position.set(-4.2, -7.5, 7.8);
+    rightLipomaMesh.rotation.z = -0.12;
+    lipomasGroup.add(rightLipomaMesh);
 
-    // Subcutaneous Fat Layer Surface (Z ~ 7.8)
-    const fatGeom = createTissuePlane(7.6, (x, y, hx, hy, zBase) => {
-      const muscleBulge = Math.exp(-Math.pow(Math.abs(x) - 4.2, 2) / 14.0) * 1.4;
-      const midline = -Math.exp(-Math.pow(x, 2) / 3.5) * 0.7;
-      const lordosis = Math.cos((y / hy) * 1.2) * 1.1;
-      return zBase + muscleBulge + midline - lordosis;
-    });
-    const fatMesh = new THREE.Mesh(fatGeom, fatMaterial);
-    fatGroup.add(fatMesh);
+    const leftLipomaMesh = new THREE.Mesh(
+      createEllipsoidGeometry(NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz),
+      leftLipomaMaterial
+    );
+    leftLipomaMesh.position.set(4.8, -7.5, 7.8);
+    leftLipomaMesh.rotation.z = 0.15;
+    lipomasGroup.add(leftLipomaMesh);
 
-    // Skin Integument Surface (Z ~ 9.5)
-    const skinGeom = createTissuePlane(9.2, (x, y, hx, hy, zBase) => {
-      const lordosis = Math.cos((y / hy) * 1.2) * 1.4;
-      const groove = -Math.exp(-Math.pow(x, 2) / 4.0) * 0.5;
-      const flank = -Math.pow(x / hx, 2) * 2.2;
-      return zBase - lordosis + groove + flank;
-    });
-    const skinMesh = new THREE.Mesh(skinGeom, skinMaterial);
-    skinGroup.add(skinMesh);
+    // Left Baseline Ghost Mesh
+    const leftGhostMesh = new THREE.Mesh(
+      createEllipsoidGeometry(NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz),
+      ghostMaterial
+    );
+    leftGhostMesh.position.copy(leftLipomaMesh.position);
+    leftGhostMesh.rotation.copy(leftLipomaMesh.rotation);
+    ghostGroup.add(leftGhostMesh);
+    ghostGroup.visible = false;
 
-    // 6. Build the Subcutaneous Lipomas (Anatomy Scene)
-    function buildLipomaMesh(material) {
-      const geom = new THREE.SphereGeometry(1, 48, 36);
-      const pos = geom.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        const vx = pos.getX(i), vy = pos.getY(i), vz = pos.getZ(i);
-        const pert = 1.0 + 0.035 * (Math.sin(3.0 * vx) * Math.cos(2.5 * vy) + 0.5 * Math.sin(5.0 * vz));
-        pos.setXYZ(i, vx * pert, vy * pert, vz * pert);
-      }
-      geom.computeVertexNormals();
+    // Caliper Axes on Lipomas
+    function buildCaliperAxes(center, rx, ry, rz) {
+      const g = new THREE.Group();
+      g.position.copy(center);
 
-      const mesh = new THREE.Mesh(geom, material);
-      const wire = new THREE.LineSegments(
-        new THREE.WireframeGeometry(new THREE.SphereGeometry(1, 18, 12)),
-        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })
+      // X axis (Transverse / Width)
+      const xGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-rx, 0, 0), new THREE.Vector3(rx, 0, 0)]);
+      g.add(new THREE.Line(xGeo, caliperAxisMaterial));
+
+      // Y axis (Sagittal / Length)
+      const yGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -ry, 0), new THREE.Vector3(0, ry, 0)]);
+      g.add(new THREE.Line(yGeo, caliperAxisMaterial));
+
+      // Z axis (AP Depth)
+      const zGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, -rz), new THREE.Vector3(0, 0, rz)]);
+      g.add(new THREE.Line(zGeo, caliperAxisMaterial));
+
+      return g;
+    }
+
+    let rightCalipers = buildCaliperAxes(rightLipomaMesh.position, NODULE_DATA.right.jul25.rx, NODULE_DATA.right.jul25.ry, NODULE_DATA.right.jul25.rz);
+    let leftCalipers = buildCaliperAxes(leftLipomaMesh.position, NODULE_DATA.left.jul25.rx, NODULE_DATA.left.jul25.ry, NODULE_DATA.left.jul25.rz);
+    calipersGroup.add(rightCalipers);
+    calipersGroup.add(leftCalipers);
+
+    // 1 cm Centimeter Scale Grid (for Isolated Mode)
+    const gridHelper = new THREE.GridHelper(24, 24, 0x0284c7, 0xe2e8f0);
+    gridHelper.rotation.x = Math.PI / 2;
+    gridHelper.position.set(0, -7.5, 6.5);
+    gridGroup.add(gridHelper);
+    gridGroup.visible = false;
+
+    // =========================================================================
+    // Lumbar Spine & Back Anatomy Construction
+    // =========================================================================
+    
+    // Vertebra builder
+    function createVertebra(y, w, h, d, isL5 = false) {
+      const vGroup = new THREE.Group();
+      vGroup.position.set(0, y, 0);
+
+      // Body (anterior)
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.5, w * 0.55, h, 20), boneMaterial);
+      body.position.set(0, 0, 0);
+      body.scale.set(1.15, 1, 0.95);
+      vGroup.add(body);
+
+      // Spinous Process (pointing posterior toward camera along +Z)
+      const spinous = new THREE.Mesh(new THREE.ConeGeometry(0.55, 3.2, 10), boneMaterial);
+      spinous.rotation.x = Math.PI / 2 + 0.15;
+      spinous.position.set(0, -0.4, 3.0);
+      vGroup.add(spinous);
+
+      // Transverse Processes (Left and Right lateral)
+      const tpLeft = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.65, 0.8), boneMaterial);
+      tpLeft.position.set(-3.2, 0.2, 1.4);
+      tpLeft.rotation.z = -0.15;
+      vGroup.add(tpLeft);
+
+      const tpRight = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.65, 0.8), boneMaterial);
+      tpRight.position.set(3.2, 0.2, 1.4);
+      tpRight.rotation.z = 0.15;
+      vGroup.add(tpRight);
+
+      // Facet Joints
+      const facetL = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.2, 8), boneMaterial);
+      facetL.position.set(-1.8, 0, 2.2);
+      vGroup.add(facetL);
+
+      const facetR = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.2, 8), boneMaterial);
+      facetR.position.set(1.8, 0, 2.2);
+      vGroup.add(facetR);
+
+      return vGroup;
+    }
+
+    // Intervertebral Disc builder
+    function createDisc(y, w, h, isNarrowed = false) {
+      const disc = new THREE.Mesh(
+        new THREE.CylinderGeometry(w * 0.5, w * 0.52, h, 20),
+        isNarrowed ? discNarrowMaterial : discMaterial
       );
-      wire.visible = false;
-      mesh.add(wire);
-      mesh.wireframeMesh = wire;
-      return mesh;
+      disc.position.set(0, y, 0);
+      disc.scale.set(1.15, 1, 0.95);
+      return disc;
     }
 
-    const lipomaRightAnatomy = buildLipomaMesh(rightLipomaMaterial);
-    const lipomaLeftAnatomy = buildLipomaMesh(leftLipomaMaterial);
-    lipomaGroup.add(lipomaRightAnatomy);
-    lipomaGroup.add(lipomaLeftAnatomy);
+    // Build L1 - L5 + Discs
+    const vertebraeConfigs = [
+      { name: 'L1', y: 14.0, w: 4.0, h: 2.8 },
+      { name: 'L2', y: 9.0,  w: 4.2, h: 2.9 },
+      { name: 'L3', y: 4.0,  w: 4.4, h: 3.0 },
+      { name: 'L4', y: -1.2, w: 4.6, h: 3.1 },
+      { name: 'L5', y: -6.5, w: 4.8, h: 3.2, isL5: true }
+    ];
 
-    // Position lipomas accurately in subcutaneous plane at L5-S1 level (Z ~ 7.8)
-    lipomaRightAnatomy.userData = { baseX: -4.6, baseY: -3.0, baseZ: 7.8 };
-    lipomaLeftAnatomy.userData = { baseX: 5.2, baseY: -4.0, baseZ: 7.8 };
+    vertebraeConfigs.forEach(cfg => {
+      anatomyGroup.add(createVertebra(cfg.y, cfg.w, cfg.h, 2.8, cfg.isL5));
+    });
 
-    // 7. Build Isolated Lipoma Scene
-    const isoGrid = new THREE.GridHelper(16, 16, 0x38bdf8, 0x1e293b);
-    isoGrid.position.set(0, -3.2, 0);
-    isolatedGroup.add(isoGrid);
+    // Discs: Normal L1-L2, L2-L3, L3-L4, L4-L5, and Narrowed L5-S1
+    anatomyGroup.add(createDisc(11.5, 4.0, 1.0));
+    anatomyGroup.add(createDisc(6.5, 4.2, 1.1));
+    anatomyGroup.add(createDisc(1.4, 4.4, 1.2));
+    anatomyGroup.add(createDisc(-3.8, 4.6, 1.2));
+    // Narrowed L5-S1 disc from MRI report
+    anatomyGroup.add(createDisc(-9.2, 4.6, 0.65, true));
 
-    const lipomaRightIsolated = buildLipomaMesh(rightLipomaMaterial);
-    const lipomaLeftIsolated = buildLipomaMesh(leftLipomaMaterial);
-    isolatedGroup.add(lipomaRightIsolated);
-    isolatedGroup.add(lipomaLeftIsolated);
+    // Sacrum (S1-S3 wedge)
+    const sacrum = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 1.8, 8.5, 16), pelvisMaterial);
+    sacrum.position.set(0, -14.0, 0.2);
+    sacrum.scale.set(1.1, 1, 0.7);
+    anatomyGroup.add(sacrum);
 
-    lipomaRightIsolated.userData = { baseX: -4.0, baseY: 0, baseZ: 0 };
-    lipomaLeftIsolated.userData = { baseX: 4.0, baseY: 0, baseZ: 0 };
+    // Iliac Crests / Pelvis Wings
+    const iliacLeft = new THREE.Mesh(new THREE.TorusGeometry(6.5, 1.2, 12, 24, Math.PI * 0.75), pelvisMaterial);
+    iliacLeft.position.set(-8.5, -9.5, 1.8);
+    iliacLeft.rotation.set(0.4, 0.3, -0.6);
+    anatomyGroup.add(iliacLeft);
 
-    // Ghost Overlays for Growth Comparison
-    const ghostRight = buildLipomaMesh(ghostMaterial);
-    const ghostLeft = buildLipomaMesh(ghostMaterial);
-    ghostRight.visible = false;
-    ghostLeft.visible = false;
-    isolatedGroup.add(ghostRight);
-    isolatedGroup.add(ghostLeft);
-    ghostRight.userData = { baseX: -4.0, baseY: 0, baseZ: 0 };
-    ghostLeft.userData = { baseX: 4.0, baseY: 0, baseZ: 0 };
+    const iliacRight = new THREE.Mesh(new THREE.TorusGeometry(6.5, 1.2, 12, 24, Math.PI * 0.75), pelvisMaterial);
+    iliacRight.position.set(8.5, -9.5, 1.8);
+    iliacRight.rotation.set(0.4, -0.3, 0.6);
+    anatomyGroup.add(iliacRight);
 
-    // =========================================================================
-    // Clinical Data & Morphing Logic (2025 vs 2026)
-    // =========================================================================
-    const SCANS = {
-      jul25: {
-        id: 'jul25',
-        title: 'July 22, 2025 (Ultrasound #1)',
-        right: { w: 2.6, d: 1.0, h: 2.9, label: '26 × 10 × 29 mm' },
-        left:  { w: 3.9, d: 0.9, h: 2.0, label: '39 × 9 × 20 mm' },
-        has3Axes: true
-      },
-      may26: {
-        id: 'may26',
-        title: 'May 14, 2026 (Ultrasound #2)',
-        right: { w: 2.4, d: 1.2, h: 1.2, label: '2.4 × 1.2 cm' },
-        left:  { w: 3.2, d: 2.3, h: 2.0, label: '3.2 × 2.3 cm' },
-        has3Axes: false
-      }
-    };
+    // Erector Spinae Muscle Columns (Posterior Paramedian)
+    const muscleLeft = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 30, 20), muscleMaterial);
+    muscleLeft.position.set(-3.8, -1.0, 4.0);
+    anatomyGroup.add(muscleLeft);
 
-    let currentScan = 'jul25';
-    let heightMultiplier = 1.0;
-    let currentMode = 'anatomy'; // 'anatomy', 'isolated', 'overlay'
-    let isAutoRotating = false;
+    const muscleRight = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 30, 20), muscleMaterial);
+    muscleRight.position.set(3.8, -1.0, 4.0);
+    anatomyGroup.add(muscleRight);
 
-    function calculateVolume(w, d, h) {
-      return (Math.PI / 6 * w * d * h).toFixed(2);
-    }
+    // Thoracolumbar Fascia Sheet (Z = 6.2 cm)
+    const fasciaSheet = new THREE.Mesh(new THREE.PlaneGeometry(26, 32, 16, 16), fasciaMaterial);
+    fasciaSheet.position.set(0, -1.0, 6.2);
+    anatomyGroup.add(fasciaSheet);
 
-    function updateLipomaTransformations() {
-      const scan = SCANS[currentScan];
-      const hFactor = scan.has3Axes ? 1.0 : heightMultiplier;
+    // Subcutaneous Fat Layer (Z = 7.8 cm)
+    const fatLayer = new THREE.Mesh(new THREE.PlaneGeometry(28, 34, 16, 16), fatMaterial);
+    fatLayer.position.set(0, -1.0, 7.8);
+    anatomyGroup.add(fatLayer);
 
-      // Dimensions (radii) in cm
-      const rDims = {
-        rx: scan.right.w / 2,
-        rz: scan.right.d / 2,
-        ry: (scan.right.h * hFactor) / 2
-      };
-
-      const lDims = {
-        rx: scan.left.w / 2,
-        rz: scan.left.d / 2,
-        ry: (scan.left.h * hFactor) / 2
-      };
-
-      // Apply to Anatomy Lipomas
-      [
-        [lipomaRightAnatomy, rDims],
-        [lipomaLeftAnatomy, lDims]
-      ].forEach(([mesh, d]) => {
-        mesh.scale.set(d.rx, d.ry, d.rz);
-        mesh.position.set(mesh.userData.baseX, mesh.userData.baseY, mesh.userData.baseZ);
-      });
-
-      // Apply to Isolated Lipomas
-      [
-        [lipomaRightIsolated, rDims],
-        [lipomaLeftIsolated, lDims]
-      ].forEach(([mesh, d]) => {
-        mesh.scale.set(d.rx, d.ry, d.rz);
-        mesh.position.set(mesh.userData.baseX, mesh.userData.baseY, mesh.userData.baseZ);
-      });
-
-      // Update Ghost meshes (baseline 2025 comparison)
-      const baseJul = SCANS.jul25;
-      ghostRight.scale.set(baseJul.right.w / 2, baseJul.right.h / 2, baseJul.right.d / 2);
-      ghostRight.position.set(ghostRight.userData.baseX, ghostRight.userData.baseY, ghostRight.userData.baseZ);
-
-      ghostLeft.scale.set(baseJul.left.w / 2, baseJul.left.h / 2, baseJul.left.d / 2);
-      ghostLeft.position.set(ghostLeft.userData.baseX, ghostLeft.userData.baseY, ghostLeft.userData.baseZ);
-
-      // Update UI Stats
-      const rVol = calculateVolume(scan.right.w, scan.right.d, scan.right.h * hFactor);
-      const lVol = calculateVolume(scan.left.w, scan.left.d, scan.left.h * hFactor);
-
-      document.getElementById('stat-r-dim').textContent = scan.right.label;
-      document.getElementById('stat-l-dim').textContent = scan.left.label;
-      document.getElementById('stat-r-vol').textContent = rVol;
-      document.getElementById('stat-l-vol').textContent = lVol;
-
-      const rGrowthBadge = document.getElementById('stat-r-growth');
-      const lGrowthBadge = document.getElementById('stat-l-growth');
-
-      if (currentScan === 'may26') {
-        rGrowthBadge.textContent = 'Stable volume (~ -8% to +5%)';
-        rGrowthBadge.style.background = 'rgba(16,185,129,0.15)';
-        rGrowthBadge.style.color = '#34d399';
-
-        lGrowthBadge.textContent = '+155% Thickness · ~+110% Vol';
-        lGrowthBadge.style.background = 'rgba(249,115,22,0.2)';
-        lGrowthBadge.style.color = '#fb923c';
-      } else {
-        rGrowthBadge.textContent = 'Baseline 3D Study';
-        rGrowthBadge.style.background = 'rgba(255,255,255,0.06)';
-        rGrowthBadge.style.color = '#94a3b8';
-
-        lGrowthBadge.textContent = 'Baseline 3D Study';
-        lGrowthBadge.style.background = 'rgba(255,255,255,0.06)';
-        lGrowthBadge.style.color = '#94a3b8';
-      }
-
-      document.getElementById('height-factor-row').style.display = scan.has3Axes ? 'none' : 'flex';
-      document.getElementById('height-factor-val').textContent = `×${hFactor.toFixed(2)} (${(2.0 * hFactor).toFixed(1)} cm)`;
-    }
+    // Dermal Surface Skin Envelope (Z = 9.2 cm)
+    const skinMesh = new THREE.Mesh(new THREE.PlaneGeometry(30, 36, 24, 24), skinMaterial);
+    skinMesh.position.set(0, -1.0, 9.2);
+    anatomyGroup.add(skinMesh);
 
     // =========================================================================
-    // View Mode Switching (Anatomical vs Isolated vs Growth Ghost)
+    // Real-Time Interaction & Camera Controls
     // =========================================================================
-    function setViewMode(mode) {
-      currentMode = mode;
-      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
 
-      if (mode === 'anatomy') {
-        document.getElementById('mode-anatomy').classList.add('active');
-        anatomyGroup.visible = true;
-        isolatedGroup.visible = false;
-        ghostRight.visible = false;
-        ghostLeft.visible = false;
-        document.getElementById('section-layers').style.display = 'block';
-        document.getElementById('legend-bones').style.display = 'flex';
-        controls.target.set(0, -3, 4);
-        camera.position.set(0, -3, 58);
-      } else if (mode === 'isolated') {
-        document.getElementById('mode-isolated').classList.add('active');
-        anatomyGroup.visible = false;
-        isolatedGroup.visible = true;
-        ghostRight.visible = false;
-        ghostLeft.visible = false;
-        document.getElementById('section-layers').style.display = 'none';
-        document.getElementById('legend-bones').style.display = 'none';
-        controls.target.set(0, 0, 0);
-        camera.position.set(0, 1, 24);
-      } else if (mode === 'overlay') {
-        document.getElementById('mode-overlay').classList.add('active');
-        anatomyGroup.visible = false;
-        isolatedGroup.visible = true;
-        ghostRight.visible = true;
-        ghostLeft.visible = true;
-        document.getElementById('section-layers').style.display = 'none';
-        document.getElementById('legend-bones').style.display = 'none';
-        controls.target.set(0, 0, 0);
-        camera.position.set(0, 1, 24);
-      }
-    }
+    // Smooth Camera Transition (Lerp / Tween)
+    function setCameraView(presetKey) {
+      document.querySelectorAll('.cam-chip').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-cam-${presetKey}`);
+      if (activeBtn) activeBtn.classList.add('active');
 
-    document.getElementById('mode-anatomy').onclick = () => setViewMode('anatomy');
-    document.getElementById('mode-isolated').onclick = () => setViewMode('isolated');
-    document.getElementById('mode-overlay').onclick = () => setViewMode('overlay');
-
-    // =========================================================================
-    // Camera Presets
-    // =========================================================================
-    const cameraPresets = {
-      posterior: { pos: [0, -3, 58], tgt: [0, -3, 4] },
-      lateral:   { pos: [55, -3, 4], tgt: [0, -3, 4] },
-      axial:     { pos: [0, 52, 4],  tgt: [0, -3, 4] },
-      closeup:   { pos: [0, -4, 22], tgt: [0, -4, 6] },
-      oblique:   { pos: [32, 16, 46], tgt: [0, -3, 4] }
-    };
-
-    let tweenCam = null;
-
-    function applyCameraPreset(viewKey, immediate = false) {
-      const p = cameraPresets[viewKey];
-      if (!p) return;
-
-      document.querySelectorAll('.cam-btn').forEach(b => b.classList.toggle('active', b.dataset.view === viewKey));
-
-      if (immediate) {
-        camera.position.set(...p.pos);
-        controls.target.set(...p.tgt);
-        controls.update();
-        return;
-      }
+      const preset = CAMERA_PRESETS[presetKey];
+      if (!preset) return;
 
       const startPos = camera.position.clone();
-      const endPos = new THREE.Vector3(...p.pos);
-      const startTgt = controls.target.clone();
-      const endTgt = new THREE.Vector3(...p.tgt);
-      let progress = 0;
+      const startTarget = controls.target.clone();
+      const endPos = preset.pos.clone();
+      const endTarget = preset.target.clone();
 
-      if (tweenCam) cancelAnimationFrame(tweenCam);
+      const duration = 750; // ms
+      const startTime = performance.now();
 
-      function stepCam() {
-        progress += 0.05;
-        if (progress < 1) {
-          camera.position.lerpVectors(startPos, endPos, progress);
-          controls.target.lerpVectors(startTgt, endTgt, progress);
-          tweenCam = requestAnimationFrame(stepCam);
+      cameraTween = function(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        // Custom cubic-bezier spring easing
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        camera.position.lerpVectors(startPos, endPos, ease);
+        controls.target.lerpVectors(startTarget, endTarget, ease);
+
+        if (t < 1) {
+          requestAnimationFrame(cameraTween);
         } else {
-          camera.position.copy(endPos);
-          controls.target.copy(endTgt);
+          cameraTween = null;
         }
-      }
-      stepCam();
+      };
+      requestAnimationFrame(cameraTween);
     }
 
-    document.querySelectorAll('.cam-btn').forEach(btn => {
-      btn.onclick = () => applyCameraPreset(btn.dataset.view);
-    });
+    function resetCamera() {
+      setCameraView('posterior');
+    }
 
-    // =========================================================================
-    // Timeline Step Interactions
-    // =========================================================================
-    const stepJul = document.getElementById('step-jul25');
-    const stepMay = document.getElementById('step-may26');
+    // View Modes
+    function setViewMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll('.seg-btn').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-mode-${mode}`);
+      if (activeBtn) activeBtn.classList.add('active');
 
-    stepJul.onclick = () => {
-      currentScan = 'jul25';
-      stepJul.classList.add('active');
-      stepMay.classList.remove('active');
-      updateLipomaTransformations();
-    };
+      if (mode === 'anatomy') {
+        anatomyGroup.visible = true;
+        ghostGroup.visible = false;
+        gridGroup.visible = false;
+        calipersGroup.visible = true;
+        document.getElementById('layer-dock').style.display = 'flex';
+      } else if (mode === 'isolated') {
+        anatomyGroup.visible = false;
+        ghostGroup.visible = false;
+        gridGroup.visible = true;
+        calipersGroup.visible = true;
+        document.getElementById('layer-dock').style.display = 'none';
+      } else if (mode === 'ghost') {
+        anatomyGroup.visible = false;
+        ghostGroup.visible = true;
+        gridGroup.visible = true;
+        calipersGroup.visible = true;
+        document.getElementById('layer-dock').style.display = 'none';
+      }
+    }
 
-    stepMay.onclick = () => {
-      currentScan = 'may26';
-      stepMay.classList.add('active');
-      stepJul.classList.remove('active');
-      updateLipomaTransformations();
-    };
+    // Layer Opacity Control
+    function updateLayerOpacity(layer, val) {
+      val = parseFloat(val);
+      state.layerOpacity[layer] = val;
+      const pct = Math.round(val * 100);
+      const pctEl = document.getElementById(`pct-${layer}`);
+      if (pctEl) pctEl.textContent = `${pct}%`;
 
-    const sliderHeight = document.getElementById('height-factor');
-    sliderHeight.oninput = () => {
-      heightMultiplier = parseFloat(sliderHeight.value);
-      updateLipomaTransformations();
-    };
+      if (layer === 'skin') skinMaterial.opacity = val;
+      if (layer === 'fat') fatMaterial.opacity = val;
+      if (layer === 'fascia') fasciaMaterial.opacity = val;
+      if (layer === 'muscle') muscleMaterial.opacity = val;
+      if (layer === 'bone') {
+        boneMaterial.opacity = val;
+        pelvisMaterial.opacity = val;
+        boneMaterial.transparent = val < 1.0;
+        pelvisMaterial.transparent = val < 1.0;
+      }
+    }
 
-    // =========================================================================
-    // Layer Controls & Slicing Plane
-    // =========================================================================
-    const sliderSkin = document.getElementById('slider-skin');
-    const sliderFat = document.getElementById('slider-fat');
-    const sliderFascia = document.getElementById('slider-fascia');
-    const sliderMuscle = document.getElementById('slider-muscle');
-    const sliderBone = document.getElementById('slider-bone');
-    const sliderSlice = document.getElementById('slider-slice');
+    function applyLayerPreset(preset) {
+      if (preset === 'us') {
+        // Highlighting superficial tissue and lipomas
+        updateSlider('skin', 0.10);
+        updateSlider('fat', 0.20);
+        updateSlider('fascia', 0.60);
+        updateSlider('muscle', 0.25);
+        updateSlider('bone', 0.30);
+      } else if (preset === 'surgical') {
+        updateSlider('skin', 0.0);
+        updateSlider('fat', 0.15);
+        updateSlider('fascia', 0.85);
+        updateSlider('muscle', 0.85);
+        updateSlider('bone', 0.90);
+      } else if (preset === 'skeleton') {
+        updateSlider('skin', 0.0);
+        updateSlider('fat', 0.0);
+        updateSlider('fascia', 0.0);
+        updateSlider('muscle', 0.05);
+        updateSlider('bone', 1.0);
+      } else if (preset === 'all') {
+        updateSlider('skin', 0.22);
+        updateSlider('fat', 0.25);
+        updateSlider('fascia', 0.45);
+        updateSlider('muscle', 0.85);
+        updateSlider('bone', 1.0);
+      }
+    }
 
-    sliderSkin.oninput = () => {
-      const v = parseFloat(sliderSkin.value);
-      skinMaterial.opacity = v;
-      skinMaterial.visible = v > 0.01;
-      document.getElementById('val-skin').textContent = Math.round(v * 100) + '%';
-    };
+    function updateSlider(layer, val) {
+      const slider = document.getElementById(`slider-${layer}`);
+      if (slider) {
+        slider.value = val;
+        updateLayerOpacity(layer, val);
+      }
+    }
 
-    sliderFat.oninput = () => {
-      const v = parseFloat(sliderFat.value);
-      fatMaterial.opacity = v;
-      fatMaterial.visible = v > 0.01;
-      document.getElementById('val-fat').textContent = Math.round(v * 100) + '%';
-    };
+    // Axial Slicer
+    function updateAxialSlice(val) {
+      val = parseFloat(val);
+      state.axialSliceHeight = val;
+      const label = document.getElementById('slice-level-label');
 
-    sliderFascia.oninput = () => {
-      const v = parseFloat(sliderFascia.value);
-      fasciaMaterial.opacity = v;
-      fasciaMaterial.visible = v > 0.01;
-      document.getElementById('val-fascia').textContent = Math.round(v * 100) + '%';
-    };
-
-    sliderMuscle.oninput = () => {
-      const v = parseFloat(sliderMuscle.value);
-      muscleMaterial.opacity = v;
-      muscleMaterial.visible = v > 0.01;
-      document.getElementById('val-muscle').textContent = Math.round(v * 100) + '%';
-    };
-
-    sliderBone.oninput = () => {
-      const v = parseFloat(sliderBone.value);
-      boneMaterial.opacity = v;
-      pelvisMaterial.opacity = v;
-      discMaterial.opacity = v;
-      discNarrowMaterial.opacity = v;
-      const vis = v > 0.01;
-      boneMaterial.visible = vis;
-      pelvisMaterial.visible = vis;
-      discMaterial.visible = vis;
-      discNarrowMaterial.visible = vis;
-      document.getElementById('val-bone').textContent = Math.round(v * 100) + '%';
-    };
-
-    // Slicing Plane: controls horizontal cut through anatomy along Y
-    sliderSlice.oninput = () => {
-      const val = parseFloat(sliderSlice.value);
-      if (val >= 17.5) {
+      if (val >= 21.5) {
         clipPlane.constant = 100; // Inactive
-        document.getElementById('val-slice').textContent = 'Off';
+        if (label) label.textContent = "Off (Full)";
       } else {
         clipPlane.constant = val;
-        document.getElementById('val-slice').textContent = `Y = ${val.toFixed(1)} cm`;
-      }
-    };
+        let anatomicalLabel = "L3 Level";
+        if (val > 11) anatomicalLabel = "L1 Superior";
+        else if (val > 6) anatomicalLabel = "L2 Mid";
+        else if (val > 1) anatomicalLabel = "L3 Paramedian";
+        else if (val > -4) anatomicalLabel = "L4 Inferior";
+        else if (val > -9) anatomicalLabel = "L5 Lipoma Dome";
+        else anatomicalLabel = "S1 Sacrum";
 
-    document.getElementById('btn-reset-layers').onclick = () => {
-      sliderSkin.value = 0.3; sliderSkin.oninput();
-      sliderFat.value = 0.4; sliderFat.oninput();
-      sliderFascia.value = 0.6; sliderFascia.oninput();
-      sliderMuscle.value = 0.85; sliderMuscle.oninput();
-      sliderBone.value = 1.0; sliderBone.oninput();
-      sliderSlice.value = 18; sliderSlice.oninput();
-    };
-
-    document.getElementById('chk-calipers').onchange = (e) => {
-      isoGrid.visible = e.target.checked;
-      calipersGroup.visible = e.target.checked;
-    };
-
-    document.getElementById('chk-wireframe').onchange = (e) => {
-      const on = e.target.checked;
-      [lipomaRightAnatomy, lipomaLeftAnatomy, lipomaRightIsolated, lipomaLeftIsolated].forEach(m => {
-        if (m.wireframeMesh) m.wireframeMesh.visible = on;
-      });
-    };
-
-    // Auto-Rotate Toggle
-    const btnRotate = document.getElementById('btn-rotate');
-    btnRotate.onclick = () => {
-      isAutoRotating = !isAutoRotating;
-      btnRotate.classList.toggle('btn-primary', isAutoRotating);
-      document.getElementById('rotate-text').textContent = isAutoRotating ? 'Pause' : 'Auto-Rotate';
-    };
-
-    // Screenshot PNG Export
-    document.getElementById('btn-png').onclick = () => {
-      renderer.render(scene, camera);
-      const link = document.createElement('a');
-      link.download = `lower-back-lipoma-3d-${currentScan}.png`;
-      link.href = renderer.domElement.toDataURL('image/png');
-      link.click();
-    };
-
-    // Accordions
-    document.querySelectorAll('.accordion-header').forEach(header => {
-      header.onclick = () => {
-        header.parentElement.classList.toggle('open');
-      };
-    });
-
-    // =========================================================================
-    // Animation Render Loop
-    // =========================================================================
-    const orientLabel = document.getElementById('view-orientation');
-    const lblLeft = document.getElementById('lbl-left');
-    const lblRight = document.getElementById('lbl-right');
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (isAutoRotating) {
-        scene.rotation.y += 0.005;
-      } else {
-        scene.rotation.y = 0;
-      }
-
-      controls.update();
-      renderer.render(scene, camera);
-
-      // Update dynamic 3D screen callouts
-      const calloutR = document.getElementById('callout-r');
-      const calloutL = document.getElementById('callout-l');
-      if (document.getElementById('chk-calipers').checked) {
-        const rWorld = currentMode === 'anatomy' ? new THREE.Vector3(-4.6, -1.0, 7.8) : new THREE.Vector3(-4.0, 2.0, 0);
-        const lWorld = currentMode === 'anatomy' ? new THREE.Vector3(5.2, -2.0, 7.8) : new THREE.Vector3(4.0, 2.0, 0);
-        
-        const rScreen = rWorld.clone().project(camera);
-        const lScreen = lWorld.clone().project(camera);
-        
-        if (rScreen.z < 1) {
-          calloutR.style.left = `${(rScreen.x * 0.5 + 0.5) * W()}px`;
-          calloutR.style.top = `${(-rScreen.y * 0.5 + 0.5) * H()}px`;
-          calloutR.style.display = 'block';
-          calloutR.textContent = `Right: ${SCANS[currentScan].right.label}`;
-          calloutR.style.borderColor = 'var(--right-lipoma)';
-        } else {
-          calloutR.style.display = 'none';
-        }
-        
-        if (lScreen.z < 1) {
-          calloutL.style.left = `${(lScreen.x * 0.5 + 0.5) * W()}px`;
-          calloutL.style.top = `${(-lScreen.y * 0.5 + 0.5) * H()}px`;
-          calloutL.style.display = 'block';
-          calloutL.textContent = `Left: ${SCANS[currentScan].left.label}`;
-          calloutL.style.borderColor = 'var(--left-lipoma)';
-        } else {
-          calloutL.style.display = 'none';
-        }
-      } else {
-        calloutR.style.display = 'none';
-        calloutL.style.display = 'none';
-      }
-
-      // Anatomical Orientation Tracker
-      const camZ = camera.position.z - controls.target.z;
-      const camX = camera.position.x - controls.target.x;
-      const camY = camera.position.y - controls.target.y;
-
-      if (Math.abs(camY) > Math.abs(camZ) && Math.abs(camY) > Math.abs(camX)) {
-        orientLabel.textContent = camY > 0 ? 'Superior (Top-Down)' : 'Inferior (Bottom-Up)';
-      } else if (Math.abs(camX) > Math.abs(camZ)) {
-        orientLabel.textContent = camX > 0 ? "Right Lateral (Patient's Right)" : "Left Lateral (Patient's Left)";
-      } else {
-        const isBack = camZ > 0; // Positive Z is posterior back
-        orientLabel.textContent = isBack ? 'Posterior (Back View)' : 'Anterior (Front View)';
-        lblLeft.textContent = isBack ? "Patient's Right" : "Patient's Left";
-        lblRight.textContent = isBack ? "Patient's Left" : "Patient's Right";
+        if (label) label.textContent = `${anatomicalLabel} (${val.toFixed(1)} cm)`;
       }
     }
 
-    // Responsive Canvas Resize
+    // Timeline Morphing Engine
+    function setTimelineStep(step) {
+      state.timelineStep = step;
+      document.getElementById('card-date-jul25').classList.toggle('active', step === 0);
+      document.getElementById('card-date-may26').classList.toggle('active', step === 1);
+      const targetVal = step === 0 ? 0.0 : 1.0;
+
+      // Animate morph
+      const startVal = state.morphProgress;
+      const startTime = performance.now();
+      const duration = 600;
+
+      function stepMorph(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        const cur = startVal + (targetVal - startVal) * ease;
+        applyMorphValue(cur);
+
+        if (t < 1) requestAnimationFrame(stepMorph);
+      }
+      requestAnimationFrame(stepMorph);
+    }
+
+    function applyMorphValue(val) {
+      state.morphProgress = val;
+      if (sliderTimelineMorph) sliderTimelineMorph.value = val;
+      if (morphPctLabel) morphPctLabel.textContent = `${Math.round(val * 100)}% Morph`;
+
+      // Interpolate Left Lipoma Geometry (Significant AP Thickening)
+      const lJul = NODULE_DATA.left.jul25;
+      const lMay = NODULE_DATA.left.may26;
+      const curLRx = lJul.rx + (lMay.rx - lJul.rx) * val;
+      const curLRy = lJul.ry + (lMay.ry - lJul.ry) * val;
+      const curLRz = lJul.rz + (lMay.rz - lJul.rz) * val;
+
+      leftLipomaMesh.geometry.dispose();
+      leftLipomaMesh.geometry = createEllipsoidGeometry(curLRx, curLRy, curLRz);
+
+      // Interpolate Right Lipoma Geometry (Stable)
+      const rJul = NODULE_DATA.right.jul25;
+      const rMay = NODULE_DATA.right.may26;
+      const curRRx = rJul.rx + (rMay.rx - rJul.rx) * val;
+      const curRRy = rJul.ry + (rMay.ry - rJul.ry) * val;
+      const curRRz = rJul.rz + (rMay.rz - rJul.rz) * val;
+
+      rightLipomaMesh.geometry.dispose();
+      rightLipomaMesh.geometry = createEllipsoidGeometry(curRRx, curRRy, curRRz);
+
+      // Update Caliper vectors
+      calipersGroup.remove(rightCalipers);
+      calipersGroup.remove(leftCalipers);
+      rightCalipers = buildCaliperAxes(rightLipomaMesh.position, curRRx, curRRy, curRRz);
+      leftCalipers = buildCaliperAxes(leftLipomaMesh.position, curLRx, curLRy, curLRz);
+      calipersGroup.add(rightCalipers);
+      calipersGroup.add(leftCalipers);
+
+      // Update Screen HUD labels
+      const curLeftThick = Math.round(9 + (23 - 9) * val);
+      const curLeftVol = (3.68 + (7.72 - 3.68) * val).toFixed(2);
+      if (caliperTextLeft) caliperTextLeft.textContent = `32 × ${curLeftThick} mm (${curLeftVol} cm³)`;
+
+      const curRightVol = (3.95 + (3.80 - 3.95) * val).toFixed(2);
+      if (caliperTextRight) caliperTextRight.textContent = `24 × 12 mm (${curRightVol} cm³)`;
+
+      const metricLeft = document.getElementById('metric-left-vol');
+      if (metricLeft) metricLeft.textContent = `${curLeftVol} cm³ (AP: ${curLeftThick} mm)`;
+    }
+
+    // Play/Pause Morphing Animation Loop
+    function togglePlayMorph() {
+      state.isPlaying = !state.isPlaying;
+      if (state.isPlaying) {
+        playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+        runPlayLoop();
+      } else {
+        playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+      }
+    }
+
+    let playDirection = 1;
+    function runPlayLoop() {
+      if (!state.isPlaying) return;
+      let next = state.morphProgress + playDirection * 0.008;
+      if (next >= 1.0) {
+        next = 1.0;
+        playDirection = -1;
+      } else if (next <= 0.0) {
+        next = 0.0;
+        playDirection = 1;
+      }
+      applyMorphValue(next);
+      requestAnimationFrame(runPlayLoop);
+    }
+
+    // Project 3D Coordinates to 2D Screen Caliper Tags
+    function updateCaliperTags() {
+      const rightWorld = rightLipomaMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0));
+      const leftWorld = leftLipomaMesh.position.clone().add(new THREE.Vector3(0, 1.8, 0));
+
+      const rScreen = rightWorld.project(camera);
+      const lScreen = leftWorld.project(camera);
+
+      // Only show if in front of camera
+      const isVisible = camera.position.z > 8;
+
+      if (isVisible && calipersGroup.visible) {
+        caliperTagRight.style.display = 'flex';
+        caliperTagLeft.style.display = 'flex';
+
+        const rX = (rScreen.x * 0.5 + 0.5) * W();
+        const rY = (-rScreen.y * 0.5 + 0.5) * H();
+        caliperTagRight.style.left = `${rX}px`;
+        caliperTagRight.style.top = `${rY}px`;
+
+        const lX = (lScreen.x * 0.5 + 0.5) * W();
+        const lY = (-lScreen.y * 0.5 + 0.5) * H();
+        caliperTagLeft.style.left = `${lX}px`;
+        caliperTagLeft.style.top = `${lY}px`;
+      } else {
+        caliperTagRight.style.display = 'none';
+        caliperTagLeft.style.display = 'none';
+      }
+
+      // Live Anatomical Compass Text
+      const camX = camera.position.x;
+      const camY = camera.position.y;
+      const camZ = camera.position.z;
+
+      if (camY > 35) {
+        compassLabel.textContent = "Axial View (Superior / Top-Down)";
+      } else if (Math.abs(camX) > 30) {
+        compassLabel.textContent = camX > 0 ? "Right Lateral Profile" : "Left Lateral Profile";
+      } else if (camZ > 10) {
+        compassLabel.textContent = "Posterior View (Examining Patient's Back)";
+      } else {
+        compassLabel.textContent = "Anterior View (Frontal Spine)";
+      }
+    }
+
+    // High-Resolution Snapshot Capture
+    function captureSnapshot() {
+      renderer.render(scene, camera);
+      const dataURL = renderer.domElement.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = `lipoma-3d-analysis-${state.timelineStep === 0 ? '2025' : '2026'}.png`;
+      a.click();
+    }
+
+    // Handle Window Resize
     window.addEventListener('resize', () => {
       camera.aspect = W() / H();
       camera.updateProjectionMatrix();
       renderer.setSize(W(), H());
     });
 
-    // URL Parameters support (e.g. ?mode=isolated, ?scan=may26, ?view=lateral)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('mode')) {
-      setViewMode(urlParams.get('mode'));
-    } else {
-      setViewMode('anatomy');
+    // Main Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      updateCaliperTags();
+      renderer.render(scene, camera);
     }
-
-    if (urlParams.get('scan') === 'may26') {
-      currentScan = 'may26';
-      stepMay.classList.add('active');
-      stepJul.classList.remove('active');
-    }
-    if (urlParams.has('view')) applyCameraPreset(urlParams.get('view'), true);
-
-    // Initial run
-    updateLipomaTransformations();
     animate();
+
+    // Initial setup
+    updateLayerOpacity('skin', 0.22);
+    updateLayerOpacity('fat', 0.25);
+    updateLayerOpacity('fascia', 0.45);
+    updateLayerOpacity('muscle', 0.85);
+    updateLayerOpacity('bone', 1.0);
+    applyMorphValue(0.0);
   </script>
+
 </body>
 </html>
