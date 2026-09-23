@@ -741,9 +741,15 @@
     .slicer-dock {
       display: flex;
       flex-direction: column;
+      align-items: stretch;
       gap: 8px;
       padding: 12px 14px;
       min-width: 200px;
+    }
+
+    .slicer-dock .layer-slider {
+      flex: none;
+      width: 100%;
     }
 
     .slicer-header {
@@ -1333,58 +1339,303 @@
       margin-top: 14px;
     }
 
+    /* Stage: canvas + overlays (HUD floats over it on desktop) */
+    .viewport-stage {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .viewport-canvas-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .hud-top-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .cut-labels, .morph-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .cut-labels {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+
+    .morph-labels {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .metrics-table td, .metrics-table th {
+      white-space: nowrap;
+    }
+
     /* Responsive Rules */
+    .bento-grid > * {
+      min-width: 0;
+    }
+
     @media (max-width: 1024px) {
       .bento-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
       .col-span-8, .col-span-4, .col-span-6, .col-span-12 {
         grid-column: span 1;
-      }
-      .viewport-chassis {
-        height: 540px;
       }
       .growth-spotlight-grid {
         grid-template-columns: 1fr;
       }
     }
 
+    /* Tablet & phone: controls leave the canvas and flow above / below it
+       so the 3D model is never covered. */
+    @media (max-width: 1200px) {
+      .viewport-chassis {
+        height: auto;
+      }
+      .viewport-stage {
+        display: flex;
+        flex-direction: column;
+      }
+      .hud-layer {
+        display: contents;
+      }
+      .hud-top-bar {
+        order: 0;
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        border-bottom: 1px solid var(--border-inner);
+      }
+      .hud-top-bar, .hud-bottom-bar, .hud-top-bar > * {
+        pointer-events: auto;
+      }
+      .viewport-canvas-wrap {
+        order: 1;
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: 62vh;
+        height: 62svh;
+        min-height: 340px;
+        max-height: 600px;
+      }
+      .hud-bottom-bar {
+        order: 2;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 12px;
+        border-top: 1px solid var(--border-inner);
+        background: var(--bg-shell-subtle);
+      }
+      .hud-bottom-bar > .hud-island {
+        min-width: 0;
+        width: auto;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: #ffffff;
+        box-shadow: var(--shadow-card);
+      }
+      .hud-top-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .orient-compass {
+        align-self: flex-start;
+      }
+      .hud-cam-island {
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border-radius: var(--radius-pill);
+      }
+      .hud-cam-island::-webkit-scrollbar {
+        display: none;
+      }
+      .cam-chip {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 7px 14px;
+      }
+      .hud-quick-toggle {
+        justify-content: center;
+        padding: 9px 14px;
+      }
+      .quick-preset-chips {
+        flex-wrap: wrap;
+      }
+      .mini-preset-chip {
+        padding: 5px 10px;
+      }
+      .viewport-status-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .status-group {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        justify-content: space-between;
+      }
+      .bento-card-header {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+    }
+
     @media (max-width: 768px) {
       .app-container {
-        padding: 12px 14px 40px;
+        padding: 12px 12px 40px;
         gap: 14px;
       }
       .island-nav {
         flex-direction: column;
         align-items: stretch;
         border-radius: 20px;
+        padding: 14px;
         gap: 12px;
+      }
+      .nav-brand {
+        align-items: flex-start;
+      }
+      .brand-icon-box {
+        flex-shrink: 0;
+      }
+      .brand-title {
+        font-size: 15px;
+        line-height: 1.3;
       }
       .nav-actions {
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn-island {
+        white-space: nowrap;
+      }
+      .bezel-card {
+        padding: 4px;
+        border-radius: 20px;
+      }
+      .bezel-inner {
+        border-radius: 16px;
       }
       .model-switcher-header {
         flex-direction: column;
         align-items: stretch;
+        padding: 12px;
       }
       .model-switcher-tabs {
         flex-direction: column;
+        align-items: stretch;
+        border-radius: 16px;
       }
-      .viewport-chassis {
-        height: 480px;
+      .model-tab-btn {
+        border-radius: 12px;
+        padding: 8px 12px;
+      }
+      .model-tab-meta {
+        min-width: 0;
+      }
+      .btn-toggle-model {
+        justify-content: center;
+        padding: 10px 16px;
+      }
+      .hud-bottom-bar {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .viewport-canvas-wrap {
+        height: 56vh;
+        height: 56svh;
+        min-height: 320px;
+      }
+      .layer-name-tag {
+        min-width: 110px;
+      }
+      .isolated-metric-row {
+        flex-wrap: wrap;
+        gap: 2px 8px;
+      }
+      .isolated-metric-row .mono-val {
+        white-space: nowrap;
+      }
+      .slicer-header {
+        gap: 8px;
+      }
+      .cut-labels {
+        font-size: 9.5px;
+      }
+      .cut-labels span:nth-child(2) {
+        text-align: center;
+      }
+      .morph-labels {
+        font-size: 10px;
+        flex-wrap: wrap;
       }
       .timeline-date-picker {
         grid-template-columns: 1fr;
       }
-      .hud-top-bar, .hud-bottom-bar {
-        flex-direction: column;
-        align-items: stretch;
+      .bento-card-header {
+        padding: 16px 16px 12px;
       }
-      .hud-island {
-        width: 100%;
-        overflow-x: auto;
+      .bento-card-body {
+        padding: 16px;
+      }
+      .spotlight-eyebrow {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .spotlight-metric {
+        font-size: 20px;
+        overflow-wrap: anywhere;
+      }
+      .paradox-banner {
+        flex-direction: column;
+        padding: 16px !important;
+        gap: 12px !important;
+      }
+      .model-attribution-card {
+        padding: 14px 16px;
       }
     }
+
+    @media (max-width: 380px) {
+      .privacy-tag {
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+      .btn-island {
+        font-size: 12px;
+        padding-left: 12px;
+      }
+      .model-tab-sub {
+        display: none;
+      }
+    }
+
   
     /* ==========================================================================
        ANIMATED FLOW CURSOR & HAPTIC MICRO-INTERACTIONS (001 Main / Vanguard)
@@ -1557,6 +1808,8 @@
 
         <!-- 3D Canvas Viewport Chassis -->
         <div class="viewport-chassis">
+          <div class="viewport-stage">
+          <div class="viewport-canvas-wrap">
           
           <!-- Three.js Canvas Container -->
           <div id="three-canvas-container"></div>
@@ -1584,6 +1837,7 @@
           <div id="caliper-tag-left" class="caliper-hud-tag" style="display:none;">
             <span style="color:var(--left-lipoma)">● Left Lipoma:</span> <span id="caliper-text-left">32 × 23 mm</span>
           </div>
+          </div><!-- /.viewport-canvas-wrap -->
 
           <!-- Floating HUD Layer (Glass Islands) -->
           <div class="hud-layer">
@@ -1591,7 +1845,7 @@
             <!-- Top Bar: Orientation Compass + Camera Presets + Quick Model Toggle -->
             <div class="hud-top-bar">
               
-              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <div class="hud-top-group">
                 <!-- Dynamic Anatomical Compass -->
                 <div class="orient-compass">
                   <span class="compass-indicator"></span>
@@ -1599,7 +1853,7 @@
                 </div>
 
                 <!-- Camera Presets -->
-                <div class="hud-island">
+                <div class="hud-island hud-cam-island">
                   <div class="cam-btn-group">
                     <button class="cam-chip active" id="btn-cam-back" onclick="setCameraView('back')">
                       Posterior (Back)
@@ -1746,7 +2000,7 @@
                   <button class="slicer-mode-chip" id="btn-cut-flip" onclick="toggleCutFlip()" title="Flip cut direction">Flip ⇄</button>
                 </div>
                 <input type="range" class="layer-slider" id="slider-axial" min="0" max="1" step="0.005" value="1" oninput="updateCutSlider(this.value)">
-                <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-light); font-weight:600;">
+                <div class="cut-labels">
                   <span id="cut-min-label">Inferior (Feet)</span>
                   <span id="cut-mid-label">L5–S1 Lipoma Level</span>
                   <span id="cut-max-label">Superior (Head)</span>
@@ -1756,6 +2010,7 @@
             </div>
 
           </div>
+          </div><!-- /.viewport-stage -->
 
           <!-- Viewport Bottom Anatomical Bar -->
           <div class="viewport-status-bar">
@@ -1857,8 +2112,8 @@
                     <polygon points="5,3 19,12 5,21"/>
                   </svg>
                 </button>
-                <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
-                  <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-secondary);">
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+                  <div class="morph-labels">
                     <span>2025-07-22 (Baseline)</span>
                     <span id="morph-pct-label" style="color:var(--accent-cyan); font-family:var(--font-mono);">0% Morph</span>
                     <span>2026-05-14 (Follow-up)</span>
@@ -1947,7 +2202,7 @@
             </div>
           </div>
           <div class="bento-card-body" style="padding:0;">
-            <table class="metrics-table">
+            <div class="table-scroll"><table class="metrics-table">
               <thead>
                 <tr>
                   <th>Nodule</th>
@@ -1994,7 +2249,7 @@
                   <td><span class="delta-badge delta-neutral">-3.8%</span></td>
                 </tr>
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
       </div>
@@ -2007,17 +2262,17 @@
               <span class="bento-card-eyebrow" style="color:#b91c1c;">Clinical Correlation & Symptom Mapping</span>
               <h2 class="bento-card-title">Right-Sided Lower Back Pain: Why the Right Side Hurts More</h2>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
               <span class="delta-badge delta-pain" style="font-size:12px; padding:4px 10px;">Primary Symptom Region</span>
               <button class="mini-preset-chip" onclick="applyAnatPreset('right_pain')" style="background:#fee2e2; border-color:#fca5a5; color:#991b1b; font-weight:800; cursor:pointer;">
                 🎯 View Right Pain Site in 3D
               </button>
             </div>
           </div>
-          <div class="bento-card-body" style="padding:24px;">
+          <div class="bento-card-body">
             
             <!-- Clinical Paradox Banner -->
-            <div style="margin-bottom:22px; padding:18px 22px; border-radius:14px; background:#fff7ed; border:1px solid #fed7aa; display:flex; align-items:flex-start; gap:16px;">
+            <div class="paradox-banner" style="margin-bottom:22px; padding:18px 22px; border-radius:14px; background:#fff7ed; border:1px solid #fed7aa; display:flex; align-items:flex-start; gap:16px;">
               <div style="width:38px; height:38px; border-radius:10px; background:#ea580c; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px;">
                 ⚡
               </div>
@@ -2032,7 +2287,7 @@
             </div>
 
             <!-- 4 Column Clinical Etiology Grid -->
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:18px; margin-bottom:22px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(270px, 100%), 1fr)); gap:18px; margin-bottom:22px;">
               
               <!-- Factor 1: Cluneal Nerve Entrapment -->
               <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:8px;">
@@ -3459,7 +3714,8 @@
           full: badge.textContent,
           short: isRight
             ? `Right (Pain Focus) · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
-            : `${lip.label} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
+            : `${lip.label} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`,
+          compact: `${isRight ? 'R' : 'L'} · ${lip.size_mm.width}×${lip.size_mm.depth}×${lip.size_mm.height} mm`
         });
       });
     }
@@ -3477,6 +3733,7 @@
       const w = W();
       const h = H();
       const p3 = new THREE.Vector3();
+      const placed = [];
 
       lipomaCalloutElements.forEach((item) => {
         p3.copy(item.pos).project(camera);
@@ -3492,12 +3749,24 @@
         const sx = (p3.x * 0.5 + 0.5) * w;
         const sy = (-p3.y * 0.5 + 0.5) * h;
 
-        // Clean floating badge placed right beside each lipoma with NO lines popping out
-        const isMobile = w < 560;
-        item.badge.textContent = isMobile ? item.short : item.full;
+        // Clean floating badge placed beside each lipoma, kept fully inside the viewport
+        const label = w < 480 ? item.compact : (w < 820 ? item.short : item.full);
+        if (item.badge.textContent !== label) item.badge.textContent = label;
 
-        const bx = Math.max(16, Math.min(w - 180, sx + (item.side > 0 ? 18 : -140)));
-        const by = Math.max(16, Math.min(h - 36, sy - 28));
+        const bw = item.badge.offsetWidth || 160;
+        const bh = item.badge.offsetHeight || 24;
+        const pad = 8;
+        const clampX = (x) => Math.max(pad + bw / 2, Math.min(w - pad - bw / 2, x));
+        const clampY = (y) => Math.max(pad + bh / 2, Math.min(h - pad - bh / 2, y));
+
+        let bx = clampX(sx + item.side * (bw / 2 + 12));
+        let by = clampY(sy - bh / 2 - 10);
+
+        // If this badge collides with one already placed, drop it below its lipoma
+        const hits = (y) => placed.some((r) => Math.abs(r.x - bx) < (r.w + bw) / 2 + 4 && Math.abs(r.y - y) < (r.h + bh) / 2 + 4);
+        if (hits(by)) by = clampY(sy + bh / 2 + 10);
+        if (hits(by)) by = clampY(by + bh + 6);
+        placed.push({ x: bx, y: by, w: bw, h: bh });
 
         item.badge.style.left = `${bx}px`;
         item.badge.style.top = `${by}px`;
@@ -3551,7 +3820,7 @@
         if (isolatedDock) isolatedDock.style.display = 'flex';
 
         // Frame isolated lipomas with scale grid
-        tweenCamera(new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, 0), 650);
+        tweenCamera(isolatedCameraPos(), new THREE.Vector3(0, 0, 0), 650);
       }
       requestRender();
     }
@@ -3586,11 +3855,17 @@
       tweenCamera(new THREE.Vector3(...v.position), new THREE.Vector3(...v.target), 750);
     }
 
+    // Pull the camera back on portrait screens so both isolated lipomas stay in frame
+    function isolatedCameraPos() {
+      const aspect = W() / H();
+      return new THREE.Vector3(0, 0, 0.22 * Math.max(1, 1.05 / aspect));
+    }
+
     function resetCamera() {
       if (state.activeModel === 'anatomy') {
         setCameraView('back');
       } else {
-        tweenCamera(new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, 0), 650);
+        tweenCamera(isolatedCameraPos(), new THREE.Vector3(0, 0, 0), 650);
       }
     }
 
@@ -3884,14 +4159,16 @@
     }
     controls.addEventListener('change', requestRender);
 
-    window.addEventListener('resize', () => {
+    function handleViewportResize() {
       const w = W(), h = H();
       if (!w || !h) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       requestRender();
-    });
+    }
+    window.addEventListener('resize', handleViewportResize);
+    if (window.ResizeObserver) new ResizeObserver(handleViewportResize).observe(container);
 
     function animate(time) {
       requestAnimationFrame(animate);
