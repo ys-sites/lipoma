@@ -2663,7 +2663,7 @@
     scene.environment = pmremGen.fromScene(new RoomEnvironment(renderer), 0.04).texture;
     scene.environmentIntensity = 0.42;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
     controls.target.set(initialView.target[0], initialView.target[1], initialView.target[2]);
@@ -3038,88 +3038,93 @@
         const structDict = Object.fromEntries(MODEL_INFO.structures.map(s => [s.id, s]));
         const lipomaDict = Object.fromEntries(MODEL_INFO.lipomas.map(l => [l.id, l]));
 
+        const collectedMeshes = [];
         root.traverse((node) => {
           if (structDict[node.name]) {
             const s = structDict[node.name];
             node.traverse((child) => {
               if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-                child.frustumCulled = false;
-
-                // Create Material per group
-                let mat;
-                if (s.group === "skin") {
-                  mat = new THREE.MeshPhysicalMaterial({
-                    color: 0xc98f70,
-                    roughness: 0.46,
-                    sheen: 0.35,
-                    sheenColor: new THREE.Color(0xffc9b0),
-                    clearcoat: 0.08,
-                    vertexColors: true,
-                    transparent: true,
-                    opacity: state.layerOpacity.skin,
-                    side: THREE.DoubleSide
-                  });
-                  enhanceMaterial(mat, 'skin');
-                } else if (s.group === "muscle") {
-                  mat = new THREE.MeshPhysicalMaterial({
-                    color: 0x9c2c28,
-                    roughness: 0.40,
-                    clearcoat: 0.35,
-                    vertexColors: true,
-                    transparent: true,
-                    opacity: state.layerOpacity.muscle,
-                    side: THREE.DoubleSide
-                  });
-                  enhanceMaterial(mat, 'muscle', { fiber: s.fiber_direction ? new THREE.Vector3(...s.fiber_direction).normalize() : undefined });
-                } else if (s.group === "bone") {
-                  mat = new THREE.MeshPhysicalMaterial({
-                    color: 0xe4d6b6,
-                    roughness: 0.58,
-                    clearcoat: 0.12,
-                    vertexColors: true,
-                    transparent: true,
-                    opacity: state.layerOpacity.bone,
-                    side: THREE.DoubleSide
-                  });
-                  enhanceMaterial(mat, 'bone');
-                } else if (s.group === "lipoma") {
-                  const lipInfo = lipomaDict[s.id] || { color: "#22b07f" };
-                  mat = new THREE.MeshPhysicalMaterial({
-                    color: new THREE.Color(lipInfo.color),
-                    roughness: 0.30,
-                    clearcoat: 0.70,
-                    vertexColors: false,
-                    transparent: true,
-                    opacity: 1.0,
-                    side: THREE.DoubleSide
-                  });
-                  enhanceMaterial(mat, 'lipoma', {
-                    rim: new THREE.Color(lipInfo.color).multiplyScalar(1.3),
-                    rimK: 0.9
-                  });
-
-                  // Add X-Ray Fresnel GreaterDepth child glow mesh
-                  const xGlow = new THREE.Mesh(child.geometry, createXRayGlowMaterial(lipInfo.color));
-                  xGlow.renderOrder = 50;
-                  child.add(xGlow);
-                  xRayMeshes.push(xGlow);
-                }
-
-                child.material = mat;
-                child.userData = {
-                  id: s.id,
-                  label: s.label,
-                  group: s.group
-                };
-
-                layerRegistry[s.group].objs.push(child);
-                pickableMeshes.push(child);
-                byId[s.id] = child;
+                collectedMeshes.push({ s, mesh: child });
               }
             });
           }
+        });
+
+        // Configure materials and children safely outside traverse
+        collectedMeshes.forEach(({ s, mesh }) => {
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          mesh.frustumCulled = false;
+
+          let mat;
+          if (s.group === "skin") {
+            mat = new THREE.MeshPhysicalMaterial({
+              color: 0xc98f70,
+              roughness: 0.46,
+              sheen: 0.35,
+              sheenColor: new THREE.Color(0xffc9b0),
+              clearcoat: 0.08,
+              vertexColors: true,
+              transparent: true,
+              opacity: state.layerOpacity.skin,
+              side: THREE.DoubleSide
+            });
+            enhanceMaterial(mat, 'skin');
+          } else if (s.group === "muscle") {
+            mat = new THREE.MeshPhysicalMaterial({
+              color: 0x9c2c28,
+              roughness: 0.40,
+              clearcoat: 0.35,
+              vertexColors: true,
+              transparent: true,
+              opacity: state.layerOpacity.muscle,
+              side: THREE.DoubleSide
+            });
+            enhanceMaterial(mat, 'muscle', { fiber: s.fiber_direction ? new THREE.Vector3(...s.fiber_direction).normalize() : undefined });
+          } else if (s.group === "bone") {
+            mat = new THREE.MeshPhysicalMaterial({
+              color: 0xe4d6b6,
+              roughness: 0.58,
+              clearcoat: 0.12,
+              vertexColors: true,
+              transparent: true,
+              opacity: state.layerOpacity.bone,
+              side: THREE.DoubleSide
+            });
+            enhanceMaterial(mat, 'bone');
+          } else if (s.group === "lipoma") {
+            const lipInfo = lipomaDict[s.id] || { color: "#22b07f" };
+            mat = new THREE.MeshPhysicalMaterial({
+              color: new THREE.Color(lipInfo.color),
+              roughness: 0.30,
+              clearcoat: 0.70,
+              vertexColors: false,
+              transparent: true,
+              opacity: 1.0,
+              side: THREE.DoubleSide
+            });
+            enhanceMaterial(mat, 'lipoma', {
+              rim: new THREE.Color(lipInfo.color).multiplyScalar(1.3),
+              rimK: 0.9
+            });
+
+            // Add X-Ray Fresnel GreaterDepth child glow mesh safely outside traversal
+            const xGlow = new THREE.Mesh(mesh.geometry, createXRayGlowMaterial(lipInfo.color));
+            xGlow.renderOrder = 50;
+            mesh.add(xGlow);
+            xRayMeshes.push(xGlow);
+          }
+
+          mesh.material = mat;
+          mesh.userData = {
+            id: s.id,
+            label: s.label,
+            group: s.group
+          };
+
+          layerRegistry[s.group].objs.push(mesh);
+          pickableMeshes.push(mesh);
+          byId[s.id] = mesh;
         });
 
         anatomyGroup.add(root);
@@ -3134,12 +3139,7 @@
         applyAnatPreset('skin');
 
         // Hide loading overlay smoothly
-        if (loadingOverlay) {
-          loadingOverlay.classList.add('fade-out');
-          setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-          }, 350);
-        }
+        dismissLoadingOverlay();
         requestRender();
       },
       (progress) => {
@@ -3151,10 +3151,20 @@
       },
       (err) => {
         console.error("Failed to load lower-back-3d-web.glb", err);
-        const txt = document.querySelector('.loading-msg');
-        if (txt) txt.textContent = `Error loading 3D Model: ${err.message}`;
+        dismissLoadingOverlay();
       }
     );
+
+    function dismissLoadingOverlay() {
+      if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+        loadingOverlay.classList.add('fade-out');
+        setTimeout(() => {
+          if (loadingOverlay) loadingOverlay.style.display = 'none';
+        }, 200);
+      }
+    }
+    // Safety guard: force dismiss after 1200ms so the user is never stuck
+    setTimeout(dismissLoadingOverlay, 1200);
 
     // =========================================================================
     // DYNAMIC IN-SCENE CALLOUTS: ONLY THE LIPOMA NAMES LISTED
