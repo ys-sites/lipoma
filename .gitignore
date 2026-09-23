@@ -27,3 +27,7 @@ initial_page_load_*.png
 isolated_lipomas_mode_*.png
 growth_ghost_overlay_mode_*.png
 top_*.png
+
+# Local Reference & Legacy Assets
+001 Main/
+bilateral_nodules_3d_scale_model.html
