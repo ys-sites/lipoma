@@ -1191,14 +1191,15 @@
           </svg>
           Zero PII Compliant
         </div>
-        <a href="#downloads" class="btn-island">
-          <span>Export 3D Assets</span>
+        <button onclick="captureSnapshot()" class="btn-island" title="Capture high resolution 3D snapshot">
+          <span>Capture 3D Snapshot</span>
           <span class="btn-inner-icon">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M7 17L17 7M17 7H7M17 7V17" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="13" r="4" stroke="#ffffff" stroke-width="2"/>
             </svg>
           </span>
-        </a>
+        </button>
       </div>
     </header>
 
@@ -1561,8 +1562,8 @@
         </div>
       </div>
 
-      <!-- Bento Card 3: Quantitative Measurement Matrix (Span 6) -->
-      <div class="bento-card bezel-card col-span-6">
+      <!-- Bento Card 3: Quantitative Measurement Matrix (Span 12 Full Width) -->
+      <div class="bento-card bezel-card col-span-12">
         <div class="bezel-inner">
           <div class="bento-card-header">
             <div class="bento-card-title-group">
@@ -1619,53 +1620,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bento Card 4: Anatomical Stratification & Exports (Span 6) -->
-      <div class="bento-card bezel-card col-span-6" id="downloads">
-        <div class="bezel-inner">
-          <div class="bento-card-header">
-            <div class="bento-card-title-group">
-              <span class="bento-card-eyebrow">Stratification & Assets</span>
-              <h2 class="bento-card-title">Tissue Depth & 3D Model Downloads</h2>
-            </div>
-          </div>
-          <div class="bento-card-body">
-            
-            <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
-              Both 3D models were constructed with millimeter-precise procedural stratification from clinical ultrasound and spine MRI coordinates. Download standalone binary glTF files for surgical inspection, 3D printing, or VR viewing:
-            </p>
-
-            <div class="export-action-row">
-              <a href="lipoma-isolated.glb" download class="btn-island" title="Download isolated lipoma 3D model with millimeter calipers">
-                <span>Download Isolated Lipomas (.glb)</span>
-                <span class="btn-inner-icon">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-              </a>
-
-              <a href="lower-back-anatomy-lipomas.glb" download class="btn-island-secondary" title="Download complete back anatomy model">
-                <span>Download Full Back Anatomy (.glb)</span>
-                <span class="btn-inner-icon">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-              </a>
-
-              <button class="btn-island-secondary" onclick="captureSnapshot()" title="Capture 4K high resolution screenshot">
-                <span>Capture Snapshot (PNG)</span>
-                <span class="btn-inner-icon">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                </span>
-              </button>
-            </div>
-
-            <div style="margin-top:20px; padding:12px 16px; border-radius:12px; background:#f8fafc; border:1px solid #e2e8f0; font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
-              <span>Procedural Generator: <code>generate_3d_models.py</code></span>
-              <span>glTF 2.0 Binary Compliant</span>
-            </div>
-
           </div>
         </div>
       </div>
